@@ -8,12 +8,8 @@
     <owners>@authors@</owners>
     <language>en-US</language>
     <summary>@description@</summary>
-   <projectUrl>http://github.com/colinbull/FSharp.Enterprise</projectUrl>
-    <licenseUrl>http://github.com/colinbull/FSharp.Enterprise/blob/master</licenseUrl>
-    <tags>fsharp enterprise rabbitmq</tags>
-	<dependencies>
-    <dependency id="Newtonsoft.Json" version="4.5.11" />
-    <dependency id="RabbitMQ.Client" version="3.0.0" />
-	</dependencies>
+   <projectUrl>http://github.com/colinbull/Fsharp.Actor</projectUrl>
+    <licenseUrl>http://github.com/colinbull/Fsharp.Actor/blob/master</licenseUrl>
+    <tags>fsharp actor</tags>
   </metadata>   
 </package>
