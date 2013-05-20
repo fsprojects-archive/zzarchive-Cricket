@@ -52,6 +52,8 @@
     <Compile Include="DSL.fs" />
     <Compile Include="Remote.fs" />
     <Compile Include="Patterns.fs" />
+    <None Include="packages.config" />
+    <Compile Include="AssemblyInfo.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Fracture">

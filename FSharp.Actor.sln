@@ -17,6 +17,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9756
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Remote", "samples\Actor.Remote\Actor.Remote.fsproj", "{52E85B1C-64E5-491B-BD7A-07F989B21731}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{CDFD2619-B389-49BE-99C1-4AABFE36F859}"
+	ProjectSection(SolutionItems) = preProject
+		build.cmd = build.cmd
+		build.fsx = build.fsx
+		builddocs.cmd = builddocs.cmd
+		builddocs.fsx = builddocs.fsx
+		FSharp.Actor.nuspec = FSharp.Actor.nuspec
+		template.html = template.html
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
