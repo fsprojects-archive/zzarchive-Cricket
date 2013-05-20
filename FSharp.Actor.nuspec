@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <description>@description@</description>
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
+    <language>en-US</language>
+    <summary>@description@</summary>
+   <projectUrl>http://github.com/colinbull/FSharp.Enterprise</projectUrl>
+    <licenseUrl>http://github.com/colinbull/FSharp.Enterprise/blob/master</licenseUrl>
+    <tags>fsharp enterprise rabbitmq</tags>
+	<dependencies>
+    <dependency id="Newtonsoft.Json" version="4.5.11" />
+    <dependency id="RabbitMQ.Client" version="3.0.0" />
+	</dependencies>
+  </metadata>   
+</package>
