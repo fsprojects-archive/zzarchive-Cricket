@@ -44,7 +44,16 @@
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 5)" onmouseover="showTip(event, 'fs3', 5)" class="i">DSL</span></pre>
 </td>
 </tr>
-</table><h1>Basic Actors</h1>
+</table><h1>Actors</h1>
+
+<p>Wikipedia defines actors as:-</p>
+
+<pre><code>An actor is a computational entity that, in response to a message it receives, can concurrently:
+
+* send a finite number of messages to other actors.
+* create a finite number of new actors.
+* designate the behavior to be used for the next message it receives.
+</code></pre>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -201,7 +210,7 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 
 <pre><code>System.InvalidOperationException: Actor (actor://main-pc/calculator/addition) could not handle message, State: Shutdown
 </code></pre>
-<h1>Changing the behaviour of actors</h1>
+<h2>Changing the behaviour of actors</h2>
 
 <p>You can change the behaviour of actors at runtime.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -262,204 +271,7 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 <pre><code>(actor://main-pc/schizo): "Hello" pong
 </code></pre>
 
-<h1>Supervising Actors</h1>
-
-<p>Actors can supervise other actors, if we define an actor loop that fails on a given message</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
-<span class="l">9: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 91)" onmouseover="showTip(event, 'fs30', 91)" class="i">err</span> <span class="o">=</span> 
-    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs31', 92)" onmouseover="showTip(event, 'fs31', 92)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 93)" onmouseover="showTip(event, 'fs6', 93)" class="i">Actor</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs32', 94)" onmouseover="showTip(event, 'fs32', 94)" class="i">string</span><span class="o">&gt;</span>) <span class="k">-&gt;</span>
-        <span onmouseout="hideTip(event, 'fs7', 95)" onmouseover="showTip(event, 'fs7', 95)" class="i">async</span> {
-            <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs33', 96)" onmouseover="showTip(event, 'fs33', 96)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 97)" onmouseover="showTip(event, 'fs31', 97)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 98)" onmouseover="showTip(event, 'fs10', 98)" class="i">Receive</span>()
-            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs33', 99)" onmouseover="showTip(event, 'fs33', 99)" class="i">msg</span> <span class="o">&lt;&gt;</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span>
-            <span class="k">then</span> <span onmouseout="hideTip(event, 'fs12', 100)" onmouseover="showTip(event, 'fs12', 100)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs33', 101)" onmouseover="showTip(event, 'fs33', 101)" class="i">msg</span>
-            <span class="k">else</span> <span onmouseout="hideTip(event, 'fs34', 102)" onmouseover="showTip(event, 'fs34', 102)" class="i">failwithf</span> <span class="s">&quot;</span><span class="s">ERRRROROROR</span><span class="s">&quot;</span>
-        }
-    )</pre>
-</td>
-</tr>
-</table><p>then a supervisor will allow the actor to restart or terminate depending on the particular strategy that is in place</p>
-
-<h2>Strategies</h2>
-
-<p>A supervisor strategy allows you to define the restart semantics for the actors it is watching</p>
-
-<h3>OneForOne</h3>
-
-<p>A supervisor will only restart the actor that has errored</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 103)" onmouseover="showTip(event, 'fs35', 103)" class="i">oneforone</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 104)" onmouseover="showTip(event, 'fs6', 104)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 105)" onmouseover="showTip(event, 'fs36', 105)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 106)" onmouseover="showTip(event, 'fs17', 106)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 107)" onmouseover="showTip(event, 'fs18', 107)" class="i">create</span> <span class="s">&quot;</span><span class="s">oneforone</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 108)" onmouseover="showTip(event, 'fs37', 108)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 109)" onmouseover="showTip(event, 'fs38', 109)" class="i">OneForOne</span> [<span onmouseout="hideTip(event, 'fs6', 110)" onmouseover="showTip(event, 'fs6', 110)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 111)" onmouseover="showTip(event, 'fs16', 111)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 112)" onmouseover="showTip(event, 'fs17', 112)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 113)" onmouseover="showTip(event, 'fs18', 113)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_0</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 114)" onmouseover="showTip(event, 'fs30', 114)" class="i">err</span>]
-
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_0</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
-</td>
-</tr>
-</table><p>This yields</p>
-
-<pre><code>Restarting (OneForOne: actor://main-pc/err_0) due to error System.Exception: ERRRROROROR
-   at FSI_0012.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-   at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-   at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-   at FSI_0012.err@132-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-   at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-actor://main-pc/err_0 pre-stop Status: Errored
-actor://main-pc/err_0 stopped Status: Shutdown
-actor://main-pc/err_0 pre-restart Status: Restarting
-actor://main-pc/err_0 re-started Status: OK
-</code></pre>
-
-<p>we can see in the last 4 lines that the supervisor restarted this actor.</p>
-
-<h3>OneForAll</h3>
-
-<p>If any watched actor errors all children of this supervisor will be told to restart.</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 115)" onmouseover="showTip(event, 'fs39', 115)" class="i">oneforall</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 116)" onmouseover="showTip(event, 'fs6', 116)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 117)" onmouseover="showTip(event, 'fs36', 117)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 118)" onmouseover="showTip(event, 'fs17', 118)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 119)" onmouseover="showTip(event, 'fs18', 119)" class="i">create</span> <span class="s">&quot;</span><span class="s">oneforall</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 120)" onmouseover="showTip(event, 'fs37', 120)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 121)" onmouseover="showTip(event, 'fs40', 121)" class="i">OneForAll</span> 
-        [
-            <span onmouseout="hideTip(event, 'fs6', 122)" onmouseover="showTip(event, 'fs6', 122)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 123)" onmouseover="showTip(event, 'fs16', 123)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 124)" onmouseover="showTip(event, 'fs17', 124)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 125)" onmouseover="showTip(event, 'fs18', 125)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 126)" onmouseover="showTip(event, 'fs30', 126)" class="i">err</span>;
-            <span onmouseout="hideTip(event, 'fs6', 127)" onmouseover="showTip(event, 'fs6', 127)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 128)" onmouseover="showTip(event, 'fs16', 128)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 129)" onmouseover="showTip(event, 'fs17', 129)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 130)" onmouseover="showTip(event, 'fs18', 130)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 131)" onmouseover="showTip(event, 'fs30', 131)" class="i">err</span>
-        ]
-
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
-</td>
-</tr>
-</table><p>This yields</p>
-
-<pre><code>Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR
-   at FSI_0004.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-   at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-   at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-   at FSI_0004.err@132-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-   at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-actor://main-pc/err_2 pre-stop Status: OK
-actor://main-pc/err_2 stopped Status: Shutdown
-actor://main-pc/err_2 pre-restart Status: Restarting
-actor://main-pc/err_2 re-started Status: OK
-actor://main-pc/err_1 pre-stop Status: Errored
-actor://main-pc/err_1 stopped Status: Shutdown
-actor://main-pc/err_1 pre-restart Status: Restarting
-actor://main-pc/err_1 re-started Status: OK
-</code></pre>
-
-<p>we can see here that all of the actors supervised by this actor has been restarted.</p>
-
-<h3>Fail</h3>
-
-<p>A supervisor will terminate the actor that has errored</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 132)" onmouseover="showTip(event, 'fs41', 132)" class="i">fail</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 133)" onmouseover="showTip(event, 'fs6', 133)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 134)" onmouseover="showTip(event, 'fs36', 134)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 135)" onmouseover="showTip(event, 'fs17', 135)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 136)" onmouseover="showTip(event, 'fs18', 136)" class="i">create</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 137)" onmouseover="showTip(event, 'fs37', 137)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 138)" onmouseover="showTip(event, 'fs42', 138)" class="i">Fail</span> 
-        [
-            <span onmouseout="hideTip(event, 'fs6', 139)" onmouseover="showTip(event, 'fs6', 139)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 140)" onmouseover="showTip(event, 'fs16', 140)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 141)" onmouseover="showTip(event, 'fs17', 141)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 142)" onmouseover="showTip(event, 'fs18', 142)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 143)" onmouseover="showTip(event, 'fs30', 143)" class="i">err</span>;
-            <span onmouseout="hideTip(event, 'fs6', 144)" onmouseover="showTip(event, 'fs6', 144)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 145)" onmouseover="showTip(event, 'fs16', 145)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 146)" onmouseover="showTip(event, 'fs17', 146)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 147)" onmouseover="showTip(event, 'fs18', 147)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 148)" onmouseover="showTip(event, 'fs30', 148)" class="i">err</span>
-        ]
-
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
-</td>
-</tr>
-</table><p>This yields</p>
-
-<pre><code>Terminating (AlwaysTerminate: actor://main-pc/err_1) due to error System.Exception: ERRRROROROR
-   at FSI_0005.err@138-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138
-   at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-   at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-   at FSI_0005.err@136-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138
-   at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-actor://main-pc/err_1 pre-stop Status: Errored
-actor://main-pc/err_1 stopped Status: Shutdown
-</code></pre>
-
-<p>If you no longer require an actor to be supervised, then you can <code>Unwatch</code> the actor, repeating the OneForAll above</p>
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l"> 1: </span>
-<span class="l"> 2: </span>
-<span class="l"> 3: </span>
-<span class="l"> 4: </span>
-<span class="l"> 5: </span>
-<span class="l"> 6: </span>
-<span class="l"> 7: </span>
-<span class="l"> 8: </span>
-<span class="l"> 9: </span>
-<span class="l">10: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs43', 149)" onmouseover="showTip(event, 'fs43', 149)" class="i">oneforallUnWatched</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 150)" onmouseover="showTip(event, 'fs6', 150)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 151)" onmouseover="showTip(event, 'fs36', 151)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 152)" onmouseover="showTip(event, 'fs17', 152)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 153)" onmouseover="showTip(event, 'fs18', 153)" class="i">create</span> <span class="s">&quot;</span><span class="s">oneforall</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 154)" onmouseover="showTip(event, 'fs37', 154)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 155)" onmouseover="showTip(event, 'fs40', 155)" class="i">OneForAll</span> 
-        [
-            <span onmouseout="hideTip(event, 'fs6', 156)" onmouseover="showTip(event, 'fs6', 156)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 157)" onmouseover="showTip(event, 'fs16', 157)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 158)" onmouseover="showTip(event, 'fs17', 158)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 159)" onmouseover="showTip(event, 'fs18', 159)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 160)" onmouseover="showTip(event, 'fs30', 160)" class="i">err</span>;
-            <span onmouseout="hideTip(event, 'fs6', 161)" onmouseover="showTip(event, 'fs6', 161)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 162)" onmouseover="showTip(event, 'fs16', 162)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 163)" onmouseover="showTip(event, 'fs17', 163)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 164)" onmouseover="showTip(event, 'fs18', 164)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 165)" onmouseover="showTip(event, 'fs30', 165)" class="i">err</span>
-        ]
-
-<span onmouseout="hideTip(event, 'fs6', 166)" onmouseover="showTip(event, 'fs6', 166)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs44', 167)" onmouseover="showTip(event, 'fs44', 167)" class="i">unwatch</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span> 
-
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
-</td>
-</tr>
-</table><p>We now see that one actor <code>err_1</code> has restarted</p>
-
-<pre><code>Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR
-   at FSI_0004.err@164-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164
-   at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-   at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-   at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-   at FSI_0004.err@162-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164
-   at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-actor://main-pc/err_1 pre-stop Status: Errored
-actor://main-pc/err_1 stopped Status: Shutdown
-actor://main-pc/err_1 pre-restart Status: Restarting
-actor://main-pc/err_1 re-started Status: OK
-</code></pre>
-
-<h1>Linking Actors</h1>
+<h2>Linking Actors</h2>
 
 <p>Linking an actor to another means that this actor will become a sibling of the other actor. This means that we can create relationships among actors</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -482,22 +294,22 @@ actor://main-pc/err_1 re-started Status: OK
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 168)" onmouseover="showTip(event, 'fs45', 168)" class="i">child</span> <span onmouseout="hideTip(event, 'fs46', 169)" onmouseover="showTip(event, 'fs46', 169)" class="i">i</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 170)" onmouseover="showTip(event, 'fs6', 170)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 171)" onmouseover="showTip(event, 'fs16', 171)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 172)" onmouseover="showTip(event, 'fs17', 172)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 173)" onmouseover="showTip(event, 'fs18', 173)" class="i">create</span> <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs25', 174)" onmouseover="showTip(event, 'fs25', 174)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs46', 175)" onmouseover="showTip(event, 'fs46', 175)" class="i">i</span>) 
-         (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs47', 176)" onmouseover="showTip(event, 'fs47', 176)" class="i">actor</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 177)" onmouseover="showTip(event, 'fs7', 177)" class="i">async</span> { 
-                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs48', 178)" onmouseover="showTip(event, 'fs48', 178)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs47', 179)" onmouseover="showTip(event, 'fs47', 179)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 180)" onmouseover="showTip(event, 'fs10', 180)" class="i">Receive</span>()
-                <span onmouseout="hideTip(event, 'fs47', 181)" onmouseover="showTip(event, 'fs47', 181)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 182)" onmouseover="showTip(event, 'fs23', 182)" class="i">Log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 183)" onmouseover="showTip(event, 'fs24', 183)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs25', 184)" onmouseover="showTip(event, 'fs25', 184)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">recieved</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs47', 185)" onmouseover="showTip(event, 'fs47', 185)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs48', 186)" onmouseover="showTip(event, 'fs48', 186)" class="i">msg</span>) 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 91)" onmouseover="showTip(event, 'fs30', 91)" class="i">child</span> <span onmouseout="hideTip(event, 'fs31', 92)" onmouseover="showTip(event, 'fs31', 92)" class="i">i</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs6', 93)" onmouseover="showTip(event, 'fs6', 93)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 94)" onmouseover="showTip(event, 'fs16', 94)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 95)" onmouseover="showTip(event, 'fs17', 95)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 96)" onmouseover="showTip(event, 'fs18', 96)" class="i">create</span> <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs25', 97)" onmouseover="showTip(event, 'fs25', 97)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs31', 98)" onmouseover="showTip(event, 'fs31', 98)" class="i">i</span>) 
+         (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs32', 99)" onmouseover="showTip(event, 'fs32', 99)" class="i">actor</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 100)" onmouseover="showTip(event, 'fs7', 100)" class="i">async</span> { 
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs33', 101)" onmouseover="showTip(event, 'fs33', 101)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs32', 102)" onmouseover="showTip(event, 'fs32', 102)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 103)" onmouseover="showTip(event, 'fs10', 103)" class="i">Receive</span>()
+                <span onmouseout="hideTip(event, 'fs32', 104)" onmouseover="showTip(event, 'fs32', 104)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 105)" onmouseover="showTip(event, 'fs23', 105)" class="i">Log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 106)" onmouseover="showTip(event, 'fs24', 106)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs25', 107)" onmouseover="showTip(event, 'fs25', 107)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">recieved</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs32', 108)" onmouseover="showTip(event, 'fs32', 108)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs33', 109)" onmouseover="showTip(event, 'fs33', 109)" class="i">msg</span>) 
               })
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 187)" onmouseover="showTip(event, 'fs49', 187)" class="i">parent</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 188)" onmouseover="showTip(event, 'fs6', 188)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 189)" onmouseover="showTip(event, 'fs50', 189)" class="i">spawnLinked</span> (<span onmouseout="hideTip(event, 'fs17', 190)" onmouseover="showTip(event, 'fs17', 190)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 191)" onmouseover="showTip(event, 'fs18', 191)" class="i">create</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">parent</span><span class="s">&quot;</span>) 
-            (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs47', 192)" onmouseover="showTip(event, 'fs47', 192)" class="i">actor</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 193)" onmouseover="showTip(event, 'fs7', 193)" class="i">async</span> { 
-                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs48', 194)" onmouseover="showTip(event, 'fs48', 194)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs47', 195)" onmouseover="showTip(event, 'fs47', 195)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 196)" onmouseover="showTip(event, 'fs10', 196)" class="i">Receive</span>()
-                <span onmouseout="hideTip(event, 'fs47', 197)" onmouseover="showTip(event, 'fs47', 197)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs51', 198)" onmouseover="showTip(event, 'fs51', 198)" class="i">Children</span> <span class="o">&lt;-*</span> <span onmouseout="hideTip(event, 'fs48', 199)" onmouseover="showTip(event, 'fs48', 199)" class="i">msg</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 110)" onmouseover="showTip(event, 'fs34', 110)" class="i">parent</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs6', 111)" onmouseover="showTip(event, 'fs6', 111)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs35', 112)" onmouseover="showTip(event, 'fs35', 112)" class="i">spawnLinked</span> (<span onmouseout="hideTip(event, 'fs17', 113)" onmouseover="showTip(event, 'fs17', 113)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 114)" onmouseover="showTip(event, 'fs18', 114)" class="i">create</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">parent</span><span class="s">&quot;</span>) 
+            (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs32', 115)" onmouseover="showTip(event, 'fs32', 115)" class="i">actor</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 116)" onmouseover="showTip(event, 'fs7', 116)" class="i">async</span> { 
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs33', 117)" onmouseover="showTip(event, 'fs33', 117)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs32', 118)" onmouseover="showTip(event, 'fs32', 118)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 119)" onmouseover="showTip(event, 'fs10', 119)" class="i">Receive</span>()
+                <span onmouseout="hideTip(event, 'fs32', 120)" onmouseover="showTip(event, 'fs32', 120)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 121)" onmouseover="showTip(event, 'fs36', 121)" class="i">Children</span> <span class="o">&lt;-*</span> <span onmouseout="hideTip(event, 'fs33', 122)" onmouseover="showTip(event, 'fs33', 122)" class="i">msg</span>
               })
-             <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs52', 200)" onmouseover="showTip(event, 'fs52', 200)" class="i">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 201)" onmouseover="showTip(event, 'fs53', 201)" class="i">init</span> <span class="n">5</span> (<span onmouseout="hideTip(event, 'fs45', 202)" onmouseover="showTip(event, 'fs45', 202)" class="i">child</span>)
+             <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs37', 123)" onmouseover="showTip(event, 'fs37', 123)" class="i">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 124)" onmouseover="showTip(event, 'fs38', 124)" class="i">init</span> <span class="n">5</span> (<span onmouseout="hideTip(event, 'fs30', 125)" onmouseover="showTip(event, 'fs30', 125)" class="i">child</span>)
 
-<span onmouseout="hideTip(event, 'fs49', 203)" onmouseover="showTip(event, 'fs49', 203)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
+<span onmouseout="hideTip(event, 'fs34', 126)" onmouseover="showTip(event, 'fs34', 126)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>This outputs</p>
@@ -517,9 +329,9 @@ actor://main-pc/a/child_0 recieved "Forward this to your children"
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs6', 204)" onmouseover="showTip(event, 'fs6', 204)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 205)" onmouseover="showTip(event, 'fs54', 205)" class="i">unlink</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_0</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs49', 206)" onmouseover="showTip(event, 'fs49', 206)" class="i">parent</span>
+<span onmouseout="hideTip(event, 'fs6', 127)" onmouseover="showTip(event, 'fs6', 127)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 128)" onmouseover="showTip(event, 'fs39', 128)" class="i">unlink</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_0</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs34', 129)" onmouseover="showTip(event, 'fs34', 129)" class="i">parent</span>
 
-<span onmouseout="hideTip(event, 'fs49', 207)" onmouseover="showTip(event, 'fs49', 207)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
+<span onmouseout="hideTip(event, 'fs34', 130)" onmouseover="showTip(event, 'fs34', 130)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>This outputs</p>
@@ -559,31 +371,16 @@ actor://main-pc/a/child_4 recieved "Forward this to your children"
 <div class="tip" id="fs27">val schizoPong : actor:Actor&lt;&#39;a&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.schizoPong</div>
 <div class="tip" id="fs28">member Actor.UnBehave : unit -&gt; unit</div>
 <div class="tip" id="fs29">val schizo : ActorRef<br /><br />Full name: Actor.schizo</div>
-<div class="tip" id="fs30">val err : actor:Actor&lt;string&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.err</div>
-<div class="tip" id="fs31">val actor : Actor&lt;string&gt;</div>
-<div class="tip" id="fs32">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
-<div class="tip" id="fs33">val msg : string</div>
-<div class="tip" id="fs34">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
-<div class="tip" id="fs35">val oneforone : ActorRef<br /><br />Full name: Actor.oneforone</div>
-<div class="tip" id="fs36">val supervisor : name:ActorPath.T -&gt; strategy:Supervisor.Strategy -&gt; actors:seq&lt;ActorRef&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.supervisor</div>
-<div class="tip" id="fs37">Multiple items<br />union case SystemMessage.Supervisor: SupervisorMessage -&gt; SystemMessage<br /><br />--------------------<br />module Supervisor<br /><br />from FSharp.Actor</div>
-<div class="tip" id="fs38">val OneForOne : Supervisor.Strategy<br /><br />Full name: FSharp.Actor.Supervisor.OneForOne</div>
-<div class="tip" id="fs39">val oneforall : ActorRef<br /><br />Full name: Actor.oneforall</div>
-<div class="tip" id="fs40">val OneForAll : Supervisor.Strategy<br /><br />Full name: FSharp.Actor.Supervisor.OneForAll</div>
-<div class="tip" id="fs41">val fail : ActorRef<br /><br />Full name: Actor.fail</div>
-<div class="tip" id="fs42">val Fail : Supervisor.Strategy<br /><br />Full name: FSharp.Actor.Supervisor.Fail</div>
-<div class="tip" id="fs43">val oneforallUnWatched : ActorRef<br /><br />Full name: Actor.oneforallUnWatched</div>
-<div class="tip" id="fs44">val unwatch : actors:seq&lt;ActorRef&gt; -&gt; unit<br /><br />Full name: FSharp.Actor.DSL.Actor.unwatch</div>
-<div class="tip" id="fs45">val child : i:int -&gt; ActorRef<br /><br />Full name: Actor.child</div>
-<div class="tip" id="fs46">val i : int</div>
-<div class="tip" id="fs47">val actor : Actor&lt;obj&gt;</div>
-<div class="tip" id="fs48">val msg : obj</div>
-<div class="tip" id="fs49">val parent : ActorRef<br /><br />Full name: Actor.parent</div>
-<div class="tip" id="fs50">val spawnLinked : name:ActorPath.T -&gt; behavior:ActorBehaviour&lt;&#39;a&gt; -&gt; linkees:seq&lt;#ActorRef&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.spawnLinked</div>
-<div class="tip" id="fs51">property Actor.Children: seq&lt;ActorRef&gt;</div>
-<div class="tip" id="fs52">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of &#39;T * &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
-<div class="tip" id="fs53">val init : length:int -&gt; initializer:(int -&gt; &#39;T) -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.init</div>
-<div class="tip" id="fs54">val unlink : linkees:seq&lt;#ActorRef&gt; -&gt; actor:ActorRef -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.unlink</div>
+<div class="tip" id="fs30">val child : i:int -&gt; ActorRef<br /><br />Full name: Actor.child</div>
+<div class="tip" id="fs31">val i : int</div>
+<div class="tip" id="fs32">val actor : Actor&lt;obj&gt;</div>
+<div class="tip" id="fs33">val msg : obj</div>
+<div class="tip" id="fs34">val parent : ActorRef<br /><br />Full name: Actor.parent</div>
+<div class="tip" id="fs35">val spawnLinked : name:ActorPath.T -&gt; behavior:ActorBehaviour&lt;&#39;a&gt; -&gt; linkees:seq&lt;#ActorRef&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.spawnLinked</div>
+<div class="tip" id="fs36">property Actor.Children: seq&lt;ActorRef&gt;</div>
+<div class="tip" id="fs37">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of &#39;T * &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
+<div class="tip" id="fs38">val init : length:int -&gt; initializer:(int -&gt; &#39;T) -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.init</div>
+<div class="tip" id="fs39">val unlink : linkees:seq&lt;#ActorRef&gt; -&gt; actor:ActorRef -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.unlink</div>
 
         </div>
         <div class="span3">
