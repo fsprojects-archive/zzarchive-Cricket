@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <description>F# Actor Framework</description>
+    <id>FSharp.Actor</id>
+    <version>0.0.1-alpha</version>
+    <authors>Colin Bull</authors>
+    <owners>Colin Bull</owners>
+    <language>en-US</language>
+    <summary>F# Actor Framework</summary>
+   <projectUrl>http://github.com/colinbull/Fsharp.Actor</projectUrl>
+    <licenseUrl>http://github.com/colinbull/Fsharp.Actor/blob/master</licenseUrl>
+    <tags>fsharp actor</tags>
+  </metadata>   
+</package>

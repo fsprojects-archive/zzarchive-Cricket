@@ -2,7 +2,6 @@
 
 open Fake
 open System.IO
-open FSharp.Literate
 
 let nugetPath = Path.Combine(__SOURCE_DIRECTORY__,@"tools\NuGet\NuGet.exe")
 
@@ -80,7 +79,7 @@ Target "BuildNuGet" (fun _ ->
             AccessKey = nugetKey
            // ToolPath = "tools\Nuget\Nuget.exe"
             Publish = nugetKey <> ""})
-        ("./FSharp.Enterprise.nuspec")
+        ("./FSharp.Actor.nuspec")
     [
        (nugetDir) + sprintf "\FSharp.Actor.%s.nupkg" version
     ] |> CopyTo deployDir

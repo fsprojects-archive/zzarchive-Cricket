@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9756
 		samples\Dependencies.fsx = samples\Dependencies.fsx
 		samples\Patterns.fsx = samples\Patterns.fsx
 		samples\Remoting.fsx = samples\Remoting.fsx
+		samples\Supervision.fsx = samples\Supervision.fsx
 	EndProjectSection
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Remote", "samples\Actor.Remote\Actor.Remote.fsproj", "{52E85B1C-64E5-491B-BD7A-07F989B21731}"
@@ -25,6 +26,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{CDFD2619
 		builddocs.fsx = builddocs.fsx
 		FSharp.Actor.nuspec = FSharp.Actor.nuspec
 		template.html = template.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{714BB0BE-ECC1-4DE7-B3D3-B21F72B68117}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
