@@ -1,4 +1,5 @@
-﻿#load "Dependencies.fsx"
+﻿(*** hide ***)
+#load "Dependencies.fsx"
 open FSharp.Actor
 open FSharp.Actor.DSL
 

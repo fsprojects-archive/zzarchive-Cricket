@@ -1,4 +1,5 @@
-﻿#load "Dependencies.fsx"
+﻿(*** hide ***)
+#load "Dependencies.fsx"
 open FSharp.Actor
 open FSharp.Actor.DSL
 
@@ -7,10 +8,11 @@ open FSharp.Actor.DSL
 
 An actor is a computational entity that, in response to a message it receives, can concurrently:
 
-    * send a finite number of messages to other actors.
-    * create a finite number of new actors.
-    * designate the behavior to be used for the next message it receives.
+* Send a finite number of messages to other actors.
+* Create a finite number of new actors.
+* Designate the behavior to be used for the next message it receives.
 
+_as defined by wikipedia_
 *)
 
 let multiplication = 
