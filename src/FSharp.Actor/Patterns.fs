@@ -22,7 +22,7 @@ module Patterns =
                     let! msg = actor.Receive()
                     let indx = actor?ChildIndex
                     refs.[indx] <-- msg
-                    actor?ChildIndex <- (indx + 1)
+                    actor?ChildIndex <- if (indx >= refs.Length - 1) then 0 else indx + 1
                 }
             ) |> Actor.link refs
 
