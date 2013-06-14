@@ -35,13 +35,11 @@
           <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l">1: </span>
 <span class="l">2: </span>
-<span class="l">3: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="prep">#load</span> <span class="s">&quot;</span><span class="s">Dependencies</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Actor</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 5)" onmouseover="showTip(event, 'fs3', 5)" class="i">DSL</span></pre>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Actor</span></pre>
 </td>
 </tr>
 </table><h1>Basic Actors</h1>
@@ -69,49 +67,60 @@
 <span class="l">21: </span>
 <span class="l">22: </span>
 <span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="i">multiplication</span> <span class="o">=</span> 
-    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs5', 7)" onmouseover="showTip(event, 'fs5', 7)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 8)" onmouseover="showTip(event, 'fs6', 8)" class="i">Actor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>)  <span class="k">-&gt;</span>
-        <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="i">async</span> {
-            <span class="k">let!</span> (<span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="i">a</span>,<span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="i">b</span>) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 12)" onmouseover="showTip(event, 'fs5', 12)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="i">Receive</span>()
-            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 14)" onmouseover="showTip(event, 'fs11', 14)" class="i">result</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 15)" onmouseover="showTip(event, 'fs8', 15)" class="i">a</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs9', 16)" onmouseover="showTip(event, 'fs9', 16)" class="i">b</span>
-            <span class="k">do</span> <span onmouseout="hideTip(event, 'fs12', 17)" onmouseover="showTip(event, 'fs12', 17)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">*</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs5', 18)" onmouseover="showTip(event, 'fs5', 18)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs13', 19)" onmouseover="showTip(event, 'fs13', 19)" class="i">Path</span> <span onmouseout="hideTip(event, 'fs8', 20)" onmouseover="showTip(event, 'fs8', 20)" class="i">a</span> <span onmouseout="hideTip(event, 'fs9', 21)" onmouseover="showTip(event, 'fs9', 21)" class="i">b</span> <span onmouseout="hideTip(event, 'fs11', 22)" onmouseover="showTip(event, 'fs11', 22)" class="i">result</span>
-        }
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">multiplication</span> <span class="o">=</span> 
+    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">IActor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>) <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">loop</span>() <span class="o">=</span>
+            <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">async</span> {
+                <span class="k">let!</span> ((<span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">a</span>,<span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">b</span>), <span onmouseout="hideTip(event, 'fs10', 10)" onmouseover="showTip(event, 'fs10', 10)" class="i">sender</span>) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 11)" onmouseover="showTip(event, 'fs4', 11)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="i">Receive</span>()
+                <span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="i">result</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 14)" onmouseover="showTip(event, 'fs8', 14)" class="i">a</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs9', 15)" onmouseover="showTip(event, 'fs9', 15)" class="i">b</span>
+                <span class="k">do</span> <span onmouseout="hideTip(event, 'fs13', 16)" onmouseover="showTip(event, 'fs13', 16)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">*</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs4', 17)" onmouseover="showTip(event, 'fs4', 17)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 18)" onmouseover="showTip(event, 'fs14', 18)" class="i">Path</span> <span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="i">a</span> <span onmouseout="hideTip(event, 'fs9', 20)" onmouseover="showTip(event, 'fs9', 20)" class="i">b</span> <span onmouseout="hideTip(event, 'fs12', 21)" onmouseover="showTip(event, 'fs12', 21)" class="i">result</span>
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs6', 22)" onmouseover="showTip(event, 'fs6', 22)" class="i">loop</span>()
+            }
+        <span onmouseout="hideTip(event, 'fs6', 23)" onmouseover="showTip(event, 'fs6', 23)" class="i">loop</span>()
     )
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 23)" onmouseover="showTip(event, 'fs14', 23)" class="i">addition</span> <span class="o">=</span> 
-    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs5', 24)" onmouseover="showTip(event, 'fs5', 24)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 25)" onmouseover="showTip(event, 'fs6', 25)" class="i">Actor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>) <span class="k">-&gt;</span>
-        <span onmouseout="hideTip(event, 'fs7', 26)" onmouseover="showTip(event, 'fs7', 26)" class="i">async</span> {
-            <span class="k">let!</span> (<span onmouseout="hideTip(event, 'fs8', 27)" onmouseover="showTip(event, 'fs8', 27)" class="i">a</span>,<span onmouseout="hideTip(event, 'fs9', 28)" onmouseover="showTip(event, 'fs9', 28)" class="i">b</span>) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 29)" onmouseover="showTip(event, 'fs5', 29)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 30)" onmouseover="showTip(event, 'fs10', 30)" class="i">Receive</span>()
-            <span class="k">let</span> <span onmouseout="hideTip(event, 'fs11', 31)" onmouseover="showTip(event, 'fs11', 31)" class="i">result</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 32)" onmouseover="showTip(event, 'fs8', 32)" class="i">a</span> <span class="o">+</span> <span onmouseout="hideTip(event, 'fs9', 33)" onmouseover="showTip(event, 'fs9', 33)" class="i">b</span>
-            <span class="k">do</span> <span onmouseout="hideTip(event, 'fs12', 34)" onmouseover="showTip(event, 'fs12', 34)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs5', 35)" onmouseover="showTip(event, 'fs5', 35)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs13', 36)" onmouseover="showTip(event, 'fs13', 36)" class="i">Path</span> <span onmouseout="hideTip(event, 'fs8', 37)" onmouseover="showTip(event, 'fs8', 37)" class="i">a</span> <span onmouseout="hideTip(event, 'fs9', 38)" onmouseover="showTip(event, 'fs9', 38)" class="i">b</span> <span onmouseout="hideTip(event, 'fs11', 39)" onmouseover="showTip(event, 'fs11', 39)" class="i">result</span>
-        }
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 24)" onmouseover="showTip(event, 'fs15', 24)" class="i">addition</span> <span class="o">=</span> 
+    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs4', 25)" onmouseover="showTip(event, 'fs4', 25)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs5', 26)" onmouseover="showTip(event, 'fs5', 26)" class="i">IActor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>) <span class="k">-&gt;</span>
+        <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs6', 27)" onmouseover="showTip(event, 'fs6', 27)" class="i">loop</span>() <span class="o">=</span>
+            <span onmouseout="hideTip(event, 'fs7', 28)" onmouseover="showTip(event, 'fs7', 28)" class="i">async</span> {
+                <span class="k">let!</span> ((<span onmouseout="hideTip(event, 'fs8', 29)" onmouseover="showTip(event, 'fs8', 29)" class="i">a</span>,<span onmouseout="hideTip(event, 'fs9', 30)" onmouseover="showTip(event, 'fs9', 30)" class="i">b</span>), <span onmouseout="hideTip(event, 'fs10', 31)" onmouseover="showTip(event, 'fs10', 31)" class="i">sender</span>) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs4', 32)" onmouseover="showTip(event, 'fs4', 32)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 33)" onmouseover="showTip(event, 'fs11', 33)" class="i">Receive</span>()
+                <span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 34)" onmouseover="showTip(event, 'fs12', 34)" class="i">result</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 35)" onmouseover="showTip(event, 'fs8', 35)" class="i">a</span> <span class="o">+</span> <span onmouseout="hideTip(event, 'fs9', 36)" onmouseover="showTip(event, 'fs9', 36)" class="i">b</span>
+                <span class="k">do</span> <span onmouseout="hideTip(event, 'fs13', 37)" onmouseover="showTip(event, 'fs13', 37)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">+</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s"> </span><span class="s">=</span><span class="s"> </span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs4', 38)" onmouseover="showTip(event, 'fs4', 38)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs14', 39)" onmouseover="showTip(event, 'fs14', 39)" class="i">Path</span> <span onmouseout="hideTip(event, 'fs8', 40)" onmouseover="showTip(event, 'fs8', 40)" class="i">a</span> <span onmouseout="hideTip(event, 'fs9', 41)" onmouseover="showTip(event, 'fs9', 41)" class="i">b</span> <span onmouseout="hideTip(event, 'fs12', 42)" onmouseover="showTip(event, 'fs12', 42)" class="i">result</span>
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs6', 43)" onmouseover="showTip(event, 'fs6', 43)" class="i">loop</span>()
+            }
+        <span onmouseout="hideTip(event, 'fs6', 44)" onmouseover="showTip(event, 'fs6', 44)" class="i">loop</span>()
     )
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 40)" onmouseover="showTip(event, 'fs15', 40)" class="i">calculator</span> <span class="o">=</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 45)" onmouseover="showTip(event, 'fs16', 45)" class="i">calculator</span> <span class="o">=</span> 
     [
-       <span onmouseout="hideTip(event, 'fs6', 41)" onmouseover="showTip(event, 'fs6', 41)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 42)" onmouseover="showTip(event, 'fs16', 42)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 43)" onmouseover="showTip(event, 'fs17', 43)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 44)" onmouseover="showTip(event, 'fs18', 44)" class="i">create</span> <span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">addition</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs14', 45)" onmouseover="showTip(event, 'fs14', 45)" class="i">addition</span>
-       <span onmouseout="hideTip(event, 'fs6', 46)" onmouseover="showTip(event, 'fs6', 46)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 47)" onmouseover="showTip(event, 'fs16', 47)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 48)" onmouseover="showTip(event, 'fs17', 48)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 49)" onmouseover="showTip(event, 'fs18', 49)" class="i">create</span> <span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">multiplication</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs4', 50)" onmouseover="showTip(event, 'fs4', 50)" class="i">multiplication</span>
+       <span onmouseout="hideTip(event, 'fs17', 46)" onmouseover="showTip(event, 'fs17', 46)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 47)" onmouseover="showTip(event, 'fs18', 47)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 48)" onmouseover="showTip(event, 'fs17', 48)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 49)" onmouseover="showTip(event, 'fs19', 49)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 50)" onmouseover="showTip(event, 'fs20', 50)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">addition</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs15', 51)" onmouseover="showTip(event, 'fs15', 51)" class="i">addition</span>
+       <span onmouseout="hideTip(event, 'fs17', 52)" onmouseover="showTip(event, 'fs17', 52)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 53)" onmouseover="showTip(event, 'fs18', 53)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 54)" onmouseover="showTip(event, 'fs17', 54)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 55)" onmouseover="showTip(event, 'fs19', 55)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 56)" onmouseover="showTip(event, 'fs20', 56)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">multiplication</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs3', 57)" onmouseover="showTip(event, 'fs3', 57)" class="i">multiplication</span>
     ]</pre>
 </td>
 </tr>
 </table><p>The above code creates two actors <code>calcualtor/addition</code> and <code>calculator/multiplication</code></p>
 
-<pre><code>actor://main-pc/calculator/addition pre-start Status: Shutdown
-actor://main-pc/calculator/addition started Status: OK
-actor://main-pc/calculator/multiplication pre-start Status: Shutdown
-actor://main-pc/calculator/multiplication started Status: OK
+<pre><code>calculator/addition pre-start Status: Shutdown "Initial Startup"
+calculator/addition started Status: Running "Initial Startup"
+calculator/multiplication pre-start Status: Shutdown "Initial Startup"
+calculator/multiplication started Status: Running "Initial Startup"
 
 val multiplication : actor:FSharp.Actor.Actor&lt;int * int&gt; -&gt; Async&lt;unit&gt;
 val addition : actor:FSharp.Actor.Actor&lt;int * int&gt; -&gt; Async&lt;unit&gt;
 val calculator : FSharp.Actor.ActorRef list =
-  [actor://main-pc/calculator/addition;
-   actor://main-pc/calculator/multiplication]
+  [calculator/addition; calculator/multiplication]
 </code></pre>
 
-<p>We can see that the actors state transitions are logged. For more information about Actor Events and Actor lifecycles see <a href="ActorLifecycles.html">here</a></p>
+<p>We can see that the actors state transitions are logged.</p>
 
 <p>Once we have created our actors we can be looked up by their path</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
@@ -136,7 +145,7 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs15', 51)" onmouseover="showTip(event, 'fs15', 51)" class="i">calculator</span><span class="o">.</span>[<span class="n">0</span>] <span class="o">&lt;--</span> (<span class="n">5</span>,<span class="n">2</span>)</pre>
+<span onmouseout="hideTip(event, 'fs16', 58)" onmouseover="showTip(event, 'fs16', 58)" class="i">calculator</span><span class="o">.</span>[<span class="n">0</span>] <span class="o">&lt;--</span> (<span class="n">5</span>,<span class="n">2</span>)</pre>
 </td>
 </tr>
 </table><p>This also yields</p>
@@ -150,7 +159,7 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs15', 52)" onmouseover="showTip(event, 'fs15', 52)" class="i">calculator</span> <span class="o">&lt;-*</span> (<span class="n">5</span>,<span class="n">2</span>)</pre>
+<span onmouseout="hideTip(event, 'fs16', 59)" onmouseover="showTip(event, 'fs16', 59)" class="i">calculator</span> <span class="o">&lt;-*</span> (<span class="n">5</span>,<span class="n">2</span>)</pre>
 </td>
 </tr>
 </table><p>This also yields</p>
@@ -165,7 +174,7 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> (<span class="n">5</span>,<span class="n">2</span>)</pre>
+<span class="s">&quot;</span><span class="s">calculator</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> (<span class="n">5</span>,<span class="n">2</span>)</pre>
 </td>
 </tr>
 </table><p>This also yields</p>
@@ -194,7 +203,16 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">addition</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> <span onmouseout="hideTip(event, 'fs19', 53)" onmouseover="showTip(event, 'fs19', 53)" class="i">Die</span></pre>
+<span onmouseout="hideTip(event, 'fs16', 60)" onmouseover="showTip(event, 'fs16', 60)" class="i">calculator</span><span class="o">.</span>[<span class="n">1</span>] <span class="o">&lt;!-</span> (<span onmouseout="hideTip(event, 'fs21', 61)" onmouseover="showTip(event, 'fs21', 61)" class="i">Shutdown</span>(<span class="s">&quot;</span><span class="s">Cause</span><span class="s"> </span><span class="s">I</span><span class="s"> </span><span class="s">want</span><span class="s"> </span><span class="s">to</span><span class="s">&quot;</span>))</pre>
+</td>
+</tr>
+</table><p>or</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip">
+<span class="l">1: </span>
+</pre>
+</td>
+<td class="snippet"><pre class="fssnip">
+<span class="s">&quot;</span><span class="s">calculator</span><span class="s">/</span><span class="s">addition</span><span class="s">&quot;</span> <span class="o">?&lt;!-</span> (<span onmouseout="hideTip(event, 'fs21', 62)" onmouseover="showTip(event, 'fs21', 62)" class="i">Shutdown</span>(<span class="s">&quot;</span><span class="s">Cause</span><span class="s"> </span><span class="s">I</span><span class="s"> </span><span class="s">want</span><span class="s"> </span><span class="s">to</span><span class="s">&quot;</span>))</pre>
 </td>
 </tr>
 </table><p>Sending now sending any message to the actor will result in an exception</p>
@@ -203,7 +221,7 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 </code></pre>
 <h1>Changing the behaviour of actors</h1>
 
-<p>You can change the behaviour of actors at runtime.</p>
+<p>You can change the behaviour of actors at runtime. This achieved through mutually recursive functions</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -226,67 +244,75 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 <span class="l">19: </span>
 <span class="l">20: </span>
 <span class="l">21: </span>
+<span class="l">22: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs20', 54)" onmouseover="showTip(event, 'fs20', 54)" class="i">schizoPing</span> <span class="o">=</span> 
-    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs21', 55)" onmouseover="showTip(event, 'fs21', 55)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 56)" onmouseover="showTip(event, 'fs6', 56)" class="i">Actor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>) <span class="k">-&gt;</span>
-        <span onmouseout="hideTip(event, 'fs7', 57)" onmouseover="showTip(event, 'fs7', 57)" class="i">async</span> {
-            <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs22', 58)" onmouseover="showTip(event, 'fs22', 58)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 59)" onmouseover="showTip(event, 'fs21', 59)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 60)" onmouseover="showTip(event, 'fs10', 60)" class="i">Receive</span>()
-            <span onmouseout="hideTip(event, 'fs21', 61)" onmouseover="showTip(event, 'fs21', 61)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 62)" onmouseover="showTip(event, 'fs23', 62)" class="i">Log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 63)" onmouseover="showTip(event, 'fs24', 63)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs25', 64)" onmouseover="showTip(event, 'fs25', 64)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">(</span><span class="s">%</span><span class="s">A</span><span class="s">)</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">ping</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs21', 65)" onmouseover="showTip(event, 'fs21', 65)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs22', 66)" onmouseover="showTip(event, 'fs22', 66)" class="i">msg</span>)
-            <span onmouseout="hideTip(event, 'fs21', 67)" onmouseover="showTip(event, 'fs21', 67)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs26', 68)" onmouseover="showTip(event, 'fs26', 68)" class="i">Behave</span>(<span onmouseout="hideTip(event, 'fs27', 69)" onmouseover="showTip(event, 'fs27', 69)" class="i">schizoPong</span>)
-        }
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs22', 63)" onmouseover="showTip(event, 'fs22', 63)" class="i">schizoPing</span> <span class="o">=</span> 
+    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs23', 64)" onmouseover="showTip(event, 'fs23', 64)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs5', 65)" onmouseover="showTip(event, 'fs5', 65)" class="i">IActor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>) <span class="k">-&gt;</span>
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 66)" onmouseover="showTip(event, 'fs24', 66)" class="i">log</span> <span class="o">=</span> (<span onmouseout="hideTip(event, 'fs23', 67)" onmouseover="showTip(event, 'fs23', 67)" class="i">actor</span> <span class="o">:?&gt;</span> <span onmouseout="hideTip(event, 'fs17', 68)" onmouseover="showTip(event, 'fs17', 68)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 69)" onmouseover="showTip(event, 'fs25', 69)" class="i">T</span><span class="o">&lt;</span>_<span class="o">&gt;</span>)<span class="o">.</span><span class="i">Log</span>
+        <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs26', 70)" onmouseover="showTip(event, 'fs26', 70)" class="i">ping</span>() <span class="o">=</span> 
+            <span onmouseout="hideTip(event, 'fs7', 71)" onmouseover="showTip(event, 'fs7', 71)" class="i">async</span> {
+                <span class="k">let!</span> (<span onmouseout="hideTip(event, 'fs27', 72)" onmouseover="showTip(event, 'fs27', 72)" class="i">msg</span>,_) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 73)" onmouseover="showTip(event, 'fs23', 73)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 74)" onmouseover="showTip(event, 'fs11', 74)" class="i">Receive</span>()
+                <span onmouseout="hideTip(event, 'fs24', 75)" onmouseover="showTip(event, 'fs24', 75)" class="i">log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 76)" onmouseover="showTip(event, 'fs28', 76)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs29', 77)" onmouseover="showTip(event, 'fs29', 77)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">(</span><span class="s">%</span><span class="s">A</span><span class="s">)</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">ping</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs23', 78)" onmouseover="showTip(event, 'fs23', 78)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs27', 79)" onmouseover="showTip(event, 'fs27', 79)" class="i">msg</span>, <span onmouseout="hideTip(event, 'fs30', 80)" onmouseover="showTip(event, 'fs30', 80)" class="i">None</span>)
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs31', 81)" onmouseover="showTip(event, 'fs31', 81)" class="i">pong</span>()
+            }
+        <span class="k">and</span> <span onmouseout="hideTip(event, 'fs31', 82)" onmouseover="showTip(event, 'fs31', 82)" class="i">pong</span>() <span class="o">=</span>
+            <span onmouseout="hideTip(event, 'fs7', 83)" onmouseover="showTip(event, 'fs7', 83)" class="i">async</span> {
+                <span class="k">let!</span> (<span onmouseout="hideTip(event, 'fs27', 84)" onmouseover="showTip(event, 'fs27', 84)" class="i">msg</span>,_) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs23', 85)" onmouseover="showTip(event, 'fs23', 85)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 86)" onmouseover="showTip(event, 'fs11', 86)" class="i">Receive</span>()
+                <span onmouseout="hideTip(event, 'fs24', 87)" onmouseover="showTip(event, 'fs24', 87)" class="i">log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 88)" onmouseover="showTip(event, 'fs28', 88)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs29', 89)" onmouseover="showTip(event, 'fs29', 89)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">(</span><span class="s">%</span><span class="s">A</span><span class="s">)</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">pong</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs23', 90)" onmouseover="showTip(event, 'fs23', 90)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs27', 91)" onmouseover="showTip(event, 'fs27', 91)" class="i">msg</span>, <span onmouseout="hideTip(event, 'fs30', 92)" onmouseover="showTip(event, 'fs30', 92)" class="i">None</span>)
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs26', 93)" onmouseover="showTip(event, 'fs26', 93)" class="i">ping</span>()
+            }
+        <span onmouseout="hideTip(event, 'fs26', 94)" onmouseover="showTip(event, 'fs26', 94)" class="i">ping</span>()
     )
         
-<span class="k">and</span> <span onmouseout="hideTip(event, 'fs27', 70)" onmouseover="showTip(event, 'fs27', 70)" class="i">schizoPong</span> <span class="o">=</span> 
-    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs21', 71)" onmouseover="showTip(event, 'fs21', 71)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 72)" onmouseover="showTip(event, 'fs6', 72)" class="i">Actor</span><span class="o">&lt;</span>_<span class="o">&gt;</span>) <span class="k">-&gt;</span>
-        <span onmouseout="hideTip(event, 'fs7', 73)" onmouseover="showTip(event, 'fs7', 73)" class="i">async</span> {
-            <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs22', 74)" onmouseover="showTip(event, 'fs22', 74)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 75)" onmouseover="showTip(event, 'fs21', 75)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 76)" onmouseover="showTip(event, 'fs10', 76)" class="i">Receive</span>()
-            <span onmouseout="hideTip(event, 'fs21', 77)" onmouseover="showTip(event, 'fs21', 77)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 78)" onmouseover="showTip(event, 'fs23', 78)" class="i">Log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 79)" onmouseover="showTip(event, 'fs24', 79)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs25', 80)" onmouseover="showTip(event, 'fs25', 80)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">(</span><span class="s">%</span><span class="s">A</span><span class="s">)</span><span class="s">:</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">pong</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs21', 81)" onmouseover="showTip(event, 'fs21', 81)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs22', 82)" onmouseover="showTip(event, 'fs22', 82)" class="i">msg</span>)
-            <span onmouseout="hideTip(event, 'fs21', 83)" onmouseover="showTip(event, 'fs21', 83)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 84)" onmouseover="showTip(event, 'fs28', 84)" class="i">UnBehave</span>()
-        }
-    )
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 85)" onmouseover="showTip(event, 'fs29', 85)" class="i">schizo</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 86)" onmouseover="showTip(event, 'fs6', 86)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 87)" onmouseover="showTip(event, 'fs16', 87)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 88)" onmouseover="showTip(event, 'fs17', 88)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 89)" onmouseover="showTip(event, 'fs18', 89)" class="i">create</span> <span class="s">&quot;</span><span class="s">schizo</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs20', 90)" onmouseover="showTip(event, 'fs20', 90)" class="i">schizoPing</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs32', 95)" onmouseover="showTip(event, 'fs32', 95)" class="i">schizo</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 96)" onmouseover="showTip(event, 'fs17', 96)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 97)" onmouseover="showTip(event, 'fs18', 97)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 98)" onmouseover="showTip(event, 'fs17', 98)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 99)" onmouseover="showTip(event, 'fs19', 99)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 100)" onmouseover="showTip(event, 'fs20', 100)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">schizo</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs22', 101)" onmouseover="showTip(event, 'fs22', 101)" class="i">schizoPing</span> 
 
 <span class="o">!!</span><span class="s">&quot;</span><span class="s">schizo</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>Sending two messages to the 'schizo' actor results in</p>
 
-<pre><code>(actor://main-pc/schizo): "Hello" ping
+<pre><code>(schizo): "Hello" ping
 </code></pre>
 
 <p>followed by</p>
 
-<pre><code>(actor://main-pc/schizo): "Hello" pong
+<pre><code>(schizo): "Hello" pong
 </code></pre>
 
 <h1>Supervising Actors</h1>
 
 <p>Actors can supervise other actors, if we define an actor loop that fails on a given message</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
-<span class="l">9: </span>
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs30', 91)" onmouseover="showTip(event, 'fs30', 91)" class="i">err</span> <span class="o">=</span> 
-    (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs31', 92)" onmouseover="showTip(event, 'fs31', 92)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 93)" onmouseover="showTip(event, 'fs6', 93)" class="i">Actor</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs32', 94)" onmouseover="showTip(event, 'fs32', 94)" class="i">string</span><span class="o">&gt;</span>) <span class="k">-&gt;</span>
-        <span onmouseout="hideTip(event, 'fs7', 95)" onmouseover="showTip(event, 'fs7', 95)" class="i">async</span> {
-            <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs33', 96)" onmouseover="showTip(event, 'fs33', 96)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 97)" onmouseover="showTip(event, 'fs31', 97)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 98)" onmouseover="showTip(event, 'fs10', 98)" class="i">Receive</span>()
-            <span class="k">if</span> <span onmouseout="hideTip(event, 'fs33', 99)" onmouseover="showTip(event, 'fs33', 99)" class="i">msg</span> <span class="o">&lt;&gt;</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span>
-            <span class="k">then</span> <span onmouseout="hideTip(event, 'fs12', 100)" onmouseover="showTip(event, 'fs12', 100)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs33', 101)" onmouseover="showTip(event, 'fs33', 101)" class="i">msg</span>
-            <span class="k">else</span> <span onmouseout="hideTip(event, 'fs34', 102)" onmouseover="showTip(event, 'fs34', 102)" class="i">failwithf</span> <span class="s">&quot;</span><span class="s">ERRRROROROR</span><span class="s">&quot;</span>
-        }
-    )</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 102)" onmouseover="showTip(event, 'fs33', 102)" class="i">err</span> <span class="o">=</span> 
+        (<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs34', 103)" onmouseover="showTip(event, 'fs34', 103)" class="i">actor</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs5', 104)" onmouseover="showTip(event, 'fs5', 104)" class="i">IActor</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs35', 105)" onmouseover="showTip(event, 'fs35', 105)" class="i">string</span><span class="o">&gt;</span>) <span class="k">-&gt;</span>
+            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs6', 106)" onmouseover="showTip(event, 'fs6', 106)" class="i">loop</span>() <span class="o">=</span>
+                <span onmouseout="hideTip(event, 'fs7', 107)" onmouseover="showTip(event, 'fs7', 107)" class="i">async</span> {
+                    <span class="k">let!</span> (<span onmouseout="hideTip(event, 'fs36', 108)" onmouseover="showTip(event, 'fs36', 108)" class="i">msg</span>,_) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 109)" onmouseover="showTip(event, 'fs34', 109)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 110)" onmouseover="showTip(event, 'fs11', 110)" class="i">Receive</span>()
+                    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs36', 111)" onmouseover="showTip(event, 'fs36', 111)" class="i">msg</span> <span class="o">&lt;&gt;</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span>
+                    <span class="k">then</span> <span onmouseout="hideTip(event, 'fs13', 112)" onmouseover="showTip(event, 'fs13', 112)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs36', 113)" onmouseover="showTip(event, 'fs36', 113)" class="i">msg</span>
+                    <span class="k">else</span> <span onmouseout="hideTip(event, 'fs37', 114)" onmouseover="showTip(event, 'fs37', 114)" class="i">failwithf</span> <span class="s">&quot;</span><span class="s">ERRRROROROR</span><span class="s">&quot;</span>
+                    <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs6', 115)" onmouseover="showTip(event, 'fs6', 115)" class="i">loop</span>()
+                }
+            <span onmouseout="hideTip(event, 'fs6', 116)" onmouseover="showTip(event, 'fs6', 116)" class="i">loop</span>()
+        )</pre>
 </td>
 </tr>
 </table><p>then a supervisor will allow the actor to restart or terminate depending on the particular strategy that is in place</p>
@@ -303,11 +329,15 @@ actor://main-pc/calculator/multiplication: 5 * 2 = 10
 <span class="l">2: </span>
 <span class="l">3: </span>
 <span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 103)" onmouseover="showTip(event, 'fs35', 103)" class="i">oneforone</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 104)" onmouseover="showTip(event, 'fs6', 104)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 105)" onmouseover="showTip(event, 'fs36', 105)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 106)" onmouseover="showTip(event, 'fs17', 106)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 107)" onmouseover="showTip(event, 'fs18', 107)" class="i">create</span> <span class="s">&quot;</span><span class="s">oneforone</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 108)" onmouseover="showTip(event, 'fs37', 108)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 109)" onmouseover="showTip(event, 'fs38', 109)" class="i">OneForOne</span> [<span onmouseout="hideTip(event, 'fs6', 110)" onmouseover="showTip(event, 'fs6', 110)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 111)" onmouseover="showTip(event, 'fs16', 111)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 112)" onmouseover="showTip(event, 'fs17', 112)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 113)" onmouseover="showTip(event, 'fs18', 113)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_0</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 114)" onmouseover="showTip(event, 'fs30', 114)" class="i">err</span>]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs38', 117)" onmouseover="showTip(event, 'fs38', 117)" class="i">oneforone</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs39', 118)" onmouseover="showTip(event, 'fs39', 118)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 119)" onmouseover="showTip(event, 'fs40', 119)" class="i">spawn</span> 
+        <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs39', 120)" onmouseover="showTip(event, 'fs39', 120)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 121)" onmouseover="showTip(event, 'fs41', 121)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 122)" onmouseover="showTip(event, 'fs42', 122)" class="i">Create</span>(<span class="i">actorOptions</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 123)" onmouseover="showTip(event, 'fs17', 123)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 124)" onmouseover="showTip(event, 'fs19', 124)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 125)" onmouseover="showTip(event, 'fs20', 125)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">OneForOne</span><span class="s">&quot;</span>))
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs39', 126)" onmouseover="showTip(event, 'fs39', 126)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 127)" onmouseover="showTip(event, 'fs43', 127)" class="i">superviseAll</span> [<span onmouseout="hideTip(event, 'fs17', 128)" onmouseover="showTip(event, 'fs17', 128)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 129)" onmouseover="showTip(event, 'fs18', 129)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 130)" onmouseover="showTip(event, 'fs17', 130)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 131)" onmouseover="showTip(event, 'fs19', 131)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 132)" onmouseover="showTip(event, 'fs20', 132)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_0</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 133)" onmouseover="showTip(event, 'fs33', 133)" class="i">err</span>]
 
 <span class="o">!!</span><span class="s">&quot;</span><span class="s">err_0</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
 </td>
@@ -334,25 +364,35 @@ actor://main-pc/err_0 re-started Status: OK
 
 <p>If any watched actor errors all children of this supervisor will be told to restart.</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 115)" onmouseover="showTip(event, 'fs39', 115)" class="i">oneforall</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 116)" onmouseover="showTip(event, 'fs6', 116)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 117)" onmouseover="showTip(event, 'fs36', 117)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 118)" onmouseover="showTip(event, 'fs17', 118)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 119)" onmouseover="showTip(event, 'fs18', 119)" class="i">create</span> <span class="s">&quot;</span><span class="s">oneforall</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 120)" onmouseover="showTip(event, 'fs37', 120)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 121)" onmouseover="showTip(event, 'fs40', 121)" class="i">OneForAll</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs44', 134)" onmouseover="showTip(event, 'fs44', 134)" class="i">oneforall</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs39', 135)" onmouseover="showTip(event, 'fs39', 135)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 136)" onmouseover="showTip(event, 'fs40', 136)" class="i">spawn</span> 
+        <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs39', 137)" onmouseover="showTip(event, 'fs39', 137)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 138)" onmouseover="showTip(event, 'fs41', 138)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 139)" onmouseover="showTip(event, 'fs42', 139)" class="i">Create</span>(
+                    <span class="i">strategy</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs39', 140)" onmouseover="showTip(event, 'fs39', 140)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 141)" onmouseover="showTip(event, 'fs45', 141)" class="i">Strategy</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 142)" onmouseover="showTip(event, 'fs46', 142)" class="i">OneForAll</span>,
+                    <span class="i">actorOptions</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 143)" onmouseover="showTip(event, 'fs17', 143)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 144)" onmouseover="showTip(event, 'fs19', 144)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 145)" onmouseover="showTip(event, 'fs20', 145)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">OneForAll</span><span class="s">&quot;</span>)
+           )
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs39', 146)" onmouseover="showTip(event, 'fs39', 146)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 147)" onmouseover="showTip(event, 'fs43', 147)" class="i">superviseAll</span>
         [
-            <span onmouseout="hideTip(event, 'fs6', 122)" onmouseover="showTip(event, 'fs6', 122)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 123)" onmouseover="showTip(event, 'fs16', 123)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 124)" onmouseover="showTip(event, 'fs17', 124)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 125)" onmouseover="showTip(event, 'fs18', 125)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 126)" onmouseover="showTip(event, 'fs30', 126)" class="i">err</span>;
-            <span onmouseout="hideTip(event, 'fs6', 127)" onmouseover="showTip(event, 'fs6', 127)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 128)" onmouseover="showTip(event, 'fs16', 128)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 129)" onmouseover="showTip(event, 'fs17', 129)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 130)" onmouseover="showTip(event, 'fs18', 130)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 131)" onmouseover="showTip(event, 'fs30', 131)" class="i">err</span>
+            <span onmouseout="hideTip(event, 'fs17', 148)" onmouseover="showTip(event, 'fs17', 148)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 149)" onmouseover="showTip(event, 'fs18', 149)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 150)" onmouseover="showTip(event, 'fs17', 150)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 151)" onmouseover="showTip(event, 'fs19', 151)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 152)" onmouseover="showTip(event, 'fs20', 152)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 153)" onmouseover="showTip(event, 'fs33', 153)" class="i">err</span>;
+            <span onmouseout="hideTip(event, 'fs17', 154)" onmouseover="showTip(event, 'fs17', 154)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 155)" onmouseover="showTip(event, 'fs18', 155)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 156)" onmouseover="showTip(event, 'fs17', 156)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 157)" onmouseover="showTip(event, 'fs19', 157)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 158)" onmouseover="showTip(event, 'fs20', 158)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 159)" onmouseover="showTip(event, 'fs33', 159)" class="i">err</span>
         ]
-
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
+<span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> <span class="s">&quot;</span><span class="s">Boo</span><span class="s">&quot;</span>
+<span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>This yields</p>
@@ -381,25 +421,35 @@ actor://main-pc/err_1 re-started Status: OK
 
 <p>A supervisor will terminate the actor that has errored</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-<span class="l">2: </span>
-<span class="l">3: </span>
-<span class="l">4: </span>
-<span class="l">5: </span>
-<span class="l">6: </span>
-<span class="l">7: </span>
-<span class="l">8: </span>
+<span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 132)" onmouseover="showTip(event, 'fs41', 132)" class="i">fail</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 133)" onmouseover="showTip(event, 'fs6', 133)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 134)" onmouseover="showTip(event, 'fs36', 134)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 135)" onmouseover="showTip(event, 'fs17', 135)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 136)" onmouseover="showTip(event, 'fs18', 136)" class="i">create</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 137)" onmouseover="showTip(event, 'fs37', 137)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 138)" onmouseover="showTip(event, 'fs42', 138)" class="i">Fail</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs47', 160)" onmouseover="showTip(event, 'fs47', 160)" class="i">fail</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs39', 161)" onmouseover="showTip(event, 'fs39', 161)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 162)" onmouseover="showTip(event, 'fs40', 162)" class="i">spawn</span> 
+        <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs39', 163)" onmouseover="showTip(event, 'fs39', 163)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 164)" onmouseover="showTip(event, 'fs41', 164)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 165)" onmouseover="showTip(event, 'fs42', 165)" class="i">Create</span>(
+                    <span class="i">strategy</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs39', 166)" onmouseover="showTip(event, 'fs39', 166)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 167)" onmouseover="showTip(event, 'fs45', 167)" class="i">Strategy</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs48', 168)" onmouseover="showTip(event, 'fs48', 168)" class="i">AlwaysFail</span>,
+                    <span class="i">actorOptions</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 169)" onmouseover="showTip(event, 'fs17', 169)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 170)" onmouseover="showTip(event, 'fs19', 170)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 171)" onmouseover="showTip(event, 'fs20', 171)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">Fail</span><span class="s">&quot;</span>)
+           )
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs39', 172)" onmouseover="showTip(event, 'fs39', 172)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 173)" onmouseover="showTip(event, 'fs43', 173)" class="i">superviseAll</span>
         [
-            <span onmouseout="hideTip(event, 'fs6', 139)" onmouseover="showTip(event, 'fs6', 139)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 140)" onmouseover="showTip(event, 'fs16', 140)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 141)" onmouseover="showTip(event, 'fs17', 141)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 142)" onmouseover="showTip(event, 'fs18', 142)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 143)" onmouseover="showTip(event, 'fs30', 143)" class="i">err</span>;
-            <span onmouseout="hideTip(event, 'fs6', 144)" onmouseover="showTip(event, 'fs6', 144)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 145)" onmouseover="showTip(event, 'fs16', 145)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 146)" onmouseover="showTip(event, 'fs17', 146)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 147)" onmouseover="showTip(event, 'fs18', 147)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 148)" onmouseover="showTip(event, 'fs30', 148)" class="i">err</span>
+            <span onmouseout="hideTip(event, 'fs17', 174)" onmouseover="showTip(event, 'fs17', 174)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 175)" onmouseover="showTip(event, 'fs18', 175)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 176)" onmouseover="showTip(event, 'fs17', 176)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 177)" onmouseover="showTip(event, 'fs19', 177)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 178)" onmouseover="showTip(event, 'fs20', 178)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_3</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 179)" onmouseover="showTip(event, 'fs33', 179)" class="i">err</span>;
+            <span onmouseout="hideTip(event, 'fs17', 180)" onmouseover="showTip(event, 'fs17', 180)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 181)" onmouseover="showTip(event, 'fs18', 181)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 182)" onmouseover="showTip(event, 'fs17', 182)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 183)" onmouseover="showTip(event, 'fs19', 183)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 184)" onmouseover="showTip(event, 'fs20', 184)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_4</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 185)" onmouseover="showTip(event, 'fs33', 185)" class="i">err</span>
         ]
 
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
+<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_3</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>This yields</p>
@@ -428,19 +478,29 @@ actor://main-pc/err_1 stopped Status: Shutdown
 <span class="l"> 8: </span>
 <span class="l"> 9: </span>
 <span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs43', 149)" onmouseover="showTip(event, 'fs43', 149)" class="i">oneforallUnWatched</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 150)" onmouseover="showTip(event, 'fs6', 150)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 151)" onmouseover="showTip(event, 'fs36', 151)" class="i">supervisor</span> (<span onmouseout="hideTip(event, 'fs17', 152)" onmouseover="showTip(event, 'fs17', 152)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 153)" onmouseover="showTip(event, 'fs18', 153)" class="i">create</span> <span class="s">&quot;</span><span class="s">oneforall</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs37', 154)" onmouseover="showTip(event, 'fs37', 154)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 155)" onmouseover="showTip(event, 'fs40', 155)" class="i">OneForAll</span> 
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 186)" onmouseover="showTip(event, 'fs49', 186)" class="i">oneforallunwatch</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs39', 187)" onmouseover="showTip(event, 'fs39', 187)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 188)" onmouseover="showTip(event, 'fs40', 188)" class="i">spawn</span> 
+        <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs39', 189)" onmouseover="showTip(event, 'fs39', 189)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 190)" onmouseover="showTip(event, 'fs41', 190)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 191)" onmouseover="showTip(event, 'fs42', 191)" class="i">Create</span>(
+                    <span class="i">strategy</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs39', 192)" onmouseover="showTip(event, 'fs39', 192)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs45', 193)" onmouseover="showTip(event, 'fs45', 193)" class="i">Strategy</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs46', 194)" onmouseover="showTip(event, 'fs46', 194)" class="i">OneForAll</span>,
+                    <span class="i">actorOptions</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 195)" onmouseover="showTip(event, 'fs17', 195)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 196)" onmouseover="showTip(event, 'fs19', 196)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 197)" onmouseover="showTip(event, 'fs20', 197)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">OneForAll</span><span class="s">&quot;</span>)
+           )
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs39', 198)" onmouseover="showTip(event, 'fs39', 198)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 199)" onmouseover="showTip(event, 'fs43', 199)" class="i">superviseAll</span>
         [
-            <span onmouseout="hideTip(event, 'fs6', 156)" onmouseover="showTip(event, 'fs6', 156)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 157)" onmouseover="showTip(event, 'fs16', 157)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 158)" onmouseover="showTip(event, 'fs17', 158)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 159)" onmouseover="showTip(event, 'fs18', 159)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 160)" onmouseover="showTip(event, 'fs30', 160)" class="i">err</span>;
-            <span onmouseout="hideTip(event, 'fs6', 161)" onmouseover="showTip(event, 'fs6', 161)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 162)" onmouseover="showTip(event, 'fs16', 162)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 163)" onmouseover="showTip(event, 'fs17', 163)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 164)" onmouseover="showTip(event, 'fs18', 164)" class="i">create</span> <span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span>) <span onmouseout="hideTip(event, 'fs30', 165)" onmouseover="showTip(event, 'fs30', 165)" class="i">err</span>
+            <span onmouseout="hideTip(event, 'fs17', 200)" onmouseover="showTip(event, 'fs17', 200)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 201)" onmouseover="showTip(event, 'fs18', 201)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 202)" onmouseover="showTip(event, 'fs17', 202)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 203)" onmouseover="showTip(event, 'fs19', 203)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 204)" onmouseover="showTip(event, 'fs20', 204)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_5</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 205)" onmouseover="showTip(event, 'fs33', 205)" class="i">err</span>;
+            <span onmouseout="hideTip(event, 'fs17', 206)" onmouseover="showTip(event, 'fs17', 206)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 207)" onmouseover="showTip(event, 'fs18', 207)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 208)" onmouseover="showTip(event, 'fs17', 208)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 209)" onmouseover="showTip(event, 'fs19', 209)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 210)" onmouseover="showTip(event, 'fs20', 210)" class="i">Create</span>(<span class="s">&quot;</span><span class="s">err_6</span><span class="s">&quot;</span>)) <span onmouseout="hideTip(event, 'fs33', 211)" onmouseover="showTip(event, 'fs33', 211)" class="i">err</span>
         ]
 
-<span onmouseout="hideTip(event, 'fs6', 166)" onmouseover="showTip(event, 'fs6', 166)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs44', 167)" onmouseover="showTip(event, 'fs44', 167)" class="i">unwatch</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">err_2</span><span class="s">&quot;</span> 
+<span onmouseout="hideTip(event, 'fs17', 212)" onmouseover="showTip(event, 'fs17', 212)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 213)" onmouseover="showTip(event, 'fs50', 213)" class="i">unwatch</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">err_6</span><span class="s">&quot;</span> 
 
-<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_1</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
+<span class="o">!!</span><span class="s">&quot;</span><span class="s">err_5</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">fail</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>We now see that one actor <code>err_1</code> has restarted</p>
@@ -479,25 +539,45 @@ actor://main-pc/err_1 re-started Status: OK
 <span class="l">14: </span>
 <span class="l">15: </span>
 <span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs45', 168)" onmouseover="showTip(event, 'fs45', 168)" class="i">child</span> <span onmouseout="hideTip(event, 'fs46', 169)" onmouseover="showTip(event, 'fs46', 169)" class="i">i</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 170)" onmouseover="showTip(event, 'fs6', 170)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 171)" onmouseover="showTip(event, 'fs16', 171)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 172)" onmouseover="showTip(event, 'fs17', 172)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 173)" onmouseover="showTip(event, 'fs18', 173)" class="i">create</span> <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs25', 174)" onmouseover="showTip(event, 'fs25', 174)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs46', 175)" onmouseover="showTip(event, 'fs46', 175)" class="i">i</span>) 
-         (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs47', 176)" onmouseover="showTip(event, 'fs47', 176)" class="i">actor</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 177)" onmouseover="showTip(event, 'fs7', 177)" class="i">async</span> { 
-                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs48', 178)" onmouseover="showTip(event, 'fs48', 178)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs47', 179)" onmouseover="showTip(event, 'fs47', 179)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 180)" onmouseover="showTip(event, 'fs10', 180)" class="i">Receive</span>()
-                <span onmouseout="hideTip(event, 'fs47', 181)" onmouseover="showTip(event, 'fs47', 181)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 182)" onmouseover="showTip(event, 'fs23', 182)" class="i">Log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 183)" onmouseover="showTip(event, 'fs24', 183)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs25', 184)" onmouseover="showTip(event, 'fs25', 184)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">recieved</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs47', 185)" onmouseover="showTip(event, 'fs47', 185)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs48', 186)" onmouseover="showTip(event, 'fs48', 186)" class="i">msg</span>) 
-              })
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs51', 214)" onmouseover="showTip(event, 'fs51', 214)" class="i">child</span> <span onmouseout="hideTip(event, 'fs52', 215)" onmouseover="showTip(event, 'fs52', 215)" class="i">i</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs17', 216)" onmouseover="showTip(event, 'fs17', 216)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 217)" onmouseover="showTip(event, 'fs18', 217)" class="i">spawn</span> (<span onmouseout="hideTip(event, 'fs17', 218)" onmouseover="showTip(event, 'fs17', 218)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 219)" onmouseover="showTip(event, 'fs19', 219)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 220)" onmouseover="showTip(event, 'fs20', 220)" class="i">Create</span>(<span onmouseout="hideTip(event, 'fs29', 221)" onmouseover="showTip(event, 'fs29', 221)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_</span><span class="s">%</span><span class="s">d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs52', 222)" onmouseover="showTip(event, 'fs52', 222)" class="i">i</span>)) 
+         (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs53', 223)" onmouseover="showTip(event, 'fs53', 223)" class="i">actor</span> <span class="k">-&gt;</span>
+             <span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 224)" onmouseover="showTip(event, 'fs24', 224)" class="i">log</span> <span class="o">=</span> (<span onmouseout="hideTip(event, 'fs53', 225)" onmouseover="showTip(event, 'fs53', 225)" class="i">actor</span> <span class="o">:?&gt;</span> <span onmouseout="hideTip(event, 'fs17', 226)" onmouseover="showTip(event, 'fs17', 226)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 227)" onmouseover="showTip(event, 'fs25', 227)" class="i">T</span><span class="o">&lt;</span>_<span class="o">&gt;</span>)<span class="o">.</span><span class="i">Log</span> 
+             <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs54', 228)" onmouseover="showTip(event, 'fs54', 228)" class="i">loop</span>() <span class="o">=</span>
+                <span onmouseout="hideTip(event, 'fs7', 229)" onmouseover="showTip(event, 'fs7', 229)" class="i">async</span> { 
+                   <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs55', 230)" onmouseover="showTip(event, 'fs55', 230)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs53', 231)" onmouseover="showTip(event, 'fs53', 231)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 232)" onmouseover="showTip(event, 'fs11', 232)" class="i">Receive</span>()
+                   <span onmouseout="hideTip(event, 'fs24', 233)" onmouseover="showTip(event, 'fs24', 233)" class="i">log</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 234)" onmouseover="showTip(event, 'fs28', 234)" class="i">Info</span>(<span onmouseout="hideTip(event, 'fs29', 235)" onmouseover="showTip(event, 'fs29', 235)" class="i">sprintf</span> <span class="s">&quot;</span><span class="s">%</span><span class="s">A</span><span class="s"> </span><span class="s">recieved</span><span class="s"> </span><span class="s">%</span><span class="s">A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs53', 236)" onmouseover="showTip(event, 'fs53', 236)" class="i">actor</span> <span onmouseout="hideTip(event, 'fs55', 237)" onmouseover="showTip(event, 'fs55', 237)" class="i">msg</span>, <span onmouseout="hideTip(event, 'fs30', 238)" onmouseover="showTip(event, 'fs30', 238)" class="i">None</span>) 
+                   <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs54', 239)" onmouseover="showTip(event, 'fs54', 239)" class="i">loop</span>()
+                }
+             <span onmouseout="hideTip(event, 'fs54', 240)" onmouseover="showTip(event, 'fs54', 240)" class="i">loop</span>()
+         )
 
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs49', 187)" onmouseover="showTip(event, 'fs49', 187)" class="i">parent</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs6', 188)" onmouseover="showTip(event, 'fs6', 188)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs50', 189)" onmouseover="showTip(event, 'fs50', 189)" class="i">spawnLinked</span> (<span onmouseout="hideTip(event, 'fs17', 190)" onmouseover="showTip(event, 'fs17', 190)" class="i">ActorPath</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 191)" onmouseover="showTip(event, 'fs18', 191)" class="i">create</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">parent</span><span class="s">&quot;</span>) 
-            (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs47', 192)" onmouseover="showTip(event, 'fs47', 192)" class="i">actor</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 193)" onmouseover="showTip(event, 'fs7', 193)" class="i">async</span> { 
-                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs48', 194)" onmouseover="showTip(event, 'fs48', 194)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs47', 195)" onmouseover="showTip(event, 'fs47', 195)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 196)" onmouseover="showTip(event, 'fs10', 196)" class="i">Receive</span>()
-                <span onmouseout="hideTip(event, 'fs47', 197)" onmouseover="showTip(event, 'fs47', 197)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs51', 198)" onmouseover="showTip(event, 'fs51', 198)" class="i">Children</span> <span class="o">&lt;-*</span> <span onmouseout="hideTip(event, 'fs48', 199)" onmouseover="showTip(event, 'fs48', 199)" class="i">msg</span>
-              })
-             <span class="o">&lt;|</span> <span onmouseout="hideTip(event, 'fs52', 200)" onmouseover="showTip(event, 'fs52', 200)" class="i">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs53', 201)" onmouseover="showTip(event, 'fs53', 201)" class="i">init</span> <span class="n">5</span> (<span onmouseout="hideTip(event, 'fs45', 202)" onmouseover="showTip(event, 'fs45', 202)" class="i">child</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs56', 241)" onmouseover="showTip(event, 'fs56', 241)" class="i">parent</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs17', 242)" onmouseover="showTip(event, 'fs17', 242)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs57', 243)" onmouseover="showTip(event, 'fs57', 243)" class="i">spawnLinked</span> (<span onmouseout="hideTip(event, 'fs17', 244)" onmouseover="showTip(event, 'fs17', 244)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 245)" onmouseover="showTip(event, 'fs19', 245)" class="i">Options</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 246)" onmouseover="showTip(event, 'fs20', 246)" class="i">Create</span> <span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">parent</span><span class="s">&quot;</span>) (<span onmouseout="hideTip(event, 'fs58', 247)" onmouseover="showTip(event, 'fs58', 247)" class="i">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs59', 248)" onmouseover="showTip(event, 'fs59', 248)" class="i">init</span> <span class="n">5</span> (<span onmouseout="hideTip(event, 'fs51', 249)" onmouseover="showTip(event, 'fs51', 249)" class="i">child</span>))
+            (<span class="k">fun</span> <span onmouseout="hideTip(event, 'fs53', 250)" onmouseover="showTip(event, 'fs53', 250)" class="i">actor</span> <span class="k">-&gt;</span> 
+                <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs54', 251)" onmouseover="showTip(event, 'fs54', 251)" class="i">loop</span>() <span class="o">=</span>
+                  <span onmouseout="hideTip(event, 'fs7', 252)" onmouseover="showTip(event, 'fs7', 252)" class="i">async</span> { 
+                      <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs55', 253)" onmouseover="showTip(event, 'fs55', 253)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs53', 254)" onmouseover="showTip(event, 'fs53', 254)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 255)" onmouseover="showTip(event, 'fs11', 255)" class="i">Receive</span>()
+                      <span onmouseout="hideTip(event, 'fs53', 256)" onmouseover="showTip(event, 'fs53', 256)" class="i">actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs60', 257)" onmouseover="showTip(event, 'fs60', 257)" class="i">Children</span> <span class="o">&lt;-*</span> <span onmouseout="hideTip(event, 'fs55', 258)" onmouseover="showTip(event, 'fs55', 258)" class="i">msg</span>
+                      <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs54', 259)" onmouseover="showTip(event, 'fs54', 259)" class="i">loop</span>()
+                  }
+                <span onmouseout="hideTip(event, 'fs54', 260)" onmouseover="showTip(event, 'fs54', 260)" class="i">loop</span>()    
+            ) 
 
-<span onmouseout="hideTip(event, 'fs49', 203)" onmouseover="showTip(event, 'fs49', 203)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
+<span onmouseout="hideTip(event, 'fs56', 261)" onmouseover="showTip(event, 'fs56', 261)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>This outputs</p>
@@ -517,9 +597,9 @@ actor://main-pc/a/child_0 recieved "Forward this to your children"
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs6', 204)" onmouseover="showTip(event, 'fs6', 204)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs54', 205)" onmouseover="showTip(event, 'fs54', 205)" class="i">unlink</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_0</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs49', 206)" onmouseover="showTip(event, 'fs49', 206)" class="i">parent</span>
+<span onmouseout="hideTip(event, 'fs17', 262)" onmouseover="showTip(event, 'fs17', 262)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs61', 263)" onmouseover="showTip(event, 'fs61', 263)" class="i">unlink</span> <span class="o">!*</span><span class="s">&quot;</span><span class="s">a</span><span class="s">/</span><span class="s">child_0</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs56', 264)" onmouseover="showTip(event, 'fs56', 264)" class="i">parent</span>
 
-<span onmouseout="hideTip(event, 'fs49', 207)" onmouseover="showTip(event, 'fs49', 207)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
+<span onmouseout="hideTip(event, 'fs56', 265)" onmouseover="showTip(event, 'fs56', 265)" class="i">parent</span> <span class="o">&lt;--</span> <span class="s">&quot;</span><span class="s">Forward</span><span class="s"> </span><span class="s">this</span><span class="s"> </span><span class="s">to</span><span class="s"> </span><span class="s">your</span><span class="s"> </span><span class="s">children</span><span class="s">&quot;</span></pre>
 </td>
 </tr>
 </table><p>This outputs</p>
@@ -532,58 +612,65 @@ actor://main-pc/a/child_4 recieved "Forward this to your children"
 
           <div class="tip" id="fs1">namespace FSharp</div>
 <div class="tip" id="fs2">namespace FSharp.Actor</div>
-<div class="tip" id="fs3">module DSL<br /><br />from FSharp.Actor</div>
-<div class="tip" id="fs4">val multiplication : actor:Actor&lt;int * int&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.multiplication</div>
-<div class="tip" id="fs5">val actor : Actor&lt;int * int&gt;</div>
-<div class="tip" id="fs6">Multiple items<br />module Actor<br /><br />from FSharp.Actor.DSL<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;inherit ActorRef<br />&#160;&#160;private new : config:ActorConfig&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;member Behave : reciever:ActorBehaviour&lt;&#39;a&gt; -&gt; unit<br />&#160;&#160;override Link : actorRef:ActorRef -&gt; unit<br />&#160;&#160;override Post : message:obj -&gt; unit<br />&#160;&#160;member Receive : unit -&gt; Async&lt;&#39;a&gt;<br />&#160;&#160;member Ref : unit -&gt; ActorRef<br />&#160;&#160;member private Restart : unit -&gt; unit<br />&#160;&#160;member UnBehave : unit -&gt; unit<br />&#160;&#160;override Unlink : actorRef:ActorRef -&gt; unit<br />&#160;&#160;...<br /><br />Full name: FSharp.Actor.Actor&lt;_&gt;</div>
+<div class="tip" id="fs3">val multiplication : actor:IActor&lt;int * int&gt; -&gt; Async&lt;&#39;a&gt;<br /><br />Full name: Actor.multiplication</div>
+<div class="tip" id="fs4">val actor : IActor&lt;int * int&gt;</div>
+<div class="tip" id="fs5">Multiple items<br />type IActor =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member Link : IActor -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Post : obj * IActor option -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member PostSystemMessage : SystemMessage * IActor option -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Start : unit -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member UnLink : IActor -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member UnWatch : unit -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Watch : IActor -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member add_OnRestarted : Handler&lt;IActor&gt; -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member add_OnStarted : Handler&lt;IActor&gt; -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member add_OnStopped : Handler&lt;IActor&gt; -&gt; unit<br />&#160;&#160;&#160;&#160;...<br />&#160;&#160;end<br /><br />Full name: FSharp.Actor.Types.IActor<br /><br />--------------------<br />type IActor&lt;&#39;a&gt; =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;inherit IActor<br />&#160;&#160;&#160;&#160;abstract member Post : &#39;a -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Post : &#39;a * IActor option -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Receive : int option -&gt; Async&lt;&#39;a * IActor option&gt;<br />&#160;&#160;&#160;&#160;abstract member Receive : unit -&gt; Async&lt;&#39;a * IActor option&gt;<br />&#160;&#160;end<br /><br />Full name: FSharp.Actor.Types.IActor&lt;_&gt;</div>
+<div class="tip" id="fs6">val loop : (unit -&gt; Async&lt;&#39;b&gt;)</div>
 <div class="tip" id="fs7">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
 <div class="tip" id="fs8">val a : int</div>
 <div class="tip" id="fs9">val b : int</div>
-<div class="tip" id="fs10">member Actor.Receive : unit -&gt; Async&lt;&#39;a&gt;</div>
-<div class="tip" id="fs11">val result : int</div>
-<div class="tip" id="fs12">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs13">property ActorRef.Path: ActorPath.T</div>
-<div class="tip" id="fs14">val addition : actor:Actor&lt;int * int&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.addition</div>
-<div class="tip" id="fs15">val calculator : ActorRef list<br /><br />Full name: Actor.calculator</div>
-<div class="tip" id="fs16">val spawn : name:ActorPath.T -&gt; behaviour:ActorBehaviour&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.spawn</div>
-<div class="tip" id="fs17">module ActorPath<br /><br />from FSharp.Actor</div>
-<div class="tip" id="fs18">val create : id:string -&gt; ActorPath.T<br /><br />Full name: FSharp.Actor.ActorPath.create</div>
-<div class="tip" id="fs19">union case SystemMessage.Die: SystemMessage</div>
-<div class="tip" id="fs20">val schizoPing : actor:Actor&lt;&#39;a&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.schizoPing</div>
-<div class="tip" id="fs21">val actor : Actor&lt;&#39;a&gt;</div>
-<div class="tip" id="fs22">val msg : &#39;a</div>
-<div class="tip" id="fs23">property Actor.Log: Logging.Adapter</div>
-<div class="tip" id="fs24">member Logging.Adapter.Info : msg:string * ?exn:exn -&gt; unit</div>
-<div class="tip" id="fs25">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
-<div class="tip" id="fs26">member Actor.Behave : reciever:ActorBehaviour&lt;&#39;a&gt; -&gt; unit</div>
-<div class="tip" id="fs27">val schizoPong : actor:Actor&lt;&#39;a&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.schizoPong</div>
-<div class="tip" id="fs28">member Actor.UnBehave : unit -&gt; unit</div>
-<div class="tip" id="fs29">val schizo : ActorRef<br /><br />Full name: Actor.schizo</div>
-<div class="tip" id="fs30">val err : actor:Actor&lt;string&gt; -&gt; Async&lt;unit&gt;<br /><br />Full name: Actor.err</div>
-<div class="tip" id="fs31">val actor : Actor&lt;string&gt;</div>
-<div class="tip" id="fs32">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
-<div class="tip" id="fs33">val msg : string</div>
-<div class="tip" id="fs34">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
-<div class="tip" id="fs35">val oneforone : ActorRef<br /><br />Full name: Actor.oneforone</div>
-<div class="tip" id="fs36">val supervisor : name:ActorPath.T -&gt; strategy:Supervisor.Strategy -&gt; actors:seq&lt;ActorRef&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.supervisor</div>
-<div class="tip" id="fs37">Multiple items<br />union case SystemMessage.Supervisor: SupervisorMessage -&gt; SystemMessage<br /><br />--------------------<br />module Supervisor<br /><br />from FSharp.Actor</div>
-<div class="tip" id="fs38">val OneForOne : Supervisor.Strategy<br /><br />Full name: FSharp.Actor.Supervisor.OneForOne</div>
-<div class="tip" id="fs39">val oneforall : ActorRef<br /><br />Full name: Actor.oneforall</div>
-<div class="tip" id="fs40">val OneForAll : Supervisor.Strategy<br /><br />Full name: FSharp.Actor.Supervisor.OneForAll</div>
-<div class="tip" id="fs41">val fail : ActorRef<br /><br />Full name: Actor.fail</div>
-<div class="tip" id="fs42">val Fail : Supervisor.Strategy<br /><br />Full name: FSharp.Actor.Supervisor.Fail</div>
-<div class="tip" id="fs43">val oneforallUnWatched : ActorRef<br /><br />Full name: Actor.oneforallUnWatched</div>
-<div class="tip" id="fs44">val unwatch : actors:seq&lt;ActorRef&gt; -&gt; unit<br /><br />Full name: FSharp.Actor.DSL.Actor.unwatch</div>
-<div class="tip" id="fs45">val child : i:int -&gt; ActorRef<br /><br />Full name: Actor.child</div>
-<div class="tip" id="fs46">val i : int</div>
-<div class="tip" id="fs47">val actor : Actor&lt;obj&gt;</div>
-<div class="tip" id="fs48">val msg : obj</div>
-<div class="tip" id="fs49">val parent : ActorRef<br /><br />Full name: Actor.parent</div>
-<div class="tip" id="fs50">val spawnLinked : name:ActorPath.T -&gt; behavior:ActorBehaviour&lt;&#39;a&gt; -&gt; linkees:seq&lt;#ActorRef&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.spawnLinked</div>
-<div class="tip" id="fs51">property Actor.Children: seq&lt;ActorRef&gt;</div>
-<div class="tip" id="fs52">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of &#39;T * &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
-<div class="tip" id="fs53">val init : length:int -&gt; initializer:(int -&gt; &#39;T) -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.init</div>
-<div class="tip" id="fs54">val unlink : linkees:seq&lt;#ActorRef&gt; -&gt; actor:ActorRef -&gt; ActorRef<br /><br />Full name: FSharp.Actor.DSL.Actor.unlink</div>
+<div class="tip" id="fs10">val sender : IActor option</div>
+<div class="tip" id="fs11">abstract member IActor.Receive : unit -&gt; Async&lt;&#39;a * IActor option&gt;<br />abstract member IActor.Receive : int option -&gt; Async&lt;&#39;a * IActor option&gt;</div>
+<div class="tip" id="fs12">val result : int</div>
+<div class="tip" id="fs13">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs14">property IActor.Path: ActorPath</div>
+<div class="tip" id="fs15">val addition : actor:IActor&lt;int * int&gt; -&gt; Async&lt;&#39;a&gt;<br /><br />Full name: Actor.addition</div>
+<div class="tip" id="fs16">val calculator : IActor list<br /><br />Full name: Actor.calculator</div>
+<div class="tip" id="fs17">module Actor<br /><br />from FSharp.Actor</div>
+<div class="tip" id="fs18">val spawn : options:Actor.Options&lt;&#39;a&gt; -&gt; computation:(IActor&lt;&#39;a&gt; -&gt; Async&lt;unit&gt;) -&gt; IActor<br /><br />Full name: FSharp.Actor.Actor.spawn</div>
+<div class="tip" id="fs19">type Options&lt;&#39;a&gt; =<br />&#160;&#160;{Id: string;<br />&#160;&#160;&#160;Mailbox: IMailbox&lt;ActorMessage&lt;&#39;a&gt;&gt;;<br />&#160;&#160;&#160;Supervisor: IActor&lt;SupervisorMessage&gt; option;<br />&#160;&#160;&#160;Logger: ILogger;<br />&#160;&#160;&#160;Path: ActorPath;}<br />&#160;&#160;static member Create : ?id:string * ?mailbox:IMailbox&lt;ActorMessage&lt;&#39;a&gt;&gt; * ?supervisor:IActor&lt;SupervisorMessage&gt; * ?logger:ILogger * ?address:ActorPath -&gt; Options&lt;&#39;a&gt;<br />&#160;&#160;static member Default : Options&lt;&#39;a&gt;<br /><br />Full name: FSharp.Actor.Actor.Options&lt;_&gt;</div>
+<div class="tip" id="fs20">static member Actor.Options.Create : ?id:string * ?mailbox:IMailbox&lt;ActorMessage&lt;&#39;a&gt;&gt; * ?supervisor:IActor&lt;SupervisorMessage&gt; * ?logger:ILogger * ?address:ActorPath -&gt; Actor.Options&lt;&#39;a&gt;</div>
+<div class="tip" id="fs21">union case SystemMessage.Shutdown: string -&gt; SystemMessage</div>
+<div class="tip" id="fs22">val schizoPing : actor:IActor&lt;&#39;a&gt; -&gt; Async&lt;&#39;b&gt;<br /><br />Full name: Actor.schizoPing</div>
+<div class="tip" id="fs23">val actor : IActor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs24">val log : ILogger</div>
+<div class="tip" id="fs25">type T&lt;&#39;a&gt; =<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;private new : computation:(IActor&lt;&#39;a&gt; -&gt; Async&lt;unit&gt;) * ?options:Options&lt;&#39;a&gt; -&gt; T&lt;&#39;a&gt;<br />&#160;&#160;override Equals : y:obj -&gt; bool<br />&#160;&#160;override GetHashCode : unit -&gt; int<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Log : ILogger<br /><br />Full name: FSharp.Actor.Actor.T&lt;_&gt;</div>
+<div class="tip" id="fs26">val ping : (unit -&gt; Async&lt;&#39;c&gt;)</div>
+<div class="tip" id="fs27">val msg : &#39;a</div>
+<div class="tip" id="fs28">abstract member ILogger.Info : string * exn option -&gt; unit</div>
+<div class="tip" id="fs29">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs30">union case Option.None: Option&lt;&#39;T&gt;</div>
+<div class="tip" id="fs31">val pong : (unit -&gt; Async&lt;&#39;c&gt;)</div>
+<div class="tip" id="fs32">val schizo : IActor<br /><br />Full name: Actor.schizo</div>
+<div class="tip" id="fs33">val err : actor:IActor&lt;string&gt; -&gt; Async&lt;&#39;a&gt;<br /><br />Full name: Actor.err</div>
+<div class="tip" id="fs34">val actor : IActor&lt;string&gt;</div>
+<div class="tip" id="fs35">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs36">val msg : string</div>
+<div class="tip" id="fs37">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs38">val oneforone : IActor<br /><br />Full name: Actor.oneforone</div>
+<div class="tip" id="fs39">module Supervisor<br /><br />from FSharp.Actor</div>
+<div class="tip" id="fs40">val spawn : options:Supervisor.Options -&gt; IActor<br /><br />Full name: FSharp.Actor.Supervisor.spawn</div>
+<div class="tip" id="fs41">type Options =<br />&#160;&#160;{MaxFailures: int option;<br />&#160;&#160;&#160;Strategy: exn -&gt; IActor&lt;SupervisorMessage&gt; -&gt; IActor -&gt; unit;<br />&#160;&#160;&#160;ActorOptions: Options&lt;SupervisorMessage&gt;;}<br />&#160;&#160;static member Create : ?maxFail:int option * ?strategy:(exn -&gt; IActor&lt;SupervisorMessage&gt; -&gt; IActor -&gt; unit) * ?actorOptions:Options&lt;SupervisorMessage&gt; -&gt; Options<br />&#160;&#160;static member Default : Options<br /><br />Full name: FSharp.Actor.Supervisor.Options</div>
+<div class="tip" id="fs42">static member Supervisor.Options.Create : ?maxFail:int option * ?strategy:(exn -&gt; IActor&lt;SupervisorMessage&gt; -&gt; IActor -&gt; unit) * ?actorOptions:Actor.Options&lt;SupervisorMessage&gt; -&gt; Supervisor.Options</div>
+<div class="tip" id="fs43">val superviseAll : actors:seq&lt;IActor&gt; -&gt; sup:&#39;a -&gt; &#39;a (requires &#39;a :&gt; IActor)<br /><br />Full name: FSharp.Actor.Supervisor.superviseAll</div>
+<div class="tip" id="fs44">val oneforall : IActor<br /><br />Full name: Actor.oneforall</div>
+<div class="tip" id="fs45">module Strategy<br /><br />from FSharp.Actor.Supervisor</div>
+<div class="tip" id="fs46">val OneForAll : err:&#39;a -&gt; supervisor:IActor -&gt; target:IActor -&gt; unit<br /><br />Full name: FSharp.Actor.Supervisor.Strategy.OneForAll</div>
+<div class="tip" id="fs47">val fail : IActor<br /><br />Full name: Actor.fail</div>
+<div class="tip" id="fs48">val AlwaysFail : err:&#39;a -&gt; supervisor:IActor -&gt; target:IActor -&gt; unit<br /><br />Full name: FSharp.Actor.Supervisor.Strategy.AlwaysFail</div>
+<div class="tip" id="fs49">val oneforallunwatch : IActor<br /><br />Full name: Actor.oneforallunwatch</div>
+<div class="tip" id="fs50">val unwatch : actors:seq&lt;IActor&gt; -&gt; unit<br /><br />Full name: FSharp.Actor.Actor.unwatch</div>
+<div class="tip" id="fs51">val child : i:int -&gt; IActor<br /><br />Full name: Actor.child</div>
+<div class="tip" id="fs52">val i : int</div>
+<div class="tip" id="fs53">val actor : IActor&lt;obj&gt;</div>
+<div class="tip" id="fs54">val loop : (unit -&gt; Async&lt;&#39;a&gt;)</div>
+<div class="tip" id="fs55">val msg : obj * IActor option</div>
+<div class="tip" id="fs56">val parent : IActor<br /><br />Full name: Actor.parent</div>
+<div class="tip" id="fs57">val spawnLinked : options:Actor.Options&lt;&#39;a&gt; -&gt; linkees:seq&lt;IActor&gt; -&gt; computation:(IActor&lt;&#39;a&gt; -&gt; Async&lt;unit&gt;) -&gt; IActor<br /><br />Full name: FSharp.Actor.Actor.spawnLinked</div>
+<div class="tip" id="fs58">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of &#39;T * &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
+<div class="tip" id="fs59">val init : length:int -&gt; initializer:(int -&gt; &#39;T) -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.init</div>
+<div class="tip" id="fs60">property IActor.Children: seq&lt;IActor&gt;</div>
+<div class="tip" id="fs61">val unlink : linkees:seq&lt;IActor&gt; -&gt; actor:IActor -&gt; IActor<br /><br />Full name: FSharp.Actor.Actor.unlink</div>
 
         </div>
         <div class="span3">

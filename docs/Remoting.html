@@ -36,12 +36,14 @@
 <span class="l">1: </span>
 <span class="l">2: </span>
 <span class="l">3: </span>
+<span class="l">4: </span>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
 <span class="prep">#load</span> <span class="s">&quot;</span><span class="s">Dependencies</span><span class="s">.</span><span class="s">fsx</span><span class="s">&quot;</span>
+
 <span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Actor</span>
-<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 5)" onmouseover="showTip(event, 'fs3', 5)" class="i">DSL</span></pre>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 3)" onmouseover="showTip(event, 'fs1', 3)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 4)" onmouseover="showTip(event, 'fs2', 4)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 5)" onmouseover="showTip(event, 'fs3', 5)" class="i">Fracture</span></pre>
 </td>
 </tr>
 </table><h1>Remoting</h1>
@@ -56,8 +58,8 @@ identifies it. To register a transport, do something like the following</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="i">transport</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs5', 7)" onmouseover="showTip(event, 'fs5', 7)" class="i">FractureTransport</span>({ <span class="i">Port</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 8)" onmouseover="showTip(event, 'fs6', 8)" class="i">Some</span> <span class="n">8080</span>}) <span class="o">:&gt;</span> <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="i">ITransport</span>
-<span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="i">Remoting</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="i">registerTransport</span> <span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="i">Serialisers</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="i">Binary</span> <span onmouseout="hideTip(event, 'fs4', 14)" onmouseover="showTip(event, 'fs4', 14)" class="i">transport</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="i">transport</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs5', 7)" onmouseover="showTip(event, 'fs5', 7)" class="i">FractureTransport</span>(<span class="n">8080</span>) <span class="o">:&gt;</span> <span onmouseout="hideTip(event, 'fs6', 8)" onmouseover="showTip(event, 'fs6', 8)" class="i">ITransport</span>
+<span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="i">Registry</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="i">Transport</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="i">register</span> <span onmouseout="hideTip(event, 'fs4', 12)" onmouseover="showTip(event, 'fs4', 12)" class="i">transport</span></pre>
 </td>
 </tr>
 </table><p>The above call registers a transport that uses <a href="https://github.com/fractureio/fracture">Fracture</a>. When a transport is created it
@@ -81,23 +83,21 @@ We could send the following message</p>
 </pre>
 </td>
 <td class="snippet"><pre class="fssnip">
-<span class="s">&quot;</span><span class="s">actor</span><span class="s">.</span><span class="s">fracture</span><span class="s">:</span><span class="s">/</span><span class="s">/</span><span class="s">127</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">1</span><span class="s">:</span><span class="s">8081</span><span class="s">/</span><span class="s">RemoteActor</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> <span onmouseout="hideTip(event, 'fs12', 15)" onmouseover="showTip(event, 'fs12', 15)" class="i">Restart</span></pre>
+<span class="s">&quot;</span><span class="s">actor</span><span class="s">.</span><span class="s">fracture</span><span class="s">:</span><span class="s">/</span><span class="s">/</span><span class="s">127</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">0</span><span class="s">.</span><span class="s">1</span><span class="s">:</span><span class="s">8081</span><span class="s">/</span><span class="s">RemoteActor</span><span class="s">&quot;</span> <span class="o">?&lt;--</span> <span onmouseout="hideTip(event, 'fs10', 13)" onmouseover="showTip(event, 'fs10', 13)" class="i">Restart</span></pre>
 </td>
 </tr>
 </table><p>//TODO: More to come, as implemented remote supervision, deployment</p>
 
           <div class="tip" id="fs1">namespace FSharp</div>
 <div class="tip" id="fs2">namespace FSharp.Actor</div>
-<div class="tip" id="fs3">module DSL<br /><br />from FSharp.Actor</div>
+<div class="tip" id="fs3">namespace FSharp.Actor.Fracture</div>
 <div class="tip" id="fs4">val transport : ITransport<br /><br />Full name: Remoting.transport</div>
-<div class="tip" id="fs5">Multiple items<br />type FractureTransport =<br />&#160;&#160;interface ITransport<br />&#160;&#160;new : config:FractureTransportConfiguration -&gt; FractureTransport<br /><br />Full name: FSharp.Actor.FractureTransport<br /><br />--------------------<br />new : config:FractureTransportConfiguration -&gt; FractureTransport</div>
-<div class="tip" id="fs6">union case Option.Some: &#39;T -&gt; Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs7">type ITransport =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;inherit IDisposable<br />&#160;&#160;&#160;&#160;abstract member Send : T * byte [] -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Start : ActorRef -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Scheme : string<br />&#160;&#160;end<br /><br />Full name: FSharp.Actor.ITransport</div>
-<div class="tip" id="fs8">module Remoting<br /><br />from FSharp.Actor</div>
-<div class="tip" id="fs9">val registerTransport : serialiser:Serialiser -&gt; transport:ITransport -&gt; unit<br /><br />Full name: FSharp.Actor.Remoting.registerTransport</div>
-<div class="tip" id="fs10">module Serialisers<br /><br />from FSharp.Actor</div>
-<div class="tip" id="fs11">val Binary : Serialiser<br /><br />Full name: FSharp.Actor.Serialisers.Binary</div>
-<div class="tip" id="fs12">union case SystemMessage.Restart: SystemMessage</div>
+<div class="tip" id="fs5">Multiple items<br />type FractureTransport =<br />&#160;&#160;interface ITransport<br />&#160;&#160;new : listenPort:int * ?serialiser:ISerialiser * ?log:ILogger -&gt; FractureTransport<br /><br />Full name: FSharp.Actor.Fracture.FractureTransport<br /><br />--------------------<br />new : listenPort:int * ?serialiser:ISerialiser * ?log:ILogger -&gt; FractureTransport</div>
+<div class="tip" id="fs6">type ITransport =<br />&#160;&#160;interface<br />&#160;&#160;&#160;&#160;abstract member CreateRemoteActor : ActorPath -&gt; IActor<br />&#160;&#160;&#160;&#160;abstract member Send : ActorPath * &#39;a * IActor option -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member SendSystemMessage : ActorPath * SystemMessage * IActor option -&gt; unit<br />&#160;&#160;&#160;&#160;abstract member Scheme : string<br />&#160;&#160;end<br /><br />Full name: FSharp.Actor.Types.ITransport</div>
+<div class="tip" id="fs7">module Registry<br /><br />from FSharp.Actor</div>
+<div class="tip" id="fs8">module Transport<br /><br />from FSharp.Actor.Registry</div>
+<div class="tip" id="fs9">val register : transport:ITransport -&gt; unit<br /><br />Full name: FSharp.Actor.Registry.Transport.register</div>
+<div class="tip" id="fs10">union case SystemMessage.Restart: string -&gt; SystemMessage</div>
 
         </div>
         <div class="span3">
