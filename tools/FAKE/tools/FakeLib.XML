@@ -2821,12 +2821,15 @@
 <member name="">
 
 </member>
+<<<<<<< HEAD
 <member name="">
 
 </member>
 <member name="">
 
 </member>
+=======
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 <member name="P:Fake.MSBuildHelper.msBuildExe">
 <summary>
  MSBuild exe fileName

@@ -1,6 +1,9 @@
 ﻿(*** hide ***)
 #load "Dependencies.fsx"
+<<<<<<< HEAD
 
+=======
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 open FSharp.Actor
 open FSharp.Actor.Fracture
 

@@ -1,6 +1,10 @@
 ﻿(*** hide ***)
 #load "Dependencies.fsx"
 open FSharp.Actor
+<<<<<<< HEAD
+=======
+open FSharp.Actor.DSL
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 (**
 #Supervising Actors
@@ -9,6 +13,7 @@ Actors can supervise other actors, if we define an actor loop that fails on a gi
 *)
 
 let err = 
+<<<<<<< HEAD
         (fun (actor:IActor<string>) ->
             let rec loop() =
                 async {
@@ -20,6 +25,16 @@ let err =
                 }
             loop()
         )
+=======
+    (fun (actor:Actor<string>) ->
+        async {
+            let! msg = actor.Receive()
+            if msg <> "fail"
+            then printfn "%s" msg
+            else failwithf "ERRRROROROR"
+        }
+    )
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 (**
 then a supervisor will allow the actor to restart or terminate depending on the particular strategy that is in place
@@ -34,9 +49,13 @@ A supervisor will only restart the actor that has errored
 *)
 
 let oneforone = 
+<<<<<<< HEAD
     Supervisor.spawn 
         <| Supervisor.Options.Create(actorOptions = Actor.Options.Create("OneForOne"))
     |> Supervisor.superviseAll [Actor.spawn (Actor.Options.Create("err_0")) err]
+=======
+    Actor.supervisor (ActorPath.create "oneforone") Supervisor.OneForOne [Actor.spawn (ActorPath.create "err_0") err]
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 !!"err_0" <-- "fail"
 
@@ -65,6 +84,7 @@ If any watched actor errors all children of this supervisor will be told to rest
 *)
 
 let oneforall = 
+<<<<<<< HEAD
     Supervisor.spawn 
         <| Supervisor.Options.Create(
                     strategy = Supervisor.Strategy.OneForAll,
@@ -77,6 +97,15 @@ let oneforall =
         ]
 "err_1" ?<-- "Boo"
 "err_2" ?<-- "fail"
+=======
+    Actor.supervisor (ActorPath.create "oneforall") Supervisor.OneForAll 
+        [
+            Actor.spawn (ActorPath.create "err_1") err;
+            Actor.spawn (ActorPath.create "err_2") err
+        ]
+
+!!"err_1" <-- "fail"
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 (**
 This yields
@@ -106,6 +135,7 @@ A supervisor will terminate the actor that has errored
 *)
 
 let fail = 
+<<<<<<< HEAD
     Supervisor.spawn 
         <| Supervisor.Options.Create(
                     strategy = Supervisor.Strategy.AlwaysFail,
@@ -118,6 +148,15 @@ let fail =
         ]
 
 !!"err_3" <-- "fail"
+=======
+    Actor.supervisor (ActorPath.create "fail") Supervisor.Fail 
+        [
+            Actor.spawn (ActorPath.create "err_1") err;
+            Actor.spawn (ActorPath.create "err_2") err
+        ]
+
+!!"err_1" <-- "fail"
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 (**
 This yields
@@ -136,6 +175,7 @@ This yields
 If you no longer require an actor to be supervised, then you can `Unwatch` the actor, repeating the OneForAll above
 *)
 
+<<<<<<< HEAD
 let oneforallunwatch = 
     Supervisor.spawn 
         <| Supervisor.Options.Create(
@@ -151,6 +191,18 @@ let oneforallunwatch =
 Actor.unwatch !*"err_6" 
 
 !!"err_5" <-- "fail"
+=======
+let oneforallUnWatched = 
+    Actor.supervisor (ActorPath.create "oneforall") Supervisor.OneForAll 
+        [
+            Actor.spawn (ActorPath.create "err_1") err;
+            Actor.spawn (ActorPath.create "err_2") err
+        ]
+
+Actor.unwatch !*"err_2" 
+
+!!"err_1" <-- "fail"
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 (**
 We now see that one actor `err_1` has restarted
@@ -168,4 +220,52 @@ We now see that one actor `err_1` has restarted
     actor://main-pc/err_1 pre-restart Status: Restarting
     actor://main-pc/err_1 re-started Status: OK
 
+<<<<<<< HEAD
+=======
+#Linking Actors
+
+Linking an actor to another means that this actor will become a sibling of the other actor. This means that we can create relationships among actors
+*)
+
+let child i = 
+    Actor.spawn (ActorPath.create <| sprintf "a/child_%d" i) 
+         (fun actor -> async { 
+                let! msg = actor.Receive()
+                actor.Log.Info(sprintf "%A recieved %A" actor msg) 
+              })
+
+let parent = 
+    Actor.spawnLinked (ActorPath.create "a/parent") 
+            (fun actor -> async { 
+                let! msg = actor.Receive()
+                actor.Children <-* msg
+              })
+             <| List.init 5 (child)
+
+parent <-- "Forward this to your children"
+
+(**
+This outputs
+
+    actor://main-pc/a/child_1 recieved "Forward this to your children"
+    actor://main-pc/a/child_3 recieved "Forward this to your children"
+    actor://main-pc/a/child_2 recieved "Forward this to your children"
+    actor://main-pc/a/child_4 recieved "Forward this to your children"
+    actor://main-pc/a/child_0 recieved "Forward this to your children"
+
+We can also unlink actors
+*)
+
+Actor.unlink !*"a/child_0" parent
+
+parent <-- "Forward this to your children"
+
+(**
+This outputs
+
+    actor://main-pc/a/child_1 recieved "Forward this to your children"
+    actor://main-pc/a/child_3 recieved "Forward this to your children"
+    actor://main-pc/a/child_2 recieved "Forward this to your children"
+    actor://main-pc/a/child_4 recieved "Forward this to your children"
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 *)

@@ -1,8 +1,17 @@
-﻿#load "Dependencies.fsx"
+﻿(*** hide ***)
+#load "Dependencies.fsx"
 open FSharp.Actor
 
 (**
-#Basic Actors
+#Actors
+
+An actor is a computational entity that, in response to a message it receives, can concurrently:
+
+* Send a finite number of messages to other actors.
+* Create a finite number of new actors.
+* Designate the behavior to be used for the next message it receives.
+
+_as defined by wikipedia_
 *)
 
 let multiplication = 
@@ -119,7 +128,7 @@ Sending now sending any message to the actor will result in an exception
 
 
 (**
-#Changing the behaviour of actors
+##Changing the behaviour of actors
 
 You can change the behaviour of actors at runtime. This achieved through mutually recursive functions
 *)
@@ -155,9 +164,15 @@ Sending two messages to the 'schizo' actor results in
 
 followed by
 
+<<<<<<< HEAD
     (schizo): "Hello" pong
 
 #Linking Actors
+=======
+    (actor://main-pc/schizo): "Hello" pong
+
+##Linking Actors
+>>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 Linking an actor to another means that this actor will become a sibling of the other actor. This means that we can create relationships among actors
 *)
