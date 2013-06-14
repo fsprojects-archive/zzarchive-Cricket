@@ -1,6 +1,8 @@
 ﻿#load "Dependencies.fsx"
+
 open FSharp.Actor
-open FSharp.Actor.DSL
+open FSharp.Actor.Fracture
+
 (**
 #Remoting
 
@@ -10,8 +12,8 @@ for packaging, sending and recieving messages to/from other remote systems. Each
 identifies it. To register a transport, do something like the following 
 *)
 
-let transport = new FractureTransport({ Port = Some 8080}) :> ITransport
-Remoting.registerTransport Serialisers.Binary transport
+let transport = new FractureTransport(8080) :> ITransport
+Registry.Transport.register transport
 
 (**
 The above call registers a transport that uses [Fracture](https://github.com/fractureio/fracture). When a transport is created it

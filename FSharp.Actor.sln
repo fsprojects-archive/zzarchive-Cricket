@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9756
 		samples\Actor.fsx = samples\Actor.fsx
 		samples\Dependencies.fsx = samples\Dependencies.fsx
 		samples\Patterns.fsx = samples\Patterns.fsx
+		README.md = README.md
 		samples\Remoting.fsx = samples\Remoting.fsx
 	EndProjectSection
 EndProject
@@ -22,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{CDFD2619
 		builddocs.cmd = builddocs.cmd
 		builddocs.fsx = builddocs.fsx
 		FSharp.Actor.nuspec = FSharp.Actor.nuspec
+		local_build_number.txt = local_build_number.txt
 		template.html = template.html
 	EndProjectSection
 EndProject

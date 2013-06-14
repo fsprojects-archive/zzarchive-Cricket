@@ -2,7 +2,6 @@
 
 open Fake
 open System.IO
-open FSharp.Literate
 
 let nugetPath = Path.Combine(__SOURCE_DIRECTORY__,@"tools\NuGet\NuGet.exe")
 
