@@ -1,50 +1,54 @@
 ﻿#load "Dependencies.fsx"
 open FSharp.Actor
-open FSharp.Actor.DSL
 
 (**
 #Basic Actors
 *)
 
 let multiplication = 
-    (fun (actor:Actor<_>)  ->
-        async {
-            let! (a,b) = actor.Receive()
-            let result = a * b
-            do printfn "%A: %d * %d = %d" actor.Path a b result
-        }
+    (fun (actor:IActor<_>) ->
+        let rec loop() =
+            async {
+                let! ((a,b), sender) = actor.Receive()
+                let result = a * b
+                do printfn "%A: %d * %d = %d" actor.Path a b result
+                return! loop()
+            }
+        loop()
     )
 
 let addition = 
-    (fun (actor:Actor<_>) ->
-        async {
-            let! (a,b) = actor.Receive()
-            let result = a + b
-            do printfn "%A: %d + %d = %d" actor.Path a b result
-        }
+    (fun (actor:IActor<_>) ->
+        let rec loop() =
+            async {
+                let! ((a,b), sender) = actor.Receive()
+                let result = a + b
+                do printfn "%A: %d + %d = %d" actor.Path a b result
+                return! loop()
+            }
+        loop()
     )
 
 let calculator = 
     [
-       Actor.spawn (ActorPath.create "calculator/addition") addition
-       Actor.spawn (ActorPath.create "calculator/multiplication") multiplication
+       Actor.spawn (Actor.Options.Create("calculator/addition")) addition
+       Actor.spawn (Actor.Options.Create("calculator/multiplication")) multiplication
     ]
 
 (**
 The above code creates two actors `calcualtor/addition` and `calculator/multiplication`
 
-    actor://main-pc/calculator/addition pre-start Status: Shutdown
-    actor://main-pc/calculator/addition started Status: OK
-    actor://main-pc/calculator/multiplication pre-start Status: Shutdown
-    actor://main-pc/calculator/multiplication started Status: OK
+    calculator/addition pre-start Status: Shutdown "Initial Startup"
+    calculator/addition started Status: Running "Initial Startup"
+    calculator/multiplication pre-start Status: Shutdown "Initial Startup"
+    calculator/multiplication started Status: Running "Initial Startup"
     
     val multiplication : actor:FSharp.Actor.Actor<int * int> -> Async<unit>
     val addition : actor:FSharp.Actor.Actor<int * int> -> Async<unit>
     val calculator : FSharp.Actor.ActorRef list =
-      [actor://main-pc/calculator/addition;
-       actor://main-pc/calculator/multiplication]
+      [calculator/addition; calculator/multiplication]
 
-We can see that the actors state transitions are logged. For more information about Actor Events and Actor lifecycles see [here](ActorLifecycles.html)
+We can see that the actors state transitions are logged.
 
 Once we have created our actors we can be looked up by their path
 *)
@@ -80,7 +84,7 @@ This also yields
 
 We can also resolve _systems_ of actors.
 *)
-"calculator/" ?<-- (5,2)
+"calculator" ?<-- (5,2)
 
 (**
 This also yields 
@@ -101,7 +105,11 @@ resulting in a `KeyNotFoundException`
 We can also kill actors 
 *)
 
-"calculator/addition" ?<-- Die
+calculator.[1] <!- (Shutdown("Cause I want to"))
+
+(** or *)
+
+"calculator/addition" ?<!- (Shutdown("Cause I want to"))
 
 (**
 Sending now sending any message to the actor will result in an exception 
@@ -113,28 +121,29 @@ Sending now sending any message to the actor will result in an exception
 (**
 #Changing the behaviour of actors
 
-You can change the behaviour of actors at runtime.
+You can change the behaviour of actors at runtime. This achieved through mutually recursive functions
 *)
 
 let rec schizoPing = 
-    (fun (actor:Actor<_>) ->
-        async {
-            let! msg = actor.Receive()
-            actor.Log.Info(sprintf "(%A): %A ping" actor msg)
-            actor.Behave(schizoPong)
-        }
+    (fun (actor:IActor<_>) ->
+        let log = (actor :?> Actor.T<_>).Log
+        let rec ping() = 
+            async {
+                let! (msg,_) = actor.Receive()
+                log.Info(sprintf "(%A): %A ping" actor msg, None)
+                return! pong()
+            }
+        and pong() =
+            async {
+                let! (msg,_) = actor.Receive()
+                log.Info(sprintf "(%A): %A pong" actor msg, None)
+                return! ping()
+            }
+        ping()
     )
         
-and schizoPong = 
-    (fun (actor:Actor<_>) ->
-        async {
-            let! msg = actor.Receive()
-            actor.Log.Info(sprintf "(%A): %A pong" actor msg)
-            actor.UnBehave()
-        }
-    )
 
-let schizo = Actor.spawn (ActorPath.create "schizo") schizoPing 
+let schizo = Actor.spawn (Actor.Options.Create("schizo")) schizoPing 
 
 !!"schizo" <-- "Hello"
 
@@ -142,11 +151,11 @@ let schizo = Actor.spawn (ActorPath.create "schizo") schizoPing
 
 Sending two messages to the 'schizo' actor results in
 
-    (actor://main-pc/schizo): "Hello" ping
+    (schizo): "Hello" ping
 
 followed by
 
-    (actor://main-pc/schizo): "Hello" pong
+    (schizo): "Hello" pong
 
 
 #Supervising Actors
@@ -155,14 +164,17 @@ Actors can supervise other actors, if we define an actor loop that fails on a gi
 *)
 
 let err = 
-    (fun (actor:Actor<string>) ->
-        async {
-            let! msg = actor.Receive()
-            if msg <> "fail"
-            then printfn "%s" msg
-            else failwithf "ERRRROROROR"
-        }
-    )
+        (fun (actor:IActor<string>) ->
+            let rec loop() =
+                async {
+                    let! (msg,_) = actor.Receive()
+                    if msg <> "fail"
+                    then printfn "%s" msg
+                    else failwithf "ERRRROROROR"
+                    return! loop()
+                }
+            loop()
+        )
 
 (**
 then a supervisor will allow the actor to restart or terminate depending on the particular strategy that is in place
@@ -177,7 +189,9 @@ A supervisor will only restart the actor that has errored
 *)
 
 let oneforone = 
-    Actor.supervisor (ActorPath.create "oneforone") Supervisor.OneForOne [Actor.spawn (ActorPath.create "err_0") err]
+    Supervisor.spawn 
+        <| Supervisor.Options.Create(actorOptions = Actor.Options.Create("OneForOne"))
+    |> Supervisor.superviseAll [Actor.spawn (Actor.Options.Create("err_0")) err]
 
 !!"err_0" <-- "fail"
 
@@ -206,13 +220,18 @@ If any watched actor errors all children of this supervisor will be told to rest
 *)
 
 let oneforall = 
-    Actor.supervisor (ActorPath.create "oneforall") Supervisor.OneForAll 
+    Supervisor.spawn 
+        <| Supervisor.Options.Create(
+                    strategy = Supervisor.Strategy.OneForAll,
+                    actorOptions = Actor.Options.Create("OneForAll")
+           )
+    |> Supervisor.superviseAll
         [
-            Actor.spawn (ActorPath.create "err_1") err;
-            Actor.spawn (ActorPath.create "err_2") err
+            Actor.spawn (Actor.Options.Create("err_1")) err;
+            Actor.spawn (Actor.Options.Create("err_2")) err
         ]
-
-!!"err_1" <-- "fail"
+"err_1" ?<-- "Boo"
+"err_2" ?<-- "fail"
 
 (**
 This yields
@@ -242,13 +261,18 @@ A supervisor will terminate the actor that has errored
 *)
 
 let fail = 
-    Actor.supervisor (ActorPath.create "fail") Supervisor.Fail 
+    Supervisor.spawn 
+        <| Supervisor.Options.Create(
+                    strategy = Supervisor.Strategy.AlwaysFail,
+                    actorOptions = Actor.Options.Create("Fail")
+           )
+    |> Supervisor.superviseAll
         [
-            Actor.spawn (ActorPath.create "err_1") err;
-            Actor.spawn (ActorPath.create "err_2") err
+            Actor.spawn (Actor.Options.Create("err_3")) err;
+            Actor.spawn (Actor.Options.Create("err_4")) err
         ]
 
-!!"err_1" <-- "fail"
+!!"err_3" <-- "fail"
 
 (**
 This yields
@@ -267,16 +291,21 @@ This yields
 If you no longer require an actor to be supervised, then you can `Unwatch` the actor, repeating the OneForAll above
 *)
 
-let oneforallUnWatched = 
-    Actor.supervisor (ActorPath.create "oneforall") Supervisor.OneForAll 
+let oneforallunwatch = 
+    Supervisor.spawn 
+        <| Supervisor.Options.Create(
+                    strategy = Supervisor.Strategy.OneForAll,
+                    actorOptions = Actor.Options.Create("OneForAll")
+           )
+    |> Supervisor.superviseAll
         [
-            Actor.spawn (ActorPath.create "err_1") err;
-            Actor.spawn (ActorPath.create "err_2") err
+            Actor.spawn (Actor.Options.Create("err_5")) err;
+            Actor.spawn (Actor.Options.Create("err_6")) err
         ]
 
-Actor.unwatch !*"err_2" 
+Actor.unwatch !*"err_6" 
 
-!!"err_1" <-- "fail"
+!!"err_5" <-- "fail"
 
 (**
 We now see that one actor `err_1` has restarted
@@ -300,19 +329,29 @@ Linking an actor to another means that this actor will become a sibling of the o
 *)
 
 let child i = 
-    Actor.spawn (ActorPath.create <| sprintf "a/child_%d" i) 
-         (fun actor -> async { 
-                let! msg = actor.Receive()
-                actor.Log.Info(sprintf "%A recieved %A" actor msg) 
-              })
+    Actor.spawn (Actor.Options.Create(sprintf "a/child_%d" i)) 
+         (fun actor ->
+             let log = (actor :?> Actor.T<_>).Log 
+             let rec loop() =
+                async { 
+                   let! msg = actor.Receive()
+                   log.Info(sprintf "%A recieved %A" actor msg, None) 
+                   return! loop()
+                }
+             loop()
+         )
 
 let parent = 
-    Actor.spawnLinked (ActorPath.create "a/parent") 
-            (fun actor -> async { 
-                let! msg = actor.Receive()
-                actor.Children <-* msg
-              })
-             <| List.init 5 (child)
+    Actor.spawnLinked (Actor.Options.Create "a/parent") (List.init 5 (child))
+            (fun actor -> 
+                let rec loop() =
+                  async { 
+                      let! msg = actor.Receive()
+                      actor.Children <-* msg
+                      return! loop()
+                  }
+                loop()    
+            ) 
 
 parent <-- "Forward this to your children"
 

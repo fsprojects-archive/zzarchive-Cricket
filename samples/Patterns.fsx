@@ -1,6 +1,6 @@
 ﻿#load "Dependencies.fsx"
 open FSharp.Actor
-open FSharp.Actor.DSL
+
 (**
 #Patterns
 
@@ -17,17 +17,21 @@ Round robin dispatch, distributes messages in a round robin fashion to its worke
 *)
 
 let createWorker i =
-    Actor.spawn (ActorPath.create (sprintf "workers/worker_%d" i)) (fun (actor:Actor<int>) ->
-        async {
-            let! msg = actor.Receive()
-            do actor.Log.Debug(sprintf "Actor %A recieved work %d" actor msg)
-            do! Async.Sleep(5000)
-            do actor.Log.Debug(sprintf "Actor %A finshed work %d" actor msg)
-        }
+    Actor.spawn (Actor.Options.Create(sprintf "workers/worker_%d" i)) (fun (actor:IActor<int>) ->
+        let log = (actor :?> Actor.T<int>).Log
+        let rec loop() = 
+            async {
+                let! (msg,_) = actor.Receive()
+                do log.Debug(sprintf "Actor %A recieved work %d" actor msg, None)
+                do! Async.Sleep(5000)
+                do log.Debug(sprintf "Actor %A finshed work %d" actor msg, None)
+                return! loop()
+            }
+        loop()
     )
 
 let workers = [|1..10|] |> Array.map createWorker
-let rrrouter = Patterns.Dispatch.roundRobin<int> (ActorPath.create "workers/routers/roundRobin") workers
+let rrrouter = Patterns.Dispatch.roundRobin<int> "workers/routers/roundRobin" workers
 
 [1..10] |> List.iter ((<--) rrrouter)
 
@@ -40,7 +44,7 @@ Using the workers defined above we can define another dispatcher but this time u
 dispatch strategy
 *)
 
-let sqrouter = Patterns.Dispatch.shortestQueue (ActorPath.create "workers/routers/shortestQ") workers
+let sqrouter = Patterns.Dispatch.shortestQueue "workers/routers/shortestQ" workers
 
 [1..100] |> List.iter ((<--) sqrouter)
 

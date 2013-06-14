@@ -3,14 +3,7 @@
 open System
 open System.Collections.Concurrent
 open System.Threading
-
-type IMailbox<'a> = 
-     inherit IDisposable
-     abstract Receive : int option * CancellationToken -> Async<'a>
-     abstract Post : 'a -> unit
-     abstract Length : int with get
-     abstract IsEmpty : bool with get
-     abstract Restart : unit -> unit
+open FSharp.Actor.Types
 
 type DefaultMailbox<'a>() =
     let mutable inbox = ConcurrentQueue<'a>()

@@ -80,7 +80,7 @@ Target "BuildNuGet" (fun _ ->
             AccessKey = nugetKey
            // ToolPath = "tools\Nuget\Nuget.exe"
             Publish = nugetKey <> ""})
-        ("./FSharp.Enterprise.nuspec")
+        ("./FSharp.Actor.nuspec")
     [
        (nugetDir) + sprintf "\FSharp.Actor.%s.nupkg" version
     ] |> CopyTo deployDir

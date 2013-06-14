@@ -1,63 +1,74 @@
 ﻿namespace FSharp.Actor
 
-module Supervisor =
-    
-    type Strategy = 
-        {
-             Handle : ActorRef -> SupervisorMessage -> unit
-        }
-        with 
-            static member Empty = { Handle = (fun _ _ -> ()) }
+open FSharp.Actor
+open FSharp.Actor.Types
 
-    type Config = 
-        {
-            mutable Supervisor : ActorRef option
-            mutable Strategy : Strategy
-        }
-        with
-          static member Empty =  { Supervisor = None; Strategy = Strategy.Empty }
-          member x.Notify(msg) = 
-                x.Supervisor |> Option.map (fun sup -> sup.Post(Supervisor(msg)))
-          member x.Watch(actor, supervisor) =
-                x.Supervisor <- Some(supervisor)
-                supervisor.Link(actor)
-          member x.Unwatch(actor) =
-                x.Supervisor |> Option.iter (fun s -> s.Unlink(actor))
-                x.Supervisor <- None
-          member x.Handle(supervisor, msg) = x.Strategy.Handle supervisor msg
-          member x.SetStrategy(s) = 
-                x.Strategy <- s
+module Supervisor = 
 
-    let Fail = 
-        {
-            Handle = fun supervisor msg ->
-                        match msg with 
-                        | Errored(actorRef, exn) -> 
-                           Kernel.Logger.Debug(sprintf "Terminating (AlwaysTerminate: %A) due to error %A" actorRef exn)
-                           actorRef.Post(Die)
-                        | Terminated(actorRef) ->
-                            Kernel.Logger.Debug(sprintf "Supervised actor terminated: %A" actorRef)
-        }
+    module Strategy = 
+        
+        let AlwaysFail = 
+            (fun err (supervisor:IActor) (target:IActor) -> 
+                target.PostSystemMessage(SystemMessage.Shutdown("SupervisorStrategy:AlwaysFail"), Some supervisor)
+            )
 
-    let OneForOne = 
-        {
-            Handle = fun supervisor msg ->
-                        match msg with 
-                        | Errored(actorRef, exn) -> 
-                           Kernel.Logger.Debug(sprintf "Restarting (OneForOne: %A) due to error %A" actorRef exn)
-                           actorRef.Post(Restart)
-                        | Terminated(actorRef) ->
-                            Kernel.Logger.Debug(sprintf "Supervised actor terminated: %A" actorRef)
-        }
+        let OneForOne = 
+           (fun err (supervisor:IActor) (target:IActor) -> 
+                target.PostSystemMessage(SystemMessage.Restart("SupervisorStrategy:OneForOne"), Some supervisor)
+           )
+           
+        let OneForAll = 
+           (fun err (supervisor:IActor) (target:IActor) -> 
+                supervisor.Children 
+                |> Seq.iter (fun c -> 
+                               c.PostSystemMessage(
+                                   SystemMessage.Restart("SupervisorStrategy:OneForAll"), 
+                                           Some supervisor))
+           )
 
-    let OneForAll = 
-        {
-            Handle = fun supervisor msg -> 
-                        match msg with
-                        | Errored(actorRef, exn) ->
-                           Kernel.Logger.Debug(sprintf "Restarting (OneForAll %A) due to error %A" actorRef exn) 
-                           supervisor.Children |> Seq.iter (fun a -> a.Post(Restart))
-                        | Terminated(actorRef) ->
-                           Kernel.Logger.Debug(sprintf "Supervised actor terminated: %A" actorRef)
-        }
+    type Options = {
+        MaxFailures : int option
+        Strategy : (exn -> IActor<SupervisorMessage> -> IActor -> unit)
+        ActorOptions : Actor.Options<SupervisorMessage>
+    }
+    with
+        static member Default = Options.Create()
+        static member Create(?maxFail, ?strategy, ?actorOptions) = 
+            {
+                MaxFailures = defaultArg maxFail (Some 10)
+                Strategy = defaultArg strategy Strategy.OneForOne
+                ActorOptions = defaultArg actorOptions (Actor.Options<SupervisorMessage>.Default)
+            }
+
+    let spawn options = 
+        let computation (actor:IActor<SupervisorMessage>) = 
+            let rec supervisorLoop (restarts:Map<string,int>) = 
+                async {
+                    let! (msg, sender) = actor.Receive()
+                    match msg with
+                    | SupervisorMessage.ActorErrored(err, targetActor) ->
+                        match restarts.TryFind(targetActor.Id), options.MaxFailures with
+                        | Some(count), Some(maxfails) when count < maxfails -> 
+                            options.Strategy err actor targetActor                            
+                            return! supervisorLoop (Map.add targetActor.Id (count + 1) restarts)
+                        | Some(count), Some(maxfails) -> 
+                            targetActor.PostSystemMessage(SystemMessage.Shutdown("Too many restarts"), Some(actor :> IActor))                          
+                            return! supervisorLoop (Map.add targetActor.Id (count + 1) restarts)
+                        | Some(count), None -> 
+                            options.Strategy err actor targetActor                            
+                            return! supervisorLoop (Map.add targetActor.Id (count + 1) restarts)
+                        | None, Some(maxfails) ->
+                            options.Strategy err actor targetActor                            
+                            return! supervisorLoop (Map.add targetActor.Id 1 restarts)
+                        | None, None ->
+                            options.Strategy err actor targetActor                            
+                            return! supervisorLoop (Map.add targetActor.Id 1 restarts)                   
+                }
+            supervisorLoop Map.empty
+
+        Actor.spawn options.ActorOptions computation
+
+    let superviseAll (actors:seq<IActor>) sup = 
+        actors |> Seq.iter (fun a -> a.Watch(sup))
+        sup
 

@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>52e85b1c-64e5-491b-bd7a-07f989b21731</ProjectGuid>
+    <ProjectGuid>f2734ea2-85cb-40d7-a02e-7b5c925dee2e</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Actor.Remote</RootNamespace>
-    <AssemblyName>Actor.Remote</AssemblyName>
+    <RootNamespace>Actor.Node2</RootNamespace>
+    <AssemblyName>Actor.Node2</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Actor.Remote</Name>
+    <Name>Actor.Node2</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Actor.Remote.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Actor.Node2.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,12 +32,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Actor.Remote.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Actor.Node2.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Fracture">
-      <HintPath>..\..\lib\Fracture.dll</HintPath>
+      <HintPath>..\..\..\fsharp.actor\lib\Fracture.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -52,6 +52,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\FSharp.Actor.Fracture\FSharp.Actor.Fracture.fsproj">
+      <Name>FSharp.Actor.Fracture</Name>
+      <Project>{b7d485a9-c4b4-4aec-9d39-7dc5a98c360c}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\FSharp.Actor\FSharp.Actor.fsproj">
       <Name>FSharp.Actor</Name>
       <Project>{aa4bc25b-04f7-4b39-bf28-0b0058193ed9}</Project>

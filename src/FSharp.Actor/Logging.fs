@@ -1,23 +1,10 @@
 ﻿namespace FSharp.Actor
 
 open System
-open System.Collections.Concurrent
+open FSharp.Actor.Types
 
 module Logging = 
     
-    type Adapter = {
-        DebugF : string * exn option -> unit
-        InfoF : string * exn option -> unit
-        WarningF : string * exn option -> unit
-        ErrorF : string * exn option -> unit
-    }
-    with
-        member x.Debug(msg, ?exn) = x.DebugF(msg, exn)
-        member x.Info(msg, ?exn) = x.InfoF(msg, exn)
-        member x.Warning(msg, ?exn) = x.WarningF(msg, exn)
-        member x.Error(msg, ?exn) = x.ErrorF(msg, exn)
-
-
     let Console =
         let write level (msg,exn : exn option) =
             let msg = 
@@ -40,10 +27,9 @@ module Logging =
             Console.WriteLine(msg)
             Console.ForegroundColor <- ConsoleColor.White
 
-        {
-            DebugF = write "debug"
-            InfoF = write "info"
-            WarningF = write "warn"
-            ErrorF = write "error"
+        { new ILogger with
+            member x.Debug(msg,exn) = write "debug" (msg,exn)
+            member x.Info(msg, exn) = write "info" (msg,exn)
+            member x.Warning(msg, exn) = write "warn" (msg,exn)
+            member x.Error(msg, exn) = write "error" (msg,exn) 
         }
-

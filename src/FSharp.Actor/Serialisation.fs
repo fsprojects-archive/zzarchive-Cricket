@@ -2,10 +2,7 @@
 
 open System.IO
 open System.Runtime.Serialization.Formatters.Binary
-
-type [<AbstractClass>] Serialiser() =
-    abstract Serialise : obj -> byte[]
-    abstract Deserialise : byte[] -> obj
+open FSharp.Actor.Types
 
 module Serialisers = 
     
@@ -26,7 +23,7 @@ module Serialisers =
                 formatter.Deserialize(ms)
             else null
 
-        { new Serialiser() with
+        { new ISerialiser with
               member x.Serialise(payload) = serialise payload
               member x.Deserialise(body) = deserialise body 
         }

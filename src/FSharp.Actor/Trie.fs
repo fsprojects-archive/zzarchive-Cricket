@@ -50,4 +50,3 @@ module Trie =
         | k::ks, Node (v,m) -> 
               let t' = remove ks (Map.find k m) in
               Node (v, if t' = empty then Map.remove k m else Map.add k t' m)
-

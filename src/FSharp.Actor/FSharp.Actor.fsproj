@@ -36,21 +36,16 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
+    <Compile Include="Interfaces.fs" />
     <Compile Include="Trie.fs" />
+    <Compile Include="Serialisation.fs" />
     <Compile Include="Logging.fs" />
     <Compile Include="Mailboxes.fs" />
     <Compile Include="ActorPath.fs" />
-    <Compile Include="ActorRef.fs" />
-    <Compile Include="Messages.fs" />
-    <Compile Include="Serialisation.fs" />
-    <Compile Include="ActorTrie.fs" />
-    <Compile Include="RemoteActorRef.fs" />
-    <Compile Include="Kernel.fs" />
-    <Compile Include="Supervisor.fs" />
-    <Compile Include="Events.fs" />
+    <Compile Include="Registry.fs" />
     <Compile Include="Actor.fs" />
-    <Compile Include="DSL.fs" />
-    <Compile Include="Remote.fs" />
+    <Compile Include="Remoting.fs" />
+    <Compile Include="Supervisor.fs" />
     <Compile Include="Patterns.fs" />
     <None Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />

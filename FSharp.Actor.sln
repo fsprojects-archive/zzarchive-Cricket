@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{9756
 		samples\Remoting.fsx = samples\Remoting.fsx
 	EndProjectSection
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Remote", "samples\Actor.Remote\Actor.Remote.fsproj", "{52E85B1C-64E5-491B-BD7A-07F989B21731}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{CDFD2619-B389-49BE-99C1-4AABFE36F859}"
 	ProjectSection(SolutionItems) = preProject
 		build.cmd = build.cmd
@@ -26,6 +24,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{CDFD2619
 		FSharp.Actor.nuspec = FSharp.Actor.nuspec
 		template.html = template.html
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Remoting", "Remoting", "{ECF31D64-040F-4AD1-A033-DE6125F6B7C1}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Node1", "samples\Actor.Node1\Actor.Node1.fsproj", "{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Node2", "samples\Actor.Node2\Actor.Node2.fsproj", "{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Actor.Fracture", "src\FSharp.Actor.Fracture\FSharp.Actor.Fracture.fsproj", "{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,16 +47,26 @@ Global
 		{A20060EC-E820-4ED1-A871-537914C10183}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A20060EC-E820-4ED1-A871-537914C10183}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A20060EC-E820-4ED1-A871-537914C10183}.Release|Any CPU.Build.0 = Release|Any CPU
-		{52E85B1C-64E5-491B-BD7A-07F989B21731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52E85B1C-64E5-491B-BD7A-07F989B21731}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52E85B1C-64E5-491B-BD7A-07F989B21731}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52E85B1C-64E5-491B-BD7A-07F989B21731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A20060EC-E820-4ED1-A871-537914C10183} = {38D2EEDA-A225-4CDA-9ECB-34728B44501F}
-		{52E85B1C-64E5-491B-BD7A-07F989B21731} = {97567239-FBBA-4443-BBFC-728507C17CDA}
+		{ECF31D64-040F-4AD1-A033-DE6125F6B7C1} = {97567239-FBBA-4443-BBFC-728507C17CDA}
+		{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E} = {ECF31D64-040F-4AD1-A033-DE6125F6B7C1}
+		{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E} = {ECF31D64-040F-4AD1-A033-DE6125F6B7C1}
 	EndGlobalSection
 EndGlobal

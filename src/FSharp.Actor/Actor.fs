@@ -2,163 +2,219 @@
 
 open System
 open System.Threading
-open System.Collections.Generic
-open System.Collections.Concurrent
 open FSharp.Actor
+open FSharp.Actor.Types
 
-    type ActorBehaviour<'a> = Actor<'a> -> Async<unit>
+module Actor = 
+
+    type Options<'a> = {
+        Id : string
+        Mailbox : IMailbox<ActorMessage<'a>>
+        Supervisor : IActor<SupervisorMessage> option
+        Logger : ILogger
+        Path : ActorPath
+    }
+    with 
+        static member Create(?id, ?mailbox, ?supervisor, ?logger, ?address) = 
+            let logger = defaultArg logger Logging.Console
+            let id = defaultArg id (Guid.NewGuid().ToString())
+            {
+                Id = id
+                Mailbox = defaultArg mailbox (new DefaultMailbox<ActorMessage<'a>>() :> IMailbox<ActorMessage<'a>>)
+                Supervisor = supervisor
+                Logger = logger
+                Path = defaultArg address (Path.create id)
+            }
+        static member Default = Options<'a>.Create()
     
-    and ActorConfig<'a> = {
-            Path : ActorPath.T
-            RecieveTimeout : TimeSpan option
-            Mailbox : IMailbox<'a>
-            Behaviours : Stack<ActorBehaviour<'a>>
-            Events : Events.Actor.T
-            Supervisor : Supervisor.Config
-            Children : ResizeArray<ActorRef>
-        }
-        with
-            static member Create(?path, ?timeout, ?eventStream, ?mailbox : IMailbox<_>, ?behaviours:seq<_>, ?supervisor, ?supervisorStrategy, ?events, ?children) = 
-                { 
-                  Path = defaultArg path (ActorPath.create (Guid.NewGuid().ToString()))
-                  RecieveTimeout = timeout ;  
-                  Mailbox = defaultArg mailbox (new DefaultMailbox<'a>() :> IMailbox<'a>); 
-                  Behaviours = (new Stack<_>(defaultArg behaviours Seq.empty))
-                  Events = defaultArg events Events.Actor.Default
-                  Supervisor = Supervisor.Config.Empty
-                  Children = (new ResizeArray<ActorRef>())
-                }
+    type T<'a>internal(computation : IActor<'a> -> Async<unit>, ?options) as self =
+        let mutable status = ActorStatus.Shutdown("")
+        let mutable cts = new CancellationTokenSource()  
+        let mutable options = defaultArg options (Options<'a>.Create())
+        let preStart = new Event<IActor>()
+        let preRestart = new Event<IActor>()
+        let preStop = new Event<IActor>()
+        let onStopped = new Event<IActor>()
+        let onRestarted = new Event<IActor>()
+        let onStart = new Event<IActor>()
+        let children = new ResizeArray<IActor>()
+        let stateChangeSync = new obj()
+    
+        let setStatus newStatus = 
+            status <- newStatus
+    
+        let rec run (actor:IActor<'a>) = 
+           setStatus ActorStatus.Running
+           async {
+                 try
+                    do! computation actor
+                 with e ->
+                    do! handleError actor e
+           }
 
-    and Actor<'a> internal(config:ActorConfig<'a>) as self =
-        inherit ActorRef(config.Path)
-
-        let mutable cts : CancellationTokenSource = null
-        let mutable state = Shutdown
-        let mutable systemMailbox = Unchecked.defaultof<IMailbox<SystemMessage>>
-        let bag = new Dictionary<string, obj>()
-
-        let shutDown(actor:Actor<_>) = 
-             Events.Actor.run actor.Configuration.Events.PreStop (actor.Ref())
-             cts.Cancel()
-             systemMailbox.Dispose()
-             state <- Shutdown
-             cts <- null
-             Kernel.Actor.remove actor
-             Events.Actor.run actor.Configuration.Events.OnStopped (actor.Ref())
-
-        let rec working(actor:Actor<'a>) = async {
-            while not <| cts.IsCancellationRequested && (state = OK) do
-                try
-                    if actor.Configuration.Behaviours.Count > 0
-                    then do! (actor.Configuration.Behaviours.Peek() actor)
-                    else 
-                        do! actor.Receive() |> Async.Ignore //Throw away messages until we have a behaviour
-                with e ->
-                    state <- ActorStatus.Errored
-                    match config.Supervisor.Notify (Errored(actor, e)) with
-                    | Some _ -> do! errored actor
-                    | None -> 
-                        actor.Log.Error(sprintf "Actor %A errored shutting down" actor, e)
-                        do shutDown(actor)
+        and handleError (actor:IActor<'a>) (err:exn) =
+            setStatus <| ActorStatus.Errored(err)
+            async {
+                match options.Supervisor with
+                | Some(supervisor) -> 
+                    supervisor.Post(SupervisorMessage.ActorErrored(err, actor), None)
+                | None ->
+                    shutdown actor (sprintf "An exception was handled\r\n%A" err)
+                return ()
             }
+    
+        and shutdown (actor:IActor<'a>) reason =
+            lock stateChangeSync (fun _ ->
+                preStop.Trigger(actor :> IActor)
+                cts.Cancel()
+                setStatus <| ActorStatus.Shutdown(reason)
+                cts <- null
+                onStopped.Trigger(actor :> IActor)
+                )
+    
+        and start (actor:IActor<'a>) reason = 
+            lock stateChangeSync (fun _ ->
+                preStart.Trigger(actor :> IActor)  
+                cts <- new CancellationTokenSource()
+                Async.Start(run self, cts.Token)
+                onStart.Trigger(actor :> IActor)
+            )
+    
+        and restart (actor:IActor<'a>) reason =
+            lock stateChangeSync (fun _ ->
+                preRestart.Trigger(actor :> IActor)
+                shutdown actor (sprintf "Restarting: %s" reason)
+                setStatus ActorStatus.Restarting
+                start actor reason
+                onRestarted.Trigger(actor :> IActor)
+            )
+        
+        override x.ToString() =  (x :> IActor).Id
+        override x.Equals(y:obj) = 
+            match y with
+            | :? IActor as y -> (x :> IActor).Id = y.Id
+            | _ -> false
+        override x.GetHashCode() = (x :> IActor).Id.GetHashCode()
+    
+        member x.Log with get() = options.Logger
+        
+        interface IActor<'a> with
+            
+            [<CLIEvent>]
+            member x.OnRestarted = onRestarted.Publish
+            [<CLIEvent>]
+            member x.OnStarted = onStart.Publish
+            [<CLIEvent>]
+            member x.OnStopped = onStopped.Publish
+            [<CLIEvent>]
+            member x.PreRestart = preRestart.Publish
+            [<CLIEvent>]
+            member x.PreStart = preStart.Publish
+            [<CLIEvent>]
+            member x.PreStop = preStop.Publish
+    
+            member x.Id with get()= options.Id
+            member x.Path with get()= options.Path
+            member x.QueueLength with get() = options.Mailbox.Length
+            member x.Start() = 
+                start self "Initial Startup"
 
-        and errored(actor:Actor<'a>) = async {
-             while not <| cts.IsCancellationRequested do
-                try
-                    let! sysMsg = systemMailbox.Receive(None, cts.Token)
-                    match sysMsg with
-                    //Ignore supervisor messages in this state we are in trouble ourselves here
-                    | Supervisor(msg) -> () 
-                    | Restart -> do actor.Restart()
-                    | Die -> do shutDown(actor)
-                with e -> 
-                    actor.Log.Error(sprintf "%A failed handling system message" actor, e)
-            }
-
-        let start'(actor:Actor<_>) = 
-            cts <- new CancellationTokenSource()
-            systemMailbox <- new DefaultMailbox<SystemMessage>() :> IMailbox<SystemMessage>
-            state <- OK
-            Async.Start(working(actor), cts.Token)
+            member x.Post(msg : obj, ?sender:IActor) = (x :> IActor<'a>).Post(msg :?> 'a, sender)
+            member x.Post(msg : 'a, ?sender) =
+                if status = ActorStatus.Running
+                then options.Mailbox.Post(Message(msg, sender))
+                else failwithf "Cannot send message actor status invalid %A" status
+    
+            member x.Post(msg : 'a) = (x :> IActor<'a>).Post(msg, Option<IActor>.None)
             
 
-        let start(actor:Actor<_>) =
-            Events.Actor.run actor.Configuration.Events.PreStart (actor.Ref())
-            start'(actor)
-            Events.Actor.run actor.Configuration.Events.OnStarted (actor.Ref())
+            member x.PostSystemMessage(sysMessage : SystemMessage, ?sender : IActor) =
+                   printfn "%A received sys message %A" x sysMessage
+                   match sysMessage with
+                   | Shutdown(reason) -> shutdown x reason
+                   | Restart(reason) -> restart x reason
+                   
+    
+            member x.Receive(?timeout) = 
+                async {
+                    let! msg = options.Mailbox.Receive(timeout, cts.Token)
+                    match msg with
+                    | Message(msg, sender) -> return msg, sender
+                }
+    
+            member x.Receive() = 
+                async {
+                    let! msg = options.Mailbox.Receive(None, cts.Token)
+                    match msg with
+                    | Message(msg, sender) -> return msg, sender
+                }
+    
+            member x.Link(actorRef) = children.Add(actorRef)
+            member x.UnLink(actorRef) = children.Remove(actorRef) |> ignore
+            member x.Watch(supervisor) = 
+                match supervisor with
+                | :? IActor<SupervisorMessage> as sup -> 
+                    options <- { options with Supervisor = Some sup }
+                    supervisor.Link(x)
+                | _ -> failwithf "The IActor passed to watch must be of type IActor<SupervisorMessage>"
+            member x.UnWatch() =
+               match options.Supervisor with
+               | Some(sup) -> 
+                   options <- { options with Supervisor = None }
+                   sup.UnLink(x)
+               | None -> () 
+            member x.Children with get() = children :> seq<_>
+            member x.Status with get() = status
 
-        let restart(actor:Actor<_>) =
-            shutDown(actor)
-            state <- Restarting
-            Events.Actor.run actor.Configuration.Events.PreRestart (actor.Ref())
-            start'(actor)
-            Events.Actor.run actor.Configuration.Events.OnRestarted (actor.Ref())
+    let logEvents (logger:ILogger) (actor:IActor) =
+        actor.OnRestarted |> Event.add (fun a -> logger.Debug(sprintf "%A restarted Status: %A" a a.Status, None))
+        actor.OnStarted |> Event.add (fun a -> logger.Debug(sprintf "%A started Status: %A" a a.Status, None))
+        actor.OnStopped |> Event.add (fun a -> logger.Debug(sprintf "%A stopped Status: %A" a a.Status, None))
+        actor.PreRestart |> Event.add (fun a -> logger.Debug(sprintf "%A pre-restart Status: %A" a a.Status, None))
+        actor.PreStart |> Event.add (fun a -> logger.Debug(sprintf "%A pre-start Status: %A" a a.Status, None))
+        actor.PreStop |> Event.add (fun a -> logger.Debug(sprintf "%A pre-stop Status: %A" a a.Status, None))
+        actor
 
-        do 
-            start(self)
+    let start (actor:IActor) = 
+        actor.Start()
+        actor
+    
+    let create (options:Options<_>) computation = 
+        (new T<_>(computation, options) :> IActor<_>)
+        |> logEvents options.Logger
 
-        override x.Post(message) = 
-            if state <> Shutdown && state <> Restarting
-            then
-                match message with
-                | :? SystemMessage as a when state = OK ->
-                    match a with
-                    | Die -> shutDown(x)
-                    | Restart -> x.Restart()
-                    | Supervisor(sup) -> x.Configuration.Supervisor.Handle(x,sup)
-                | :? SystemMessage as a -> systemMailbox.Post(a)
-                | _ -> config.Mailbox.Post(message :?> 'a)
-            else invalidOp (sprintf "Actor (%A) could not handle message, State: %A" x x.Status)  
+    let register actor = 
+        Registry.Actor.register actor 
+
+    let spawn (options:Options<_>) computation =
+        create options computation
+        |> register
+        |> start
+
+    let supervisedBy sup (actor:IActor) = 
+        actor.Watch(sup)
+        actor
+
+    let link (linkees:seq<IActor>) (actor:IActor) =
+        Seq.iter actor.Link linkees
+        actor
+
+    let spawnLinked options linkees computation =
+        link linkees (spawn options computation)
+
+    let unlink linkees (actor:IActor) =
+        linkees |> Seq.iter (fun (l:IActor) -> actor.UnLink(l))
+        actor
+
+    let unwatch (actors:seq<IActor>) = 
+        actors |> Seq.iter (fun a -> a.UnWatch())
         
-        member x.Receive() = 
-            async {
-                return! x.Configuration.Mailbox.Receive(Option.map (fun (x:TimeSpan) -> x.TotalMilliseconds |> int) x.Configuration.RecieveTimeout, cts.Token)
-            }
-        
-        override x.QueueLength with get() = config.Mailbox.Length
-        
-        member internal x.Bag with get() = bag
-
-        static member (?<-) (actor:Actor<'a>,key:string,value:obj) = 
-            actor.Bag.[key] <- value
-        static member (?) (actor:Actor<'a>,key:string) : 'b =
-            match actor.Bag.TryGetValue(key) with
-            | true, v -> v :?> 'b
-            | false, _ -> Unchecked.defaultof<'b>
-
-
-        member x.Configuration with get() : ActorConfig<'a> = config
-        member x.Behave(reciever) = config.Behaviours.Push(reciever)
-        member x.UnBehave() = config.Behaviours.Pop() |> ignore
-        member x.Log with get() : Logging.Adapter = Kernel.Logger
-        override x.Watch(supervisor) = 
-            x.Log.Debug(sprintf "%A Set supervisor %A" x supervisor)
-            config.Supervisor.Watch(x, supervisor)
-        override x.Unwatch() = 
-            x.Log.Debug(sprintf "%A Removed supervisor" x)
-            config.Supervisor.Unwatch(x)
-        override x.Link(actorRef) = 
-            x.Log.Debug(sprintf "%A Linked to %A" x actorRef)
-            config.Children.Add(actorRef)
-        override x.Unlink(actorRef) = 
-            x.Log.Debug(sprintf "%A unlinked %A" x actorRef)
-            config.Children.Remove(actorRef) |> ignore
-        override x.Status with get() : ActorStatus = state
-        override x.Children with get() = config.Children.AsReadOnly() :> seq<_>
-        member x.Ref() = x :> ActorRef
-        member internal x.Restart() = restart(x)
-       
-
-
-    type NullActor(?id) =
-        inherit ActorRef(ActorPath.T(?id = id))
-
-        override x.QueueLength with get() = 0
-        override x.Post(m) = ()
-        override x.Watch(supervisor) = ()
-        override x.Unwatch() = ()
-        override x.Link(actorRef) = ()
-        override x.Unlink(actorRef) = ()
-        override x.Status with get() : ActorStatus = ActorStatus.OK
-        override x.Children with get() = Seq.empty
-        member x.Ref() = x :> ActorRef
+    let deadLetter name = 
+        let computation (actor:IActor<_>) = 
+            let rec loop() = 
+                async {
+                    let! msg = actor.Receive()
+                    return! loop()
+                }
+            loop()
+        new T<_>(computation, Options<_>.Create(name)) :> IActor<_>
