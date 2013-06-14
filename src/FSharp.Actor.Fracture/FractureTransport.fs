@@ -29,7 +29,11 @@ type FractureTransport(listenPort:int, ?serialiser:ISerialiser,?log:ILogger) =
         then 
             let msg = msg |> unbox<FractureMessage>
             match Registry.Actor.tryFind (Path.toLocal msg.Target)  with
-            | Some(a) -> a.Post(msg.Body, Some a)
+            | Some(a) -> 
+                match msg.Body with
+                | :? SystemMessage as msg -> 
+                    a.PostSystemMessage(msg, Some a)
+                | msg -> a.Post(msg, Some a)
             | None -> log.Warning(sprintf "%A recieved message for %A from %A but could not resolve actor" scheme msg.Target (socketDescriptor.RemoteEndPoint.Address.ToString()), None)
 
     do

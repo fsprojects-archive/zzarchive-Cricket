@@ -10,7 +10,7 @@ let fractureTransport =
 let logger = 
     Actor.spawn (Actor.Options.Create("node2/logger")) 
        (fun (actor:IActor<string>) ->
-            let log = (actor :?> Actor.Actor<string>).Log
+            let log = (actor :?> Actor.T<string>).Log
             let rec loop() = 
                 async {
                     let! (msg, sender) = actor.Receive()
@@ -26,7 +26,7 @@ let logger =
 
 [<EntryPoint>]
 let main argv = 
-    Registry.registerTransport fractureTransport
+    Registry.Transport.register fractureTransport
     
     logger <-- "Hello"
 

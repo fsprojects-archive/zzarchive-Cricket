@@ -11,7 +11,7 @@ let fractureTransport =
 let logger = 
     Actor.spawn (Actor.Options.Create("node1/logger")) 
        (fun (actor:IActor<string>) ->
-            let log = (actor :?> Actor.Actor<string>).Log
+            let log = (actor :?> Actor.T<string>).Log
             let rec loop() = 
                 async {
                     let! (msg, sender) = actor.Receive()
@@ -27,7 +27,7 @@ let logger =
 
 [<EntryPoint>]
 let main argv = 
-    Registry.registerTransport fractureTransport
+    Registry.Transport.register fractureTransport
     
     logger <-- "Hello"
     "node1/logger" ?<-- "Hello"
@@ -35,6 +35,8 @@ let main argv =
     while Console.ReadLine() <> "exit" do
         "actor.fracture://127.0.0.1:6666/node2/logger" ?<-- "Ping"
 
+    "actor.fracture://127.0.0.1:6666/node2/logger" ?<!- Shutdown("Remote Shutdown")
+    
     Console.ReadLine() |> ignore
 
     0
