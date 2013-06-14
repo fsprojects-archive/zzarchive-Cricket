@@ -108,3 +108,5 @@ Backup*/
 UpgradeLog*.XML
 [Pp]ackages
 [Oo]utput
+nuget-key.txt
+build/*

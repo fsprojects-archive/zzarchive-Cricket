@@ -2,6 +2,18 @@
 <doc>
 <assembly><name>FakeLib</name></assembly>
 <members>
+<member name="T:AssemblyInfo">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="">
 
 </member>
@@ -336,6 +348,269 @@
 <member name="">
 
 </member>
+<member name="M:Fake.Boot.CommandHandler.Interact">
+<summary>
+ Runs the handler with the default environment.
+</summary>
+</member>
+<member name="T:Fake.Boot.CommandHandler">
+<summary>
+ Represents a command line handler.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="P:Fake.Boot.CommandEnvironment.Default">
+<summary>
+ The default environment.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Fake.Boot.CommandEnvironment">
+<summary>
+ Abstracts over command-line environment features.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Fake.Boot.Stage">
+<summary>
+ Stage of execution for a boot system.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.SourceDirectory">
+<summary>
+ The full path to the root folder.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.NuGetSourceUrl">
+<summary>
+ The URL of the NuGet source to use.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.NuGetPackagesDirectory">
+<summary>
+ Full path to the `packages` directory for storing NuGet packages.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.NuGetDependencies">
+<summary>
+ List of automatically installed and NuGet dependencies.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.NuGetCredentials">
+<summary>
+ The credentials to use when authenticating to NuGet, if any.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.IncludesFile">
+<summary>
+ Full path to the auto-generated fsx file with include statements.
+</summary>
+</member>
+<member name="F:Fake.Boot.Config.FrameworkName">
+<summary>
+ Framework name for assembly resolution.
+</summary>
+</member>
+<member name="M:Fake.Boot.Config.Default(System.String)">
+<summary>
+ The default configuration for a given source directory.
+</summary>
+</member>
+<member name="T:Fake.Boot.Config">
+<summary>
+ Configures the boostrapping process.
+</summary>
+</member>
+<member name="F:Fake.Boot.NuGetDependency.Version">
+<summary>
+ The version specification.
+</summary>
+</member>
+<member name="F:Fake.Boot.NuGetDependency.PackageId">
+<summary>
+ The identifer of the package, such as &quot;FAKE&quot;.
+</summary>
+</member>
+<member name="M:Fake.Boot.NuGetDependency.Create(System.String)">
+<summary>
+ The default pacakage dependency - take latest including pre-release.
+</summary>
+</member>
+<member name="T:Fake.Boot.NuGetDependency">
+<summary>
+ Specifies NuGet package dependencies.
+</summary>
+</member>
+<member name="T:Fake.Boot.NuGetVersion.SemanticVersion">
+<summary>
+ Pick the given semantic version, such as &quot;2.1.170-alpha&quot;.
+</summary>
+</member>
+<member name="T:Fake.Boot.NuGetVersion.LatestPreRelease">
+<summary>
+ Pick the latest available version, including pre-release versions.
+</summary>
+</member>
+<member name="T:Fake.Boot.NuGetVersion.Latest">
+<summary>
+ Pick the latest available version.
+</summary>
+</member>
+<member name="T:Fake.Boot.NuGetVersion">
+<summary>
+ Specifies which version of the NuGet package to install.
+</summary>
+</member>
+<member name="M:Fake.Boot.Prepare(Fake.Boot.Config)">
+<summary>
+ The main function intended to be executed in the BOOT phase of
+ boostrapping scripts.
+</summary>
+</member>
+<member name="M:Fake.Boot.ParseCommandLine(System.Collections.Generic.IEnumerable{System.String})">
+<summary>
+ Detects boot-specific commands.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="M:Fake.Boot.Implementation.IsBootScript(System.String)">
+<summary>
+ Checks if the F# script file is a bootstrapping script.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="M:Fake.Boot.Implementation.FsiArgs(Fake.Boot.CommandEnvironment,Fake.Boot.Stage)">
+<summary>
+ Computes extra command-line arguments to enable bootstrapping FAKE scripts.
+</summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Fake.Boot.Implementation">
+
+</member>
+<member name="T:Fake.Boot">
+<summary>
+ Implements support for boostrapping FAKE scripts.  A bootstrapping
+ `build.fsx` script executes twice (in two stages), allowing to
+ download dependencies with NuGet and do other preparatory work in
+ the first stage, and have these dependencies available in the
+ second stage.
+</summary>
+</member>
+<member name="">
+
+</member>
 <member name="">
 
 </member>
@@ -586,14 +861,54 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="M:Fake.DynamicsNav.CloseAllNavProcesses(System.Boolean)">
 <summary>
  Closes all running Dynamics NAV instances
 </summary>
 </member>
-<member name="M:Fake.DynamicsNav.OpenPage(System.String,System.String,System.String,System.String,System.Int32)">
+<member name="M:Fake.DynamicsNav.OpenPage(Fake.DynamicsNav.RTCParams,System.Int32)">
 <summary>
  Opens a page with the RTC client
+</summary>
+</member>
+<member name="M:Fake.DynamicsNav.RunCodeunit(Fake.DynamicsNav.RTCParams,System.Int32)">
+<summary>
+ Runs a codeunit with the RTC client
+</summary>
+</member>
+<member name="M:Fake.DynamicsNav.createRTCConnectionInfo(System.String,System.String,System.String,System.Int32,System.String)">
+<summary>
+ Creates the connection information to a Dynamics NAV RTC
 </summary>
 </member>
 <member name="M:Fake.DynamicsNav.CompileAll(Fake.DynamicsNav.DynamicsNavParams)">
@@ -630,6 +945,12 @@
 <summary>
  Creates the connection information to a Dynamics NAV instance
 </summary>
+</member>
+<member name="">
+
+</member>
+<member name="">
+
 </member>
 <member name="T:Fake.DynamicsNav">
 
@@ -775,10 +1096,18 @@
  Run the given buildscript with fsi.exe
 </summary>
 </member>
+<member name="M:Fake.FSIHelper.executeFSIWithArgs(System.String,System.String,Microsoft.FSharp.Collections.FSharpList{System.String},System.Collections.Generic.IEnumerable{System.Tuple{System.String,System.String}})">
+<summary>
+ Run the given build script with fsi.exe; allows for extra arguments to FSI.
+</summary>
+</member>
 <member name="M:Fake.FSIHelper.executeFSI(System.String,System.String,System.Collections.Generic.IEnumerable{System.Tuple{System.String,System.String}})">
 <summary>
  Run the given buildscript with fsi.exe
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -1509,9 +1838,19 @@
 <member name="">
 
 </member>
+<member name="M:Fake.Git.CommandHelper.fireAndForgetGitCommand(System.String,System.String)">
+<summary>
+ Fires the given git command
+</summary>
+</member>
 <member name="M:Fake.Git.CommandHelper.directExec(Microsoft.FSharp.Core.FSharpFunc{System.Diagnostics.ProcessStartInfo,Microsoft.FSharp.Core.Unit})">
 <summary>
  Runs the given process and returns the exit code
+</summary>
+</member>
+<member name="M:Fake.Git.CommandHelper.fireAndForget(Microsoft.FSharp.Core.FSharpFunc{System.Diagnostics.ProcessStartInfo,Microsoft.FSharp.Core.Unit})">
+<summary>
+ Starts the given process
 </summary>
 </member>
 <member name="">
@@ -2479,6 +2818,15 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="P:Fake.MSBuildHelper.msBuildExe">
 <summary>
  MSBuild exe fileName
@@ -2587,6 +2935,72 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Fake.MsBuildLogger">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="M:Fake.NCoverHelper.NCover(Microsoft.FSharp.Core.FSharpFunc{Fake.NCoverHelper.NCoverParams,Fake.NCoverHelper.NCoverParams},System.Collections.Generic.IEnumerable{System.String},System.Collections.Generic.IEnumerable{System.String})">
  <summary>Run NCover on a group of assemblies.</summary>
  <param name="setParams">NCover parameter function</param>
@@ -2671,6 +3085,9 @@
 <summary>
  Run NUnit on a group of assemblies.
 </summary>
+</member>
+<member name="">
+
 </member>
 <member name="">
 
@@ -2804,6 +3221,9 @@
 
 </member>
 <member name="T:Fake.NUnitHelper">
+
+</member>
+<member name="">
 
 </member>
 <member name="">
@@ -3174,6 +3594,21 @@
  Adds quotes around the string
 </summary>
 </member>
+<member name="M:Fake.ProcessHelper.StartService(System.String)">
+<summary>
+ Starts a windows service
+</summary>
+</member>
+<member name="M:Fake.ProcessHelper.StopService(System.String)">
+<summary>
+ Stops a windows service
+</summary>
+</member>
+<member name="M:Fake.ProcessHelper.RunService(System.String,System.String)">
+<summary>
+ Sends a command to a windows service
+</summary>
+</member>
 <member name="M:Fake.ProcessHelper.StartProcess(Microsoft.FSharp.Core.FSharpFunc{System.Diagnostics.ProcessStartInfo,Microsoft.FSharp.Core.Unit})">
 <summary>
  Starts the given process and forgets about it
@@ -3391,6 +3826,12 @@ returns the exit code
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="P:Fake.RestorePackageHelper.RestoreSinglePackageDefaults">
 <summary>
  RestoreSinglePackageParams defaults params  
@@ -3429,6 +3870,24 @@ returns the exit code
 </summary>
 </member>
 <member name="T:Fake.Seq">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
 
 </member>
 <member name="">
@@ -3770,12 +4229,6 @@ returns the exit code
 <member name="">
 
 </member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
 <member name="M:Fake.TargetHelper.ActivateFinalTarget(System.String)">
 <summary>
  Activates the FinalTarget
@@ -3802,6 +4255,9 @@ returns the exit code
 <member name="M:Fake.TargetHelper.WriteTaskTimeSummary``1(``0)">
  <summary>Writes a build time report.</summary>
  <param name="total">The total runtime.</param>
+</member>
+<member name="M:Fake.TargetHelper.WriteErrors">
+ <summary>Writes a summary of errors reported during build</summary> 
 </member>
 <member name="M:Fake.TargetHelper.PrintDependencyGraph(System.Boolean,System.String)">
  <summary>Writes a dependency graph.</summary>
@@ -4435,6 +4891,54 @@ returns the exit code
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="T:Fake.UnitTestHelper">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="T:Fake.VSSHelper">
 
 </member>
@@ -4751,18 +5255,6 @@ returns the exit code
 </summary>
 </member>
 <member name="T:Fake.ZipHelper">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
-
-</member>
-<member name="T:FakeLib.AssemblyInfo">
 
 </member>
 </members>
