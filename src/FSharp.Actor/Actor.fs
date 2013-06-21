@@ -129,7 +129,6 @@ module Actor =
             
 
             member x.PostSystemMessage(sysMessage : SystemMessage, ?sender : IActor) =
-                   printfn "%A received sys message %A" x sysMessage
                    match sysMessage with
                    | Shutdown(reason) -> shutdown x reason
                    | Restart(reason) -> restart x reason
