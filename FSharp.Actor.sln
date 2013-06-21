@@ -35,12 +35,6 @@ EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Node2", "samples\Actor.Node2\Actor.Node2.fsproj", "{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Actor.Fracture", "src\FSharp.Actor.Fracture\FSharp.Actor.Fracture.fsproj", "{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}"
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{714BB0BE-ECC1-4DE7-B3D3-B21F72B68117}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{DFA86739-6DF5-4F49-8867-7308598D24FB}"
 	ProjectSection(SolutionItems) = preProject

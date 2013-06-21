@@ -1,10 +1,6 @@
 ﻿(*** hide ***)
 #load "Dependencies.fsx"
 open FSharp.Actor
-<<<<<<< HEAD
-=======
-open FSharp.Actor.DSL
->>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 (**
 #Patterns

@@ -164,7 +164,6 @@ Sending two messages to the 'schizo' actor results in
 
 followed by
 
-<<<<<<< HEAD
     (schizo): "Hello" pong
 
 #Linking Actors
@@ -172,7 +171,6 @@ followed by
     (actor://main-pc/schizo): "Hello" pong
 
 ##Linking Actors
->>>>>>> c57948e0df72aae1b7114f96cc913f73cd0d069a
 
 Linking an actor to another means that this actor will become a sibling of the other actor. This means that we can create relationships among actors
 *)
