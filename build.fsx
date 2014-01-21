@@ -1,103 +1,167 @@
-﻿#r "tools/Fake/tools/FakeLib.dll"
+// --------------------------------------------------------------------------------------
+// FAKE build script 
+// --------------------------------------------------------------------------------------
 
-open Fake
-open System.IO
+#r @"packages/FAKE/tools/FakeLib.dll"
+open Fake 
+open Fake.Git
+open Fake.AssemblyInfoFile
+open Fake.ReleaseNotesHelper
+open System
 
-let nugetPath = Path.Combine(__SOURCE_DIRECTORY__,@"tools\NuGet\NuGet.exe")
+// --------------------------------------------------------------------------------------
+// Project-specific details below
+// --------------------------------------------------------------------------------------
 
+// Information about the project are used
+//  - for version and project name in generated AssemblyInfo file
+//  - by the generated NuGet package 
+//  - to run tests and to publish documentation on GitHub gh-pages
+//  - for documentation, you also need to edit info in "docs/tools/generate.fsx"
 
-let projectName, version = "FSharp.Actor",  if isLocalBuild then ReadFileAsString "local_build_number.txt" else tcBuildNumber
+// The name of the project 
+// (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
+let project = "FSharp.Actor"
 
-let buildDir, testDir, deployDir, docsDir, nugetDir = @"build\artifacts", @"build\test", @"build\deploy", @"build\docs", @"build\nuget"
-let nugetDocsDir = nugetDir @@ "docs"
-let nugetKey = if System.IO.File.Exists "./nuget-key.txt" then ReadFileAsString "./nuget-key.txt" else ""
+// Short summary of the project
+// (used as description in AssemblyInfo and as a short summary for NuGet package)
+let summary = "F# Actor Framework."
 
-let appReferences = !! @"src\**\*.*sproj"
-let testReferences = !! @"tests\**\*.Tests.*sproj"
+// Longer description of the project
+// (used as a description for NuGet package; line breaks are automatically cleaned up)
+let description = """
+  F# Actor Framework. """
+// List of author names (for NuGet package)
+let authors = [ "Colin Bull" ]
+// Tags for your project (for NuGet package)
+let tags = "F# fsharp actor"
+
+// File system information 
+// (<solutionFile>.sln is built during the building process)
+let solutionFile  = "FSharp.Actor"
+// Pattern specifying assemblies to be tested using NUnit
+let testAssemblies = "tests/*/bin/*/FSharp.Actor*Tests*.dll"
+
+// Git configuration (used for publishing documentation in gh-pages branch)
+// The profile where the project is posted 
+let gitHome = "https://github.com/colinbull"
+// The name of the project on GitHub
+let gitName = "Fsharp.Actor"
+
+// --------------------------------------------------------------------------------------
+// The rest of the file includes standard build steps 
+// --------------------------------------------------------------------------------------
+
+// Read additional information from the release notes document
+Environment.CurrentDirectory <- __SOURCE_DIRECTORY__
+let release = parseReleaseNotes (IO.File.ReadAllLines "RELEASE_NOTES.md")
+
+// Generate assembly info files with the right version & up-to-date information
+Target "AssemblyInfo" (fun _ ->
+  let fileName = "src/" + project + "/AssemblyInfo.fs"
+  CreateFSharpAssemblyInfo fileName
+      [ Attribute.Title project
+        Attribute.Product project
+        Attribute.Description summary
+        Attribute.Version release.AssemblyVersion
+        Attribute.FileVersion release.AssemblyVersion ] 
+)
+
+// --------------------------------------------------------------------------------------
+// Clean build results & restore NuGet packages
 
 Target "RestorePackages" RestorePackages
 
-Target "Clean" (fun _ -> 
-    CleanDirs [buildDir; testDir; deployDir; docsDir]
+Target "Clean" (fun _ ->
+    CleanDirs ["bin"; "temp"]
 )
 
-Target "AssemblyInfo" (fun _ -> 
-
-        AssemblyInfo (fun p -> 
-            { p with 
-                CodeLanguage = FSharp
-                AssemblyVersion = version
-                AssemblyTitle = projectName
-                Guid = "207C7E5B-DFFF-41DC-849A-53D10A0FF644"
-                OutputFileName = "src/FSharp.Actor/AssemblyInfo.fs"                
-            })
+Target "CleanDocs" (fun _ ->
+    CleanDirs ["docs/output"]
 )
 
-Target "BuildApp" (fun _ ->
-    MSBuild buildDir "Build" ["Configuration","Release"; "Platform", "anycpu"] appReferences |> Log "BuildApp: "
+// --------------------------------------------------------------------------------------
+// Build library & test project
+
+Target "Build" (fun _ ->
+    !! (solutionFile + "*.sln")
+    |> MSBuildRelease "" "Rebuild"
+    |> ignore
 )
 
-Target "BuildTest" (fun _ ->
-    MSBuildDebug testDir "Build" testReferences
-        |> Log "TestBuild-Output: "
+// --------------------------------------------------------------------------------------
+// Run the unit tests using test runner
+
+Target "RunTests" (fun _ ->
+    !! testAssemblies 
+    |> NUnit (fun p ->
+        { p with
+            DisableShadowCopy = true
+            TimeOut = TimeSpan.FromMinutes 20.
+            OutputFile = "TestResults.xml" })
 )
 
-Target "Test" (fun _ ->
-    !+ (testDir + "/*.Tests.dll")
-        |> Scan
-        |> NUnit (fun p ->
-            {p with
-                DisableShadowCopy = true
-                OutputFile = testDir + "\TestResults.xml" })
+// --------------------------------------------------------------------------------------
+// Build a NuGet package
+
+Target "NuGet" (fun _ ->
+    NuGet (fun p -> 
+        { p with   
+            Authors = authors
+            Project = project
+            Summary = summary
+            Description = description
+            Version = release.NugetVersion
+            ReleaseNotes = String.Join(Environment.NewLine, release.Notes)
+            Tags = tags
+            OutputPath = "bin"
+            AccessKey = getBuildParamOrDefault "nugetkey" ""
+            Publish = hasBuildParam "nugetkey"
+            Dependencies = [] })
+        ("nuget/" + project + ".nuspec")
 )
 
-Target "Deploy" (fun _ ->
-    !+ (buildDir + "/**/FSharp.Actor*.dll")
-        -- "*.zip"
-        |> Scan
-        |> Zip buildDir (deployDir + sprintf "\%s-%s.zip" projectName version)
+// --------------------------------------------------------------------------------------
+// Generate the documentation
+
+Target "GenerateDocs" (fun _ ->
+    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
 )
 
-Target "BuildNuGet" (fun _ ->
-    CleanDirs [nugetDir; nugetDocsDir]
-    XCopy docsDir nugetDocsDir
-    printfn "%s" nugetPath
-    [
-        "lib", buildDir + "\FSharp.Actor.dll"
-    ] |> Seq.iter (fun (folder, path) -> 
-                    let dir = nugetDir @@ folder @@ "net40"
-                    CreateDir dir
-                    CopyFile dir path)
-    NuGet (fun p ->
-        {p with               
-            Authors = ["Colin Bull"]
-            Project = projectName
-            Description = "F# Actor Framework"
-            Version = version
-            OutputPath = nugetDir
-            WorkingDir = nugetDir
-            AccessKey = nugetKey
-           // ToolPath = "tools\Nuget\Nuget.exe"
-            Publish = nugetKey <> ""})
-        ("./FSharp.Actor.nuspec")
-    [
-       (nugetDir) + sprintf "\FSharp.Actor.%s.nupkg" version
-    ] |> CopyTo deployDir
+// --------------------------------------------------------------------------------------
+// Release Scripts
+
+Target "ReleaseDocs" (fun _ ->
+    let tempDocsDir = "temp/gh-pages"
+    CleanDir tempDocsDir
+    Repository.cloneSingleBranch "" (gitHome + "/" + gitName + ".git") "gh-pages" tempDocsDir
+
+    fullclean tempDocsDir
+    CopyRecursive "docs/output" tempDocsDir true |> tracefn "%A"
+    StageAll tempDocsDir
+    Commit tempDocsDir (sprintf "Update generated documentation for version %s" release.NugetVersion)
+    Branches.push tempDocsDir
 )
 
+Target "Release" DoNothing
 
-Target "Default" DoNothing
+// --------------------------------------------------------------------------------------
+// Run all targets by default. Invoke 'build <Target>' to override
 
-"RestorePackages"
-    ==> "Clean"
-    ==> "BuildApp" <=> "BuildTest"
-    ==> "Test"
-    ==> "BuildNuGet"
-    ==> "Deploy"
-    ==> "Default"
-  
-if not isLocalBuild then
-    "Clean" ==> "SetAssemblyInfo" ==> "BuildApp" |> ignore
+Target "All" DoNothing
 
-// start build
-RunParameterTargetOrDefault "target" "Default"
+"Clean"
+  ==> "RestorePackages"
+  ==> "AssemblyInfo"
+  ==> "Build"
+  ==> "RunTests"
+  ==> "All"
+
+"All" 
+  ==> "CleanDocs"
+  ==> "GenerateDocs"
+  ==> "ReleaseDocs"
+  ==> "NuGet"
+  ==> "Release"
+
+RunTargetOrDefault "All"
