@@ -18,9 +18,9 @@ Registry.Transport.register transport
 
 (**
 The above call registers a transport that uses [Fracture](https://github.com/fractureio/fracture). When a transport is created it
-is wrapped in a actor of `Actor<RemoteMessage>` and path 'transports/{scheme}' in the case of 
-the fracture transport this would be 'transports/actor.fracture'. This actor is then supervised by the `system/remotingsupervisor` actor, which
-is initialised the a OneForOne strategy so will restart the transport if it errors at any point.
+is wrapped in a actor of `Actor<RemoteMessage>` and path `transports/{scheme}` in the case of 
+the fracture transport this would be `transports/actor.fracture`. This actor is then supervised by the `system/remotingsupervisor` actor, which
+is initialised the `OneForOne` strategy so will restart the transport if it errors at any point.
 
 Sending a message to a remote actor is identical to sending messages to local actors apart from the actor path has to be fully qualified.
 *)

@@ -166,10 +166,6 @@ followed by
 
     (schizo): "Hello" pong
 
-#Linking Actors
-=======
-    (actor://main-pc/schizo): "Hello" pong
-
 ##Linking Actors
 
 Linking an actor to another means that this actor will become a sibling of the other actor. This means that we can create relationships among actors

@@ -13,7 +13,7 @@ Create actors that represent a common coding pattern.
 (**
 ##Dispatch
 
-##Round robin
+###Round robin
 Round robin dispatch, distributes messages in a round robin fashion to its workers. 
 *)
 
@@ -37,7 +37,7 @@ let rrrouter = Patterns.Dispatch.roundRobin<int> "workers/routers/roundRobin" wo
 [1..10] |> List.iter ((<--) rrrouter)
 
 (**
-##Shortest Queue
+###Shortest Queue
 Shortest queue, attempts to find the worker with the shortest queue and distributes work to them. For constant time
 work packs this will approximate to round robin routing.
 
