@@ -6,9 +6,7 @@ open FSharp.Actor
 #Patterns
 
 Create actors that represent a common coding pattern.
-
 *)
-
 
 (**
 ##Dispatch

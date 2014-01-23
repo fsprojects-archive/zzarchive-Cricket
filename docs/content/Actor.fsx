@@ -44,10 +44,7 @@ let calculator =
        Actor.spawn (Actor.Options.Create("calculator/multiplication")) multiplication
     ]
 
-(**
-The above code creates two actors `calcualtor/addition` and `calculator/multiplication`
-*)
-
+// The above code creates two actors `calcualtor/addition` and `calculator/multiplication`
 // [fsi:calculator/addition pre-start Status: Shutdown "Initial Startup"]
 // [fsi:calculator/addition started Status: Running "Initial Startup"]
 // [fsi:calculator/multiplication pre-start Status: Shutdown "Initial Startup"]
@@ -67,10 +64,7 @@ Once we have created our actors we can be looked up by their path
 "calculator/addition" ?<-- (5,2)
 "calculator/multiplication" ?<-- (5,2)
 
-(**
-Sending both of these messages yields
-*)
-
+// Sending both of these messages yields
 // [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
 // [fsi:actor://main-pc/calculator/multiplication: 5 * 2 = 10]
 
@@ -80,10 +74,7 @@ We can also send messages directly to actors if we have their `ActorRef`
 
 calculator.[0] <-- (5,2)
 
-(**
-This also yields 
-*)
-
+// This also yields 
 // [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
 
 (**
@@ -92,10 +83,7 @@ Or we could have broadcast to all of the actors in that collection
 
 calculator <-* (5,2)
 
-(**
-This also yields 
-*)
-
+// This also yields 
 // [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
 // [fsi:actor://main-pc/calculator/multiplication: 5 * 2 = 10]
 
@@ -105,10 +93,7 @@ We can also resolve _systems_ of actors.
 
 "calculator" ?<-- (5,2)
 
-(**
-This also yields 
-*)
-
+// This also yields 
 // [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
 // [fsi:actor://main-pc/calculator/multiplication: 5 * 2 = 10]
 
@@ -118,10 +103,7 @@ However this actor wont be found because it does not exist
 
 "calculator/addition/foo" ?<-- (5,2)
 
-(**
-resulting in a `KeyNotFoundException`
-*)
-
+// resulting in a `KeyNotFoundException`
 // [fsi:System.Collections.Generic.KeyNotFoundException: Could not find actor calculator/addition/foo]
 
 (**
@@ -129,15 +111,10 @@ We can also kill actors
 *)
 
 calculator.[1] <!- (Shutdown("Cause I want to"))
-
-(** or *)
-
+// or
 "calculator/addition" ?<!- (Shutdown("Cause I want to"))
 
-(**
-Sending now sending any message to the actor will result in an exception 
-*)
-
+// Sending now sending any message to the actor will result in an exception 
 // [fsi:System.InvalidOperationException: Actor (actor://main-pc/calculator/addition) could not handle message, State: Shutdown]
 
 (**
@@ -169,16 +146,8 @@ let schizo = Actor.spawn (Actor.Options.Create("schizo")) schizoPing
 
 !!"schizo" <-- "Hello"
 
-(**
-Sending two messages to the 'schizo' actor results in
-*)
-
+// Sending two messages to the 'schizo' actor results:
 // [fsi:(schizo): "Hello" ping]
-
-(**
-followed by
-*)
-
 // [fsi:(schizo): "Hello" pong]
 
 (**
@@ -214,10 +183,7 @@ let parent =
 
 parent <-- "Forward this to your children"
 
-(**
-This outputs
-*)
-
+// This outputs
 // [fsi:actor://main-pc/a/child_1 recieved "Forward this to your children"]
 // [fsi:actor://main-pc/a/child_3 recieved "Forward this to your children"]
 // [fsi:actor://main-pc/a/child_2 recieved "Forward this to your children"]
@@ -232,10 +198,7 @@ Actor.unlink !*"a/child_0" parent
 
 parent <-- "Forward this to your children"
 
-(**
-This outputs
-*)
-
+// This outputs
 // [fsi:actor://main-pc/a/child_1 recieved "Forward this to your children"]
 // [fsi:actor://main-pc/a/child_3 recieved "Forward this to your children"]
 // [fsi:actor://main-pc/a/child_2 recieved "Forward this to your children"]

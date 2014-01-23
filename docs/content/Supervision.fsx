@@ -40,9 +40,7 @@ let oneforone =
 
 !!"err_0" <-- "fail"
 
-(**
-This yields
-*)
+// This yields
 // [fsi:Restarting (OneForOne: actor://main-pc/err_0) due to error System.Exception: ERRRROROROR]
 // [fsi:    at FSI_0012.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134]
 // [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
@@ -80,10 +78,7 @@ let oneforall =
 "err_2" ?<-- "fail"
 
 
-(**
-This yields
-*)
-
+// This yields
 // [fsi:Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR]
 // [fsi:    at FSI_0004.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134]
 // [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
@@ -123,10 +118,7 @@ let fail =
 
 !!"err_3" <-- "fail"
 
-(**
-This yields
-*)
-
+// This yields
 // [fsi:Terminating (AlwaysTerminate: actor://main-pc/err_1) due to error System.Exception: ERRRROROROR]
 // [fsi:    at FSI_0005.err@138-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138]
 // [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
@@ -158,10 +150,7 @@ Actor.unwatch !*"err_6"
 
 !!"err_5" <-- "fail"
 
-(**
-We now see that one actor `err_1` has restarted
-*)
-
+// We now see that one actor `err_1` has restarted
 // [fsi:Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR]
 // [fsi:    at FSI_0004.err@164-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164]
 // [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
