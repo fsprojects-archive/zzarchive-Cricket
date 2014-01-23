@@ -21,7 +21,7 @@
     <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\FSharp.Actor.Fracture.XML</DocumentationFile>
+    <DocumentationFile>\bin\Debug\FSharp.Actor.Fracture.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,7 +30,7 @@
     <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>..\..\bin\FSharp.Actor.Fracture.XML</DocumentationFile>
+    <DocumentationFile>\bin\Release\FSharp.Actor.Fracture.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -56,7 +56,7 @@
       <HintPath>..\..\..\fsharp.actor\lib\Fracture.dll</HintPath>
     </Reference>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
+      <Private>False</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />

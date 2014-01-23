@@ -46,30 +46,35 @@ let calculator =
 
 (**
 The above code creates two actors `calcualtor/addition` and `calculator/multiplication`
+*)
 
-    calculator/addition pre-start Status: Shutdown "Initial Startup"
-    calculator/addition started Status: Running "Initial Startup"
-    calculator/multiplication pre-start Status: Shutdown "Initial Startup"
-    calculator/multiplication started Status: Running "Initial Startup"
-    
-    val multiplication : actor:FSharp.Actor.Actor<int * int> -> Async<unit>
-    val addition : actor:FSharp.Actor.Actor<int * int> -> Async<unit>
-    val calculator : FSharp.Actor.ActorRef list =
-      [calculator/addition; calculator/multiplication]
+// [fsi:calculator/addition pre-start Status: Shutdown "Initial Startup"]
+// [fsi:calculator/addition started Status: Running "Initial Startup"]
+// [fsi:calculator/multiplication pre-start Status: Shutdown "Initial Startup"]
+// [fsi:calculator/multiplication started Status: Running "Initial Startup"]
+// [fsi:    ]
+// [fsi:val multiplication : actor:FSharp.Actor.Actor<int * int> -> Async<unit>]
+// [fsi:val addition : actor:FSharp.Actor.Actor<int * int> -> Async<unit>]
+// [fsi:val calculator : FSharp.Actor.ActorRef list =]
+// [fsi:    [calculator/addition; calculator/multiplication]]
 
+(**
 We can see that the actors state transitions are logged.
 
 Once we have created our actors we can be looked up by their path
 *)
+
 "calculator/addition" ?<-- (5,2)
 "calculator/multiplication" ?<-- (5,2)
 
 (**
 Sending both of these messages yields
+*)
 
-    actor://main-pc/calculator/addition: 5 + 2 = 7
-    actor://main-pc/calculator/multiplication: 5 * 2 = 10
+// [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
+// [fsi:actor://main-pc/calculator/multiplication: 5 * 2 = 10]
 
+(**
 We can also send messages directly to actors if we have their `ActorRef`
 *)
 
@@ -77,9 +82,11 @@ calculator.[0] <-- (5,2)
 
 (**
 This also yields 
+*)
 
-    actor://main-pc/calculator/addition: 5 + 2 = 7
+// [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
 
+(**
 Or we could have broadcast to all of the actors in that collection
 *)
 
@@ -87,20 +94,25 @@ calculator <-* (5,2)
 
 (**
 This also yields 
+*)
 
-    actor://main-pc/calculator/addition: 5 + 2 = 7
-    actor://main-pc/calculator/multiplication: 5 * 2 = 10
+// [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
+// [fsi:actor://main-pc/calculator/multiplication: 5 * 2 = 10]
 
+(**
 We can also resolve _systems_ of actors.
 *)
+
 "calculator" ?<-- (5,2)
 
 (**
 This also yields 
+*)
 
-    actor://main-pc/calculator/addition: 5 + 2 = 7
-    actor://main-pc/calculator/multiplication: 5 * 2 = 10
+// [fsi:actor://main-pc/calculator/addition: 5 + 2 = 7]
+// [fsi:actor://main-pc/calculator/multiplication: 5 * 2 = 10]
 
+(**
 However this actor wont be found because it does not exist
 *)
 
@@ -108,9 +120,11 @@ However this actor wont be found because it does not exist
 
 (**
 resulting in a `KeyNotFoundException`
+*)
 
-    System.Collections.Generic.KeyNotFoundException: Could not find actor calculator/addition/foo  
+// [fsi:System.Collections.Generic.KeyNotFoundException: Could not find actor calculator/addition/foo]
 
+(**
 We can also kill actors 
 *)
 
@@ -122,10 +136,9 @@ calculator.[1] <!- (Shutdown("Cause I want to"))
 
 (**
 Sending now sending any message to the actor will result in an exception 
-
-    System.InvalidOperationException: Actor (actor://main-pc/calculator/addition) could not handle message, State: Shutdown
 *)
 
+// [fsi:System.InvalidOperationException: Actor (actor://main-pc/calculator/addition) could not handle message, State: Shutdown]
 
 (**
 ##Changing the behaviour of actors
@@ -157,15 +170,18 @@ let schizo = Actor.spawn (Actor.Options.Create("schizo")) schizoPing
 !!"schizo" <-- "Hello"
 
 (**
-
 Sending two messages to the 'schizo' actor results in
+*)
 
-    (schizo): "Hello" ping
+// [fsi:(schizo): "Hello" ping]
 
+(**
 followed by
+*)
 
-    (schizo): "Hello" pong
+// [fsi:(schizo): "Hello" pong]
 
+(**
 ##Linking Actors
 
 Linking an actor to another means that this actor will become a sibling of the other actor. This means that we can create relationships among actors
@@ -200,13 +216,15 @@ parent <-- "Forward this to your children"
 
 (**
 This outputs
+*)
 
-    actor://main-pc/a/child_1 recieved "Forward this to your children"
-    actor://main-pc/a/child_3 recieved "Forward this to your children"
-    actor://main-pc/a/child_2 recieved "Forward this to your children"
-    actor://main-pc/a/child_4 recieved "Forward this to your children"
-    actor://main-pc/a/child_0 recieved "Forward this to your children"
+// [fsi:actor://main-pc/a/child_1 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_3 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_2 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_4 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_0 recieved "Forward this to your children"]
 
+(**
 We can also unlink actors
 *)
 
@@ -216,9 +234,9 @@ parent <-- "Forward this to your children"
 
 (**
 This outputs
-
-    actor://main-pc/a/child_1 recieved "Forward this to your children"
-    actor://main-pc/a/child_3 recieved "Forward this to your children"
-    actor://main-pc/a/child_2 recieved "Forward this to your children"
-    actor://main-pc/a/child_4 recieved "Forward this to your children"
 *)
+
+// [fsi:actor://main-pc/a/child_1 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_3 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_2 recieved "Forward this to your children"]
+// [fsi:actor://main-pc/a/child_4 recieved "Forward this to your children"]

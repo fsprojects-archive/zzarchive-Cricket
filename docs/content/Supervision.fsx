@@ -42,20 +42,21 @@ let oneforone =
 
 (**
 This yields
+*)
+// [fsi:Restarting (OneForOne: actor://main-pc/err_0) due to error System.Exception: ERRRROROROR]
+// [fsi:    at FSI_0012.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)]
+// [fsi:    at FSI_0012.err@132-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134]
+// [fsi:    at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)]
+// [fsi:actor://main-pc/err_0 pre-stop Status: Errored]
+// [fsi:actor://main-pc/err_0 stopped Status: Shutdown]
+// [fsi:actor://main-pc/err_0 pre-restart Status: Restarting]
+// [fsi:actor://main-pc/err_0 re-started Status: OK]
 
-    Restarting (OneForOne: actor://main-pc/err_0) due to error System.Exception: ERRRROROROR
-       at FSI_0012.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-       at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-       at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-       at FSI_0012.err@132-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-       at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-    actor://main-pc/err_0 pre-stop Status: Errored
-    actor://main-pc/err_0 stopped Status: Shutdown
-    actor://main-pc/err_0 pre-restart Status: Restarting
-    actor://main-pc/err_0 re-started Status: OK
-
+(**
 we can see in the last 4 lines that the supervisor restarted this actor.
 
 
@@ -81,24 +82,26 @@ let oneforall =
 
 (**
 This yields
+*)
 
-    Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR
-       at FSI_0004.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-       at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-       at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-       at FSI_0004.err@132-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134
-       at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-    actor://main-pc/err_2 pre-stop Status: OK
-    actor://main-pc/err_2 stopped Status: Shutdown
-    actor://main-pc/err_2 pre-restart Status: Restarting
-    actor://main-pc/err_2 re-started Status: OK
-    actor://main-pc/err_1 pre-stop Status: Errored
-    actor://main-pc/err_1 stopped Status: Shutdown
-    actor://main-pc/err_1 pre-restart Status: Restarting
-    actor://main-pc/err_1 re-started Status: OK
+// [fsi:Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR]
+// [fsi:    at FSI_0004.err@134-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)]
+// [fsi:    at FSI_0004.err@132-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 134]
+// [fsi:    at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)]
+// [fsi:actor://main-pc/err_2 pre-stop Status: OK]
+// [fsi:actor://main-pc/err_2 stopped Status: Shutdown]
+// [fsi:actor://main-pc/err_2 pre-restart Status: Restarting]
+// [fsi:actor://main-pc/err_2 re-started Status: OK]
+// [fsi:actor://main-pc/err_1 pre-stop Status: Errored]
+// [fsi:actor://main-pc/err_1 stopped Status: Shutdown]
+// [fsi:actor://main-pc/err_1 pre-restart Status: Restarting]
+// [fsi:actor://main-pc/err_1 re-started Status: OK]
 
+(**
 we can see here that all of the actors supervised by this actor has been restarted.
 
 ###Fail
@@ -122,18 +125,20 @@ let fail =
 
 (**
 This yields
+*)
 
-    Terminating (AlwaysTerminate: actor://main-pc/err_1) due to error System.Exception: ERRRROROROR
-       at FSI_0005.err@138-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138
-       at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-       at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-       at FSI_0005.err@136-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138
-       at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-    actor://main-pc/err_1 pre-stop Status: Errored
-    actor://main-pc/err_1 stopped Status: Shutdown
+// [fsi:Terminating (AlwaysTerminate: actor://main-pc/err_1) due to error System.Exception: ERRRROROROR]
+// [fsi:    at FSI_0005.err@138-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)]
+// [fsi:    at FSI_0005.err@136-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 138]
+// [fsi:    at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)]
+// [fsi:actor://main-pc/err_1 pre-stop Status: Errored]
+// [fsi:actor://main-pc/err_1 stopped Status: Shutdown]
 
+(**
 If you no longer require an actor to be supervised, then you can `Unwatch` the actor, repeating the OneForAll above
 *)
 
@@ -155,18 +160,17 @@ Actor.unwatch !*"err_6"
 
 (**
 We now see that one actor `err_1` has restarted
-
-    Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR
-       at FSI_0004.err@164-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164
-       at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)
-       at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)
-       at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)
-       at FSI_0004.err@162-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164
-       at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)
-    actor://main-pc/err_1 pre-stop Status: Errored
-    actor://main-pc/err_1 stopped Status: Shutdown
-    actor://main-pc/err_1 pre-restart Status: Restarting
-    actor://main-pc/err_1 re-started Status: OK
-
 *)
+
+// [fsi:Restarting (OneForAll actor://main-pc/err_1) due to error System.Exception: ERRRROROROR]
+// [fsi:    at FSI_0004.err@164-2.Invoke(String message) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.go@523-3[b,c,d](String fmt, Int32 len, FSharpFunc`2 outputChar, FSharpFunc`2 outa, b os, FSharpFunc`2 finalize, FSharpList`1 args, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.run@521[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.capture@540[b,c,d](FSharpFunc`2 initialize, String fmt, Int32 len, FSharpList`1 args, Type ty, Int32 i)]
+// [fsi:    at Microsoft.FSharp.Core.PrintfImpl.gprintf[b,c,d,a](FSharpFunc`2 initialize, PrintfFormat`4 fmt)]
+// [fsi:    at FSI_0004.err@162-1.Invoke(String _arg1) in D:\Appdev\fsharp.actor\samples\Actor.fsx:line 164]
+// [fsi:    at Microsoft.FSharp.Control.AsyncBuilderImpl.args@753.Invoke(a a)]
+// [fsi:actor://main-pc/err_1 pre-stop Status: Errored]
+// [fsi:actor://main-pc/err_1 stopped Status: Shutdown]
+// [fsi:actor://main-pc/err_1 pre-restart Status: Restarting]
+// [fsi:actor://main-pc/err_1 re-started Status: OK]
