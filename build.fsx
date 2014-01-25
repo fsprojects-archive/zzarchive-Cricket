@@ -102,6 +102,15 @@ Target "RunTests" (fun _ ->
 )
 
 // --------------------------------------------------------------------------------------
+// Create a Zip archive
+
+Target "Deploy" (fun _ ->
+    !! "bin/FSharp.Actor*.dll"
+        -- "*.zip"
+        |> Zip "bin" (sprintf "bin\%s-%s.zip" project release.NugetVersion)
+)
+
+// --------------------------------------------------------------------------------------
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
@@ -162,6 +171,7 @@ Target "All" DoNothing
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "NuGet"
+  ==> "Deploy"
   ==> "Release"
 
 RunTargetOrDefault "All"
