@@ -19,7 +19,7 @@ type ``Given a Actor Path``() =
         let path = Path.create ("/")
         let keys = Path.keys path
         printfn "%A" keys
-        Path.keys path |> should equal ["actor"; "main-pc"]
+        Path.keys path |> should equal ["actor"; System.Environment.MachineName.ToLowerInvariant()]
 
     [<Test>]
     member t.``I can create an ActorPath from a full Uri``() =
