@@ -47,6 +47,7 @@ module Registry =
             actors := Trie.empty
         
         let private searchLocal address = 
+                
              Trie.subtrie (Path.keys address) !actors |> Trie.values
 
         let findUnderPath (address : ActorPath) =

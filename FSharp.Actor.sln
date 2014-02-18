@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio Express 2013 for Windows Desktop
 VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{38D2EEDA-A225-4CDA-9ECB-34728B44501F}"
@@ -21,9 +21,9 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Actor", "src\FSharp.
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Actor.Tests", "tests\FSharp.Actor.Tests\FSharp.Actor.Tests.fsproj", "{A20060EC-E820-4ED1-A871-537914C10183}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Node1", "samples\Actor.Node1\Actor.Node1.fsproj", "{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.SampleServer", "samples\Actor.Node1\Actor.SampleServer.fsproj", "{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.Node2", "samples\Actor.Node2\Actor.Node2.fsproj", "{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Actor.SampleClient", "samples\Actor.Node2\Actor.SampleClient.fsproj", "{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.Actor.Fracture", "src\FSharp.Actor.Fracture\FSharp.Actor.Fracture.fsproj", "{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}"
 EndProject
@@ -54,6 +54,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{6847
 		RELEASE_NOTES.md = RELEASE_NOTES.md
 	EndProjectSection
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "DojoMessages", "samples\Messages\DojoMessages.fsproj", "{5E95819A-20E1-4C81-B9E8-A56B8A5786DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7D485A9-C4B4-4AEC-9D39-7DC5A98C360C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E95819A-20E1-4C81-B9E8-A56B8A5786DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E95819A-20E1-4C81-B9E8-A56B8A5786DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E95819A-20E1-4C81-B9E8-A56B8A5786DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E95819A-20E1-4C81-B9E8-A56B8A5786DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -87,6 +93,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A20060EC-E820-4ED1-A871-537914C10183} = {38D2EEDA-A225-4CDA-9ECB-34728B44501F}
 		{ECF31D64-040F-4AD1-A033-DE6125F6B7C1} = {97567239-FBBA-4443-BBFC-728507C17CDA}
+		{5E95819A-20E1-4C81-B9E8-A56B8A5786DD} = {97567239-FBBA-4443-BBFC-728507C17CDA}
 		{4DEAA223-CD05-480F-AE39-A66EFFBEDE6E} = {ECF31D64-040F-4AD1-A033-DE6125F6B7C1}
 		{F2734EA2-85CB-40D7-A02E-7B5C925DEE2E} = {ECF31D64-040F-4AD1-A033-DE6125F6B7C1}
 		{C1CCE123-31C9-42BA-9637-9209138C7E0C} = {EABDC71E-F7B2-4515-AD96-8DBA1E6D5655}
