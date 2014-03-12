@@ -33,3 +33,11 @@ module Logging =
             member x.Warning(msg, exn) = write "warn" (msg,exn)
             member x.Error(msg, exn) = write "error" (msg,exn) 
         }
+
+    let Silent =
+        { new ILogger with
+            member x.Debug(msg,exn) = () |> ignore
+            member x.Info(msg, exn) = () |> ignore
+            member x.Warning(msg, exn) = () |> ignore
+            member x.Error(msg, exn) = () |> ignore 
+        }

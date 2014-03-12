@@ -48,6 +48,23 @@
     <Compile Include="Program.fs" />
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FSharp.Actor.Surge\FSharp.Actor.Surge.fsproj">
+      <Name>FSharp.Actor.Surge</Name>
+      <Project>{14e1ccee-bc9f-4ee8-aa93-f4ea57beac1a}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\src\FSharp.Actor\FSharp.Actor.fsproj">
+      <Name>FSharp.Actor</Name>
+      <Project>{aa4bc25b-04f7-4b39-bf28-0b0058193ed9}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\Surge.Common\Surge.Common.fsproj">
+      <Name>Surge.Common</Name>
+      <Project>{32b8746d-5e04-4584-9bb9-eed96d68bb90}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
   </PropertyGroup>

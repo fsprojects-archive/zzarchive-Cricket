@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>5992bd57-ac78-415e-b5db-ee3cf2fe8884</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Surge.Client</RootNamespace>
-    <AssemblyName>Surge.Client</AssemblyName>
+    <ProjectGuid>32b8746d-5e04-4584-9bb9-eed96d68bb90</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Surge.Common</RootNamespace>
+    <AssemblyName>Surge.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>Surge.Client</Name>
+    <Name>Surge.Common</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,9 +20,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\Surge.Client.XML</DocumentationFile>
-    <Prefer32Bit>true</Prefer32Bit>
+    <DocumentationFile>bin\Debug\Surge.Common.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,9 +29,7 @@
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Surge.Client.XML</DocumentationFile>
-    <Prefer32Bit>true</Prefer32Bit>
+    <DocumentationFile>bin\Release\Surge.Common.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
@@ -45,25 +41,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.fs" />
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\FSharp.Actor.Surge\FSharp.Actor.Surge.fsproj">
-      <Name>FSharp.Actor.Surge</Name>
-      <Project>{14e1ccee-bc9f-4ee8-aa93-f4ea57beac1a}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\FSharp.Actor\FSharp.Actor.fsproj">
-      <Name>FSharp.Actor</Name>
-      <Project>{aa4bc25b-04f7-4b39-bf28-0b0058193ed9}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\Surge.Common\Surge.Common.fsproj">
-      <Name>Surge.Common</Name>
-      <Project>{32b8746d-5e04-4584-9bb9-eed96d68bb90}</Project>
-      <Private>True</Private>
-    </ProjectReference>
+    <Compile Include="Library1.fs" />
+    <None Include="Script.fsx" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
