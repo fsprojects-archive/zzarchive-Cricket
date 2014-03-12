@@ -64,6 +64,8 @@ module RemoteActor =
     
             member x.PostSystemMessage(sysMessage : SystemMessage, ?sender : IActor) =
                 transport.SendSystemMessage(remoteAddress, sysMessage,  sender)
+
+            member x.UnderlyingTransport = transport
     
             member x.Link(actorRef) = children.Add(actorRef)
             member x.UnLink(actorRef) = children.Remove(actorRef) |> ignore

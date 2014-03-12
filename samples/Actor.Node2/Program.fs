@@ -1,11 +1,15 @@
 ﻿// Learn more about F# at http://fsharp.net
 // See the 'F# Tutorial' project for more help.
+
 open System
 open FSharp.Actor
-
+open FSharp.Actor.Surge
 
 let fractureTransport = 
     new Fracture.FractureTransport(6666)
+
+let surgeTransport =
+    new SurgeTransport(1338)
 
 let logger = 
     Actor.spawn (Actor.Options.Create("node2/logger")) 
@@ -27,6 +31,7 @@ let logger =
 [<EntryPoint>]
 let main argv = 
     Registry.Transport.register fractureTransport
+    Registry.Transport.register surgeTransport
     
     logger <-- "Hello"
 

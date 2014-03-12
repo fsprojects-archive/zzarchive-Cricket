@@ -54,6 +54,12 @@ module Types =
          [<CLIEvent>] abstract OnStarted :  IEvent<IActor> with get
          [<CLIEvent>] abstract OnRestarted :  IEvent<IActor> with get
     
+    type ITransport =
+        abstract Scheme : string with get
+        abstract CreateRemoteActor : ActorPath -> IActor
+        abstract Send : ActorPath * 'a * IActor option -> unit
+        abstract SendSystemMessage : ActorPath * SystemMessage * IActor option -> unit
+    
     type IActor<'a> = 
         inherit IActor
         abstract Post : 'a * IActor option -> unit
@@ -66,6 +72,7 @@ module Types =
     
         abstract Post : 'a * IActor option -> unit
         abstract Post : 'a -> unit
+        abstract UnderlyingTransport : ITransport
 
     type IMailbox<'a> = 
          inherit IDisposable
@@ -75,9 +82,5 @@ module Types =
          abstract IsEmpty : bool with get
          abstract Restart : unit -> unit
     
-    type ITransport =
-        abstract Scheme : string with get
-        abstract CreateRemoteActor : ActorPath -> IActor
-        abstract Send : ActorPath * 'a * IActor option -> unit
-        abstract SendSystemMessage : ActorPath * SystemMessage * IActor option -> unit
+    
     

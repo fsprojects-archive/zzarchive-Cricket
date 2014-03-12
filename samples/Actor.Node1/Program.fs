@@ -3,10 +3,14 @@
 
 open System
 open FSharp.Actor
+open FSharp.Actor.Surge
 
 
 let fractureTransport = 
     new Fracture.FractureTransport(6667)
+
+let surgeTransport = 
+    new SurgeTransport(1337)
 
 let logger = 
     Actor.spawn (Actor.Options.Create("node1/logger")) 
@@ -25,9 +29,19 @@ let logger =
             loop()
         )
 
+let remoteSurgeActor =
+    Actor.spawn(Actor.Options.Create("surge/server"))
+       (fun (actor:IActor<string>) ->
+            let rec loop() =
+                async {
+                    let! (msg, sender) = actor.Receive()
+                }    
+       ) 
+
 [<EntryPoint>]
 let main argv = 
     Registry.Transport.register fractureTransport
+    Registry.Transport.register surgeTransport
     
     logger <-- "Hello"
     "node1/logger" ?<-- "Hello"
