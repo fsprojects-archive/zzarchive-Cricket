@@ -25,9 +25,10 @@ type SurgeMessage = {
 }
 
 
-type SurgeTransport(listenPort: int, ?log:ILogger) =
+type SurgeTransport(listenPort: int, ?asyncMode:bool, ?log:ILogger) =
     let scheme = "actor.surge"
     let log = defaultArg log Logging.Console
+    let asyncMode = defaultArg asyncMode false
     let proxyTransportActors = new ConcurrentDictionary<Uri, IActor>()
     let fsp = new FsPickler()
 
@@ -90,7 +91,9 @@ type SurgeTransport(listenPort: int, ?log:ILogger) =
     let unpackSurgeMessage(binaryMessage: byte[]) = async {
         try
             let msg = fsp.Deserialize<SurgeMessage>(new MemoryStream(binaryMessage))
-            processSurgeMessage(msg) |> Async.Start
+            match asyncMode with
+            | true -> processSurgeMessage(msg) |> Async.Start
+            | false -> processSurgeMessage(msg) |> Async.RunSynchronously
         with e ->
             log.Error("Error deserializing SurgeMessage from Transport", Some(e))
     }
@@ -128,7 +131,9 @@ type SurgeTransport(listenPort: int, ?log:ILogger) =
                         }
 
                     let! message = readMessage(0, Array.empty)
-                    unpackSurgeMessage(message) |> Async.Start
+                    match asyncMode with
+                    | true -> unpackSurgeMessage(message) |> Async.Start
+                    | false -> unpackSurgeMessage(message) |> Async.RunSynchronously
                 })
         })
 
@@ -136,7 +141,7 @@ type SurgeTransport(listenPort: int, ?log:ILogger) =
         member val Scheme = scheme with get
 
         member x.CreateRemoteActor(remoteAddress) =
-            RemoteActor.spawn remoteAddress x Actor.Options.Default
+            RemoteActor.spawn remoteAddress x (Actor.Options.Create(?logger = Some Logging.Silent))
 
         member x.Send(remoteAddress, msg, sender) =
             match proxyTransportActors.TryGetValue(remoteAddress) with
