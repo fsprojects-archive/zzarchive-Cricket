@@ -1,12 +1,12 @@
-﻿namespace Surge.Common.Agents
+﻿namespace Surge.Common.Actors
 
 open FSharp.Actor
 
-type BroadcastAgent<'a>(agentName: string) =
+type BroadcastActor<'a>(actorName: string) =
     let broadcastees = ref Set.empty<string>  
 
     let broadcaster = 
-        Actor.spawn(Actor.Options.Create(agentName))
+        Actor.spawn(Actor.Options.Create(actorName, ?logger = Some Logging.Silent))
             (fun (actor: IActor<'a>) ->
                 let rec loop() =
                     async {
@@ -18,10 +18,10 @@ type BroadcastAgent<'a>(agentName: string) =
                 loop()
             )
 
-    member x.AddBroadcastee(remotePath) =
+    member x.AddSubscriber(remotePath) =
         broadcastees := (!broadcastees).Add(remotePath)
 
-    member x.RemoveBroadcastee(remotePath) =
+    member x.RemoveSubscriber(remotePath) =
         broadcastees := (!broadcastees).Remove(remotePath)
 
     member x.Agent =

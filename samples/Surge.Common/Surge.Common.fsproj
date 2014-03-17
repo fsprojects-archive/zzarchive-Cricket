@@ -43,7 +43,7 @@
   <ItemGroup>
     <None Include="Script.fsx" />
     <Compile Include="Messages.fs" />
-    <Compile Include="Agents.fs" />
+    <Compile Include="Actors.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\FSharp.Actor\FSharp.Actor.fsproj">

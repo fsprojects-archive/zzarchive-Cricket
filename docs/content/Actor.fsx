@@ -194,7 +194,7 @@ parent <-- "Forward this to your children"
 We can also unlink actors
 *)
 
-Actor.unlink !*"a/child_0" parent
+Actor.unlink !* "a/child_0" parent
 
 parent <-- "Forward this to your children"
 
