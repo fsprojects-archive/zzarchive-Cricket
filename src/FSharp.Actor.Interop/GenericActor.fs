@@ -1,4 +1,4 @@
-﻿namespace Actors.Interop
+﻿namespace FSharp.Actor.Interop
 
 open System
 open FSharp.Actor
