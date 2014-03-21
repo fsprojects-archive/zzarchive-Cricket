@@ -51,7 +51,7 @@
   <ItemGroup>
     <Compile Include="GenericActor.fs" />
     <Compile Include="SynchronizedActor.fs" />
-    <Compile Include="Commands.fs" />
+    <Compile Include="ActorCommands.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

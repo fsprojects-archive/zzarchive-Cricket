@@ -3,7 +3,7 @@
 open FSharp.Actor
 
 [<AutoOpen>]
-module Commands =
+module ActorCommands =
     
     let FindChildren (actorPath: string) = 
         !* actorPath
