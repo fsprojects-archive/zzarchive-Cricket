@@ -26,3 +26,8 @@ type SynchronizedActor<'a> (name: string, context: SynchronizationContext, compu
     member x.Actor =
         actor
 
+    interface IDisposable with
+        member x.Dispose() =
+            actor.PostSystemMessage (Shutdown(sprintf "%s has been disposed" name), None)
+
+
