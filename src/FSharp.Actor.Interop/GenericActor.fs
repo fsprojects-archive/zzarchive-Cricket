@@ -19,6 +19,3 @@ type GenericActor<'a> (name: string, computation: Action<'a>) =
     member x.Actor =
         actor
 
-    interface IDisposable with
-        member x.Dispose() =
-            actor.PostSystemMessage (Shutdown(sprintf "%s has been disposed" name), None)
