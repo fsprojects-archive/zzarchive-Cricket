@@ -15,8 +15,8 @@ module Types =
         abstract Error : string * exn option -> unit
     
     type ISerialiser =
-        abstract Serialise : obj -> byte[]
-        abstract Deserialise : byte[] -> obj
+        abstract Serialise : 'a -> byte[]
+        abstract Deserialise<'a> : byte[] -> 'a
   
     type ActorStatus = 
         | Running
