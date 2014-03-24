@@ -4,7 +4,6 @@
 open System
 open FSharp.Actor
 
-
 let fractureTransport = 
     new Fracture.FractureTransport(6667)
 
@@ -24,6 +23,7 @@ let logger =
                 }
             loop()
         )
+
 
 [<EntryPoint>]
 let main argv = 

@@ -14,27 +14,47 @@ open Fracture.Common
 type FractureMessage = {
     Sender : ActorPath option
     Target : ActorPath
-    Type : Type
     Body : obj
 }
 
 type FractureTransport(listenPort:int, ?serialiser:ISerialiser,?log:ILogger) = 
-    let serialiser = defaultArg serialiser (Serialisers.Binary)
+    let serialiser = defaultArg serialiser (Serialisers.Pickler)
     let log = defaultArg log Logging.Console
     let scheme = "actor.fracture"
+
+    let tryUnpackFractureMessage (msg) =
+        try
+            Choice1Of2 (serialiser.Deserialise<FractureMessage> msg)
+        with e ->
+            Choice2Of2 e
         
     let onReceived(msg:byte[], server:TcpServer, socketDescriptor:SocketDescriptor) =
-        let msg = serialiser.Deserialise msg 
-        if msg <> null
-        then 
-            let msg = msg |> unbox<FractureMessage>
-            match Registry.Actor.tryFind (Path.toLocal msg.Target)  with
-            | Some(a) -> 
-                match msg.Body with
-                | :? SystemMessage as msg -> 
-                    a.PostSystemMessage(msg, Some a)
-                | msg -> a.Post(msg, Some a)
-            | None -> log.Warning(sprintf "%A recieved message for %A from %A but could not resolve actor" scheme msg.Target (socketDescriptor.RemoteEndPoint.Address.ToString()), None)
+        if msg <> null then
+            
+            match tryUnpackFractureMessage msg with
+            | Choice1Of2(message) ->
+                match Registry.Actor.tryFind (Path.toLocal message.Target)  with
+                | Some(a) -> 
+                    match message.Body with
+                    | :? SystemMessage as msg -> 
+                        a.PostSystemMessage(msg, Some a)
+                    | msg -> a.Post(msg, Some a)
+                | None -> log.Warning(sprintf "%A recieved message for %A from %A but could not resolve actor" scheme message.Target (socketDescriptor.RemoteEndPoint.Address.ToString()), None)
+            | Choice2Of2(e) ->
+                log.Warning(sprintf "Error deserializing fracture message: %s" (msg.ToString()), Some e)
+
+//            let messageChoice = serialiser.Deserialise<FractureMessage> msg 
+    //        if msg <> null
+    //        then 
+    //            let msg = msg |> unbox<FractureMessage>
+//            match Registry.Actor.tryFind (Path.toLocal message.Target)  with
+//            | Some(a) -> 
+//                match message.Body with
+//                | :? SystemMessage as msg -> 
+//                    a.PostSystemMessage(msg, Some a)
+//                | msg -> a.Post(msg, Some a)
+//            | None -> log.Warning(sprintf "%A recieved message for %A from %A but could not resolve actor" scheme message.Target (socketDescriptor.RemoteEndPoint.Address.ToString()), None)
+
 
     do
         try
@@ -101,8 +121,9 @@ type FractureTransport(listenPort:int, ?serialiser:ISerialiser,?log:ILogger) =
                 let! client = getOrAdd tryCreateClient remoteAddress clients
                 match client with
                 | Choice1Of2(client) ->
-                    let rm = { Target = remoteAddress; Sender = sender |> Option.map (fun s -> s.Path); Type = msg.GetType(); Body = msg } 
-                    client.Send(serialiser.Serialise rm, true)
+                    let rm = { Target = remoteAddress; Sender = sender |> Option.map (fun s -> s.Path); Body = msg } 
+                    let bytes = serialiser.Serialise rm
+                    client.Send(bytes, true)
                 | Choice2Of2 e -> log.Error(sprintf "%A transport failed to create client for send %A" scheme remoteAddress, Some e)
              } |> Async.Start
 
@@ -111,7 +132,7 @@ type FractureTransport(listenPort:int, ?serialiser:ISerialiser,?log:ILogger) =
                 let! client = getOrAdd tryCreateClient remoteAddress clients
                 match client with
                 | Choice1Of2(client) ->
-                    let rm = { Target = remoteAddress; Sender = sender |> Option.map (fun s -> s.Path); Type = typeof<SystemMessage>; Body = msg } 
+                    let rm = { Target = remoteAddress; Sender = sender |> Option.map (fun s -> s.Path); Body = msg } 
                     client.Send(serialiser.Serialise rm, true)
                 | Choice2Of2 e -> log.Error(sprintf "%A transport failed to create client for send system message %A" scheme remoteAddress, Some e)
              } |> Async.Start

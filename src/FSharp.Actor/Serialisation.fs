@@ -1,8 +1,10 @@
 ﻿namespace FSharp.Actor
 
+open System
 open System.IO
 open System.Runtime.Serialization.Formatters.Binary
 open FSharp.Actor.Types
+open FsPickler
 
 module Serialisers = 
     
@@ -25,7 +27,20 @@ module Serialisers =
 
         { new ISerialiser with
               member x.Serialise(payload) = serialise payload
-              member x.Deserialise(body) = deserialise body 
+              member x.Deserialise<'a>(body) = deserialise body :?> 'a
+        }
+
+    let Pickler =
+        let fsp = new FsPickler()
+
+        { new ISerialiser with
+            member x.Serialise(payload) = 
+                let memoryStream = new MemoryStream()
+                fsp.Serialize(memoryStream, payload)
+                memoryStream.ToArray()
+
+            member x.Deserialise<'a>(body) =
+                fsp.Deserialize<'a>(new MemoryStream(body))
         }
 
 
