@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="D:\Appdev\Fsharp.Actor\tests\FSharp.Actor.Tests\bin\Release\FSharp.Actor.Tests.dll" total="23" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2014-07-27" time="22:24:04">
+  <environment nunit-version="2.6.2.12296" clr-version="2.0.50727.8000" os-version="Microsoft Windows NT 6.2.9200.0" platform="Win32NT" cwd="D:\Appdev\Fsharp.Actor" machine-name="MAIN-PC" user="Colin" user-domain="MAIN-PC" />
+  <culture-info current-culture="en-GB" current-uiculture="en-US" />
+  <test-suite type="Assembly" name="D:\Appdev\Fsharp.Actor\tests\FSharp.Actor.Tests\bin\Release\FSharp.Actor.Tests.dll" executed="True" result="Success" success="True" time="0.412" asserts="0">
+    <results>
+      <test-suite type="Namespace" name="FSharp" executed="True" result="Success" success="True" time="0.398" asserts="0">
+        <results>
+          <test-suite type="Namespace" name="Actor" executed="True" result="Success" success="True" time="0.398" asserts="0">
+            <results>
+              <test-suite type="Namespace" name="Tests" executed="True" result="Success" success="True" time="0.398" asserts="0">
+                <results>
+                  <test-suite type="TestFixture" name="Given a trie" executed="True" result="Success" success="True" time="0.294" asserts="0">
+                    <categories>
+                      <category name="Unit" />
+                    </categories>
+                    <results>
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can add a value to an empty trie" executed="True" result="Success" success="True" time="0.068" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can add a wildcard into a trie key" executed="True" result="Success" success="True" time="0.025" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can add different values with a different root" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can add different values with the same root" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can create an empty one" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can remove a value from a trie" executed="True" result="Success" success="True" time="0.006" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can retrieve a leaf node it should have just its value" executed="True" result="Success" success="True" time="0.150" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can retrieve a node with its children" executed="True" result="Success" success="True" time="0.007" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can retrieve from a trie with mutiple roots" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.Given a trie.I can retrieve from a trie with mutiple roots and get the other key" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite type="TestFixture" name="With Actor Path" executed="True" result="Success" success="True" time="0.078" asserts="0">
+                    <categories>
+                      <category name="Unit" />
+                    </categories>
+                    <results>
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path and detect correct hostname and type DNS" executed="True" result="Success" success="True" time="0.016" asserts="6" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path and detect correct hostname and type IPV4" executed="True" result="Success" success="True" time="0.003" asserts="6" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path from a realtive uri" executed="True" result="Success" success="True" time="0.009" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path from a realtive uri with a system" executed="True" result="Success" success="True" time="0.001" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path from an absolute uri" executed="True" result="Success" success="True" time="0.009" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path with wildcards on everything but path component" executed="True" result="Success" success="True" time="0.003" asserts="6" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path with wildcards on everything but path component and system" executed="True" result="Success" success="True" time="0.003" asserts="6" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can build an actor path with wildcards on everything but path component and transport" executed="True" result="Success" success="True" time="0.003" asserts="6" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I can rebase with a defined system in original path" executed="True" result="Success" success="True" time="0.018" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.I should be able to get the components of an actor path" executed="True" result="Success" success="True" time="0.004" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.With Actor Path.Should stay unchanged when a realtive URI is used to rebase" executed="True" result="Success" success="True" time="0.003" asserts="1" />
+                    </results>
+                  </test-suite>
+                  <test-suite type="TestFixture" name="With Local Registry" executed="True" result="Success" success="True" time="0.021" asserts="0">
+                    <categories>
+                      <category name="Unit" />
+                    </categories>
+                    <results>
+                      <test-case name="FSharp.Actor.Tests.With Local Registry.I can register and resolve an actor with full URI" executed="True" result="Success" success="True" time="0.018" asserts="1" />
+                      <test-case name="FSharp.Actor.Tests.With Local Registry.I can register and resolve an actor with only path" executed="True" result="Success" success="True" time="0.002" asserts="1" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

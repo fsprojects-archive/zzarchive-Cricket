@@ -1,0 +1,6 @@
+D:\Appdev\Fsharp.Actor\output\libzmq.dll
+D:\Appdev\Fsharp.Actor\output\FSharp.Actor.XML
+D:\Appdev\Fsharp.Actor\output\FSharp.Actor.dll
+D:\Appdev\Fsharp.Actor\output\FSharp.Actor.pdb
+D:\Appdev\Fsharp.Actor\src\FSharp.Actor\obj\x64\Debug\FSharp.Actor.dll
+D:\Appdev\Fsharp.Actor\src\FSharp.Actor\obj\x64\Debug\FSharp.Actor.pdb
