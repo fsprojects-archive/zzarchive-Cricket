@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SystemMessage - FSharp.Actor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Colin Bull">
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
+    <style>
+        body {
+            font-family: Gudea, serif;
+            font-size: 15px;
+        }
+        table.pre, pre.fssnip, pre {
+            white-space: pre-wrap;
+        }
+        /*table.pre td.lines {
+            display: none;
+        }*/
+    </style>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="http://github.com/colinbull/Fsharp.Actor">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FSharp.Actor/index.html">FSharp.Actor</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>SystemMessage</h1>
+<div class="xmldoc">
+</div>
+  <h3>Union Cases</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Union Case</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '211', 211)" onmouseover="showTip(event, '211', 211)">
+            Errored(ErrorContext)
+          </code>
+          <div class="tip" id="211">
+            <strong>Signature:</strong> ErrorContext<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L48-48" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '212', 212)" onmouseover="showTip(event, '212', 212)">
+            Link(actorRef)
+          </code>
+          <div class="tip" id="212">
+            <strong>Signature:</strong> actorRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L45-45" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '213', 213)" onmouseover="showTip(event, '213', 213)">
+            Restart
+          </code>
+          <div class="tip" id="213">
+            <strong>Signature:</strong> <br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L44-44" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '214', 214)" onmouseover="showTip(event, '214', 214)">
+            RestartTree
+          </code>
+          <div class="tip" id="214">
+            <strong>Signature:</strong> <br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L43-43" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '215', 215)" onmouseover="showTip(event, '215', 215)">
+            SetParent(actorRef)
+          </code>
+          <div class="tip" id="215">
+            <strong>Signature:</strong> actorRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L47-47" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '216', 216)" onmouseover="showTip(event, '216', 216)">
+            Shutdown
+          </code>
+          <div class="tip" id="216">
+            <strong>Signature:</strong> <br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L42-42" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '217', 217)" onmouseover="showTip(event, '217', 217)">
+            Unlink(actorRef)
+          </code>
+          <div class="tip" id="217">
+            <strong>Signature:</strong> actorRef<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="http://github.com/colinbull/Fsharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L46-46" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/FSharp.Actor/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">FSharp.Actor</li>
+            <li><a href="/FSharp.Actor/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.com/packages/FSharp.Actor">Get Library via NuGet</a></li>
+            <li><a href="http://github.com/colinbull/Fsharp.Actor">Source Code on GitHub</a></li>
+            <li><a href="http://github.com/colinbull/Fsharp.Actor/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="http://github.com/colinbull/Fsharp.Actor/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/FSharp.Actor/tutorial.html">Sample tutorial</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FSharp.Actor/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="http://github.com/colinbull/Fsharp.Actor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>
