@@ -13,8 +13,8 @@
     <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
 
-    <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
-    <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/content/style.css" />
+    <script type="text/javascript" src="/content/tips.js"></script>
     <style>
         body {
             font-family: Gudea, serif;
@@ -116,15 +116,7 @@ so the actor can process it.</p>
 
 <h2>More in depth examples</h2>
 
-<table class="pre"><tr><td class="lines"><pre class="fssnip">
-<span class="l">1: </span>
-</pre>
-</td>
-<td class="snippet"><pre class="fssnip">
-<span class="o">*</span>[<span class="i">Ping</span> <span class="i">Pong</span>](<span class="i">pingpong</span><span class="o">.</span><span class="i">html</span>) <span class="o">-</span> <span class="i">A</span> <span class="i">slightly</span> <span class="i">more</span> <span class="i">advanced</span> <span class="i">example</span>, <span class="i">showing</span> <span class="i">how</span> <span class="i">two</span> <span class="i">actors</span> <span class="i">can</span> <span class="i">communicate</span> <span class="k">with</span> <span class="i">each</span> <span class="i">other</span><span class="o">.</span></pre>
-</td>
-</tr>
-</table>
+<p>*<a href="pingpong.html">Ping Pong</a> - A slightly more advanced example, showing how two actors can communicate with each other.</p>
 
 <div class="tip" id="fs1">Multiple items<br />type ActorHost =<br />&#160;&#160;new : unit -&gt; ActorHost<br />&#160;&#160;static member private AddTransports : transports:seq&lt;#ITransport&gt; -&gt; unit<br />&#160;&#160;static member Configure : configurator:(ActorHostConfiguration -&gt; unit) -&gt; unit<br />&#160;&#160;static member CreateSystem : name:string * ?configurator:(ActorSystemConfiguration -&gt; unit) -&gt; ActorSystem<br />&#160;&#160;static member ResolveTransport : transport:string -&gt; ITransport option<br />&#160;&#160;static member Start : ?transports:#ITransport list -&gt; unit<br />&#160;&#160;static member TryResolveSystem : name:string -&gt; ActorSystem option<br />&#160;&#160;static member Systems : ActorSystem list<br /><br />Full name: FSharp.Actor.ActorHost<br /><br />--------------------<br />new : unit -&gt; ActorHost</div>
 <div class="tip" id="fs2">static member ActorHost.Start : ?transports:#ITransport list -&gt; unit</div>
