@@ -6,13 +6,13 @@
 // Binaries that have XML documentation (in a corresponding generated XML file)
 let referenceBinaries = [ "FSharp.Actor.dll" ]
 // Web site location for the generated documentation
-let website = "/FSharp.Actor"
+let website = "/Fsharp.Actor"
 
 let githubLink = "http://github.com/colinbull/Fsharp.Actor"
 
 // Specify more information about your project
 let info =
-  [ "project-name", "FSharp.Actor"
+  [ "project-name", "Fsharp.Actor"
     "project-author", "Colin Bull"
     "project-summary", "An actor framework for F#"
     "project-github", githubLink

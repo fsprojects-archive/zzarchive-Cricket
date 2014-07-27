@@ -50,7 +50,7 @@ In the above example we have created simple actor called `greeter` which respond
 (**
 More in depth examples
 ----------------------
-    *[Ping Pong](pingpong.html) - A slightly more advanced example, showing how two actors can communicate with each other.
+ * [Ping Pong](pingpong.html) - A slightly more advanced example, showing how two actors can communicate with each other.
 *)
 
 
