@@ -1,9 +1,0 @@
-D:\Appdev\Fsharp.Actor\output\FSharp.Actor.XML
-D:\Appdev\Fsharp.Actor\output\FSharp.Actor.dll
-D:\Appdev\Fsharp.Actor\output\FSharp.Actor.pdb
-D:\Appdev\Fsharp.Actor\src\FSharp.Actor\obj\Release\FSharp.Actor.dll
-D:\Appdev\Fsharp.Actor\src\FSharp.Actor\obj\Release\FSharp.Actor.pdb
-D:\Appdev\Fsharp.Actor\bin\FSharp.Actor.dll
-D:\Appdev\Fsharp.Actor\bin\FSharp.Actor.pdb
-D:\Appdev\Fsharp.Actor\bin\FSharp.Actor.XML
-D:\Appdev\Fsharp.Actor\src\FSharp.Actor\obj\Release\FSharp.Actor.fsprojResolveAssemblyReference.cache
