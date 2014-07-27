@@ -8,7 +8,7 @@ let referenceBinaries = [ "FSharp.Actor.dll" ]
 // Web site location for the generated documentation
 let website = "/Fsharp.Actor"
 
-let githubLink = "http://github.com/colinbull/Fsharp.Actor"
+let githubLink = "https://github.com/colinbull/Fsharp.Actor"
 
 // Specify more information about your project
 let info =
