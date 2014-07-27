@@ -10,7 +10,7 @@ open Fake.ReleaseNotesHelper
 open System
 
 // --------------------------------------------------------------------------------------
-// Project-specific details below
+// START TODO: Provide project-specific details below
 // --------------------------------------------------------------------------------------
 
 // Information about the project are used
@@ -25,12 +25,12 @@ let project = "FSharp.Actor"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = "F# Actor Framework."
+let summary = "An actor library for F#."
 
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
 let description = """
-  F# Actor Framework. """
+  An actor framework for F#"""
 // List of author names (for NuGet package)
 let authors = [ "Colin Bull" ]
 // Tags for your project (for NuGet package)
@@ -40,16 +40,16 @@ let tags = "F# fsharp actor"
 // (<solutionFile>.sln is built during the building process)
 let solutionFile  = "FSharp.Actor"
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "tests/*/bin/*/FSharp.Actor*Tests*.dll"
+let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted 
-let gitHome = "https://github.com/colinbull"
+let gitHome = "https://github.com/colinbull/Fsharp.Actor"
 // The name of the project on GitHub
 let gitName = "Fsharp.Actor"
 
 // --------------------------------------------------------------------------------------
-// The rest of the file includes standard build steps 
+// END TODO: The rest of the file includes standard build steps 
 // --------------------------------------------------------------------------------------
 
 // Read additional information from the release notes document
@@ -99,15 +99,6 @@ Target "RunTests" (fun _ ->
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
-)
-
-// --------------------------------------------------------------------------------------
-// Create a Zip archive
-
-Target "Deploy" (fun _ ->
-    !! "bin/FSharp.Actor*.dll"
-        -- "*.zip"
-        |> Zip "bin" (sprintf "bin\%s-%s.zip" project release.NugetVersion)
 )
 
 // --------------------------------------------------------------------------------------
@@ -171,7 +162,6 @@ Target "All" DoNothing
   ==> "GenerateDocs"
   ==> "ReleaseDocs"
   ==> "NuGet"
-  ==> "Deploy"
   ==> "Release"
 
 RunTargetOrDefault "All"

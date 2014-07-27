@@ -2,9 +2,11 @@
 
 module Trie =
     
-    open System.Collections.Generic
+    type key = 
+        | Key of string
+        | Wildcard
 
-    type trie<'k, 'v when 'k : comparison> = Node of 'v option * Map<'k, trie<'k, 'v>>
+    type trie<'v> = Node of 'v option * Map<key, trie<'v>>
 
     let isEmpty = function
         | Node (None, m) -> Map.isEmpty m
@@ -16,16 +18,17 @@ module Trie =
         let rec values' acc = function
             | Node(v, m) -> m |> Map.toSeq |> Seq.map snd |> Seq.fold (values') (v :: acc)
         values' [] trie |> List.choose id |> List.rev
-            
 
-    let rec tryFind keys trie = 
+    let rec resolve keys trie = 
         match keys, trie with
-        | [], Node(None, _) -> None
-        | [], Node(a, _) -> a
+        | [], Node(None, _) -> []
+        | [], Node(Some(a), _) -> [a]
+        | Wildcard::ks, Node(_,m) -> 
+            Map.toList m |> List.map snd |> List.collect (resolve ks)
         | k::ks, Node(_, m) -> 
             match Map.tryFind k m with
-            | None -> None
-            | Some(m) -> tryFind ks m
+            | None -> []
+            | Some(m) -> resolve ks m
 
     let rec subtrie keys trie = 
         match keys, trie with
@@ -48,5 +51,5 @@ module Trie =
         match (key,trie) with
         | [], Node (_,m) -> Node (None,m)
         | k::ks, Node (v,m) -> 
-              let t' = remove ks (Map.find k m) in
+              let t' = remove ks (Map.find k m) 
               Node (v, if t' = empty then Map.remove k m else Map.add k t' m)

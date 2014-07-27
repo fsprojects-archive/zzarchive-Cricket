@@ -14,6 +14,9 @@
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -24,6 +27,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>\bin\Debug\FSharp.Actor.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\FSharp.Actor.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -33,6 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>\bin\Release\FSharp.Actor.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\FSharp.Actor.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -52,34 +57,44 @@
   <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
-    <Compile Include="Interfaces.fs" />
+    <Compile Include="Helpers.fs" />
+    <Compile Include="Serialization.fs" />
     <Compile Include="Trie.fs" />
-    <Compile Include="Serialisation.fs" />
-    <Compile Include="Logging.fs" />
-    <Compile Include="Mailboxes.fs" />
+    <Compile Include="Async.fs" />
+    <Compile Include="Logger.fs" />
+    <Compile Include="Net.fs" />
+    <Compile Include="Mailbox.fs" />
+    <Compile Include="EventStream.fs" />
     <Compile Include="ActorPath.fs" />
-    <Compile Include="Registry.fs" />
+    <Compile Include="ActorRef.fs" />
     <Compile Include="Actor.fs" />
-    <Compile Include="Remoting.fs" />
-    <Compile Include="Supervisor.fs" />
-    <Compile Include="Patterns.fs" />
+    <Compile Include="ActorRegistry.fs" />
+    <Compile Include="ActorHost.fs" />
+    <Compile Include="ActorSelection.fs" />
+    <Compile Include="TcpTransport.fs" />
+    <Compile Include="ActorRemoting.fs" />
     <Compile Include="AssemblyInfo.fs" />
+    <None Include="FSharp.Actor.fsx" />
+    <None Include="SpaceShooter.fsx" />
+    <None Include="packages.config" />
+    <None Include="Remoting_Node1.fsx" />
+    <None Include="Remoting_Node2.fsx" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Fracture">
-      <HintPath>..\..\lib\Fracture.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="FsPickler">
-      <HintPath>..\..\lib\FsPickler.dll</HintPath>
+      <HintPath>..\..\packages\FsPickler.0.9.9\lib\net45\FsPickler.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Remoting" />
   </ItemGroup>
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
