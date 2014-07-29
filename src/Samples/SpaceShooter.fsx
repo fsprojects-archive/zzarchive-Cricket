@@ -1,9 +1,12 @@
-﻿#load "FSharp.Actor.fsx"
+﻿#I "../../bin"
+#r "FSharp.Actor.dll"
 open System
 open FSharp.Actor
 
-let system = ActorSystem.Create("world", onError = (fun err -> err.Sender <-- Restart))
-system.ReportEvents()
+ActorHost.Start()
+
+let system = ActorHost.CreateSystem("universe")
+                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) 
 
 type Weapon = 
     | Cannon
@@ -62,7 +65,7 @@ with
 
 let universe = 
     actor { 
-        path "universe"
+        name "universe"
         messageHandler (fun actor -> 
             let rec loop (state:UniverseState) = async {
                 let! msg = actor.Receive()
@@ -83,7 +86,7 @@ let universe =
 
 let spaceship = 
     actor {
-        path "spaceship"
+        name "spaceship"
         messageHandler (fun actor ->
             let universe = !!"universe"
             let rec loop (state:Spaceship) = async {

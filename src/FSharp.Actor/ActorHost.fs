@@ -23,7 +23,7 @@ type ActorSystem internal(systemName, ?configurator) as self =
             Registry = new InMemoryActorRegistry()
             EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
-            Serializer = new FsPicklerSerializer()
+            Serializer = new XmlSerializer()
             OnError = (fun ctx -> ctx.Sender <-- Restart)
         }
 
@@ -95,7 +95,7 @@ type ActorHost() =
             Registry = new ConcurrentDictionaryBasedRegistry<string,ActorSystem>(fun sys -> sys.Name)
             EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
-            Serializer = new FsPicklerSerializer()
+            Serializer = new XmlSerializer()
         }
 
      static let onlyIfStarted f = 

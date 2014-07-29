@@ -8,7 +8,7 @@ type actorSelection =
     with
        member x.Post(msg) =
             let (ActorSelection(target)) = x 
-            List.iter (fun t -> post t msg) target
+            List.iter (fun t -> post t  msg) target
        member x.Post(msg, sender) =
             let (ActorSelection(target)) = x 
             List.iter (fun (t:actorRef) -> postWithSender t sender msg) target

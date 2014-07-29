@@ -80,7 +80,7 @@ type RemotableInMemoryActorRegistry(tcpConfig, udpConfig, system:ActorSystem) =
         let beaconBytes = system.Serializer.Serialize(Beacon(system.Name, NetAddress(tcpChannel.Endpoint)))
         tcpChannel.Start(tcpHandler, system.CancelToken)
         udpChannel.Start(udpHandler, system.CancelToken)
-        udpChannel.Heartbeat(5000, (fun () -> beaconBytes), system.CancelToken)
+        udpChannel.Heartbeat(1000, (fun () -> beaconBytes), system.CancelToken)
     
     let handledResolveResponse result =
          match result with

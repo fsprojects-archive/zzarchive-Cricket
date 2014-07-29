@@ -9,12 +9,12 @@ type actorRef =
 and IActor = 
     inherit IDisposable
     abstract Path : actorPath with get
-    abstract Post : obj * actorPath -> unit
+    abstract Post : obj * actorRef -> unit
 
 type IActor<'a> = 
     inherit IDisposable
     abstract Path : actorPath with get
-    abstract Post : 'a * actorPath -> unit
+    abstract Post : 'a * actorRef -> unit
 
 [<AutoOpen>]
 module ActorRef = 
@@ -39,10 +39,11 @@ module ActorRef =
     let post (target:actorRef) (msg:'a) = 
         match target with
         | ActorRef(actor) -> 
-            actor.Post(msg,(sender() |> path))
+            let sender = sender()
+            actor.Post(msg,sender)
         | _ -> ()
 
-    let postWithSender (target:actorRef) (sender:actorPath) (msg:'a) = 
+    let postWithSender (target:actorRef) (sender:actorRef) (msg:'a) = 
         match target with
         | ActorRef(actor) -> 
             actor.Post(msg,sender)

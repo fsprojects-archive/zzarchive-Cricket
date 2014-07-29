@@ -14,7 +14,7 @@ open FSharp.Actor
 
 
 type Message<'a> = {
-    Sender : actorPath
+    Sender : actorRef
     Target : actorPath
     Message : 'a
 }
@@ -113,7 +113,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             publishEvent(ActorEvent.ActorErrored(ctx.Self, err))
             match defn.Parent with
             | ActorRef(actor) -> 
-                actor.Post(Errored({ Error = err; Sender = ctx.Self; Children = ctx.Children }),ctx.Path)
+                actor.Post(Errored({ Error = err; Sender = ctx.Self; Children = ctx.Children }),ctx.Self)
                 return ()
             | Null -> return! shutdown() 
         }
@@ -215,10 +215,16 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             messageHandlerCancel.Dispose()
             cts.Dispose()
 
+type RemoteMessage = {
+    Target : actorPath
+    Sender : actorPath
+    Message : obj
+}
+
 type ITransport =
     abstract Scheme : string with get
     abstract BasePath : actorPath with get
-    abstract Post : actorPath * Message<obj> -> unit
+    abstract Post : actorPath * RemoteMessage -> unit
     abstract Start : ISerializer * CancellationToken -> unit
 
 type RemoteActor(path:actorPath, transport:ITransport) =
@@ -227,7 +233,7 @@ type RemoteActor(path:actorPath, transport:ITransport) =
     interface IActor with
         member x.Path with get() = path
         member x.Post(msg, sender) =
-            transport.Post(path, { Target = path; Sender = ActorPath.rebase transport.BasePath sender; Message = msg })
+            transport.Post(path, { Target = path; Sender = ActorPath.rebase transport.BasePath (sender |> ActorRef.path); Message = msg })
         member x.Dispose() = ()
         
 

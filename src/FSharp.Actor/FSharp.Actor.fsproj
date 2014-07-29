@@ -77,8 +77,6 @@
     <None Include="FSharp.Actor.fsx" />
     <None Include="SpaceShooter.fsx" />
     <None Include="packages.config" />
-    <None Include="Remoting_Node1.fsx" />
-    <None Include="Remoting_Node2.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

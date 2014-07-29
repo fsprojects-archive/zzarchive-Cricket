@@ -9,7 +9,7 @@ open FSharp.Actor
 open Nessos.FsPickler
 
 
-type TCPTransport(config:TcpConfig, ?logger) = 
+type TCPTransport(config:TcpConfig, ?logger) as self = 
     let scheme = "actor.tcp"
     let basePath = ActorPath.ofString (sprintf "%s://%s/" scheme (config.ListenerEndpoint.ToString()))
     let log = defaultArg logger (Log.defaultFor Log.Debug)
@@ -19,9 +19,8 @@ type TCPTransport(config:TcpConfig, ?logger) =
     let handler =(fun (address:NetAddress, msgId, payload) -> 
                   async {
                     try
-                        printfn "Received message from %A" address
-                        let msg = serializer.Deserialize<Message<obj>>(payload)
-                        !~msg.Target <-- msg.Message
+                        let msg = serializer.Deserialize<RemoteMessage>(payload)
+                        (!~msg.Target).Post(msg.Message, new RemoteActor(msg.Sender, self) :> IActor |> ActorRef)
                     with e -> 
                         logger.Error("Error handling message: " + e.Message, exn = e)
                   })
