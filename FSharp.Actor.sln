@@ -41,6 +41,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD-2B06-4030-9F0F-DC548F98E1C4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{C947B00D-EAA8-4B40-8BE0-CFB9A52B2513}"
+	ProjectSection(SolutionItems) = preProject
+		src\Samples\SpaceShooter.fsx = src\Samples\SpaceShooter.fsx
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "remoting", "remoting", "{60DA9018-EDE4-4F5A-9233-63FB93C7D207}"
 EndProject

@@ -75,7 +75,6 @@
     <Compile Include="ActorRemoting.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <None Include="FSharp.Actor.fsx" />
-    <None Include="SpaceShooter.fsx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
