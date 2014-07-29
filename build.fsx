@@ -44,9 +44,9 @@ let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted 
-let gitHome = "https://github.com/colinbull"
+let gitHome = "https://github.com/fsprojects"
 // The name of the project on GitHub
-let gitName = "Fsharp.Actor"
+let gitName = "FSharp.Actor"
 
 // --------------------------------------------------------------------------------------
 // END TODO: The rest of the file includes standard build steps 

@@ -23,6 +23,7 @@ Simple Example
 	#r "FSharp.Actor.dll"
 	open FSharp.Actor
 	
+	ActorHost.Start()
 	let system = ActorHost.CreateSystem("greeterSystem")
 	
 	type Say =
