@@ -1,7 +1,7 @@
 ﻿namespace FSharp.Actor
 
 open System
-
+open System.Threading
 open System.Net.Sockets
 open System.Collections.Concurrent
 open Nessos.FsPickler
@@ -17,28 +17,96 @@ type ActorProtocol =
     | Resolved of actorPath list
     | Error of string * exn
 
-type Beacon =
-    | Beacon of hostName:string * NetAddress
+type ActorDiscoveryBeacon =
+    | ActorDiscoveryBeacon of hostName:string * NetAddress
 
-type RemotableInMemoryActorRegistry(tcpConfig, udpConfig, system:ActorSystem) = 
+type ActorRegistryTransportSettings = {
+    TransportHandler : ((NetAddress * ActorProtocol * MessageId) -> Async<unit>)
+    CancellationToken : CancellationToken
+    Serializer : ISerializer
+}
+
+type IActorRegistryTransport = 
+    abstract ListeningEndpoint : NetAddress with get
+    abstract Post : NetAddress * ActorProtocol * MessageId -> Async<unit>
+    abstract Start : ActorRegistryTransportSettings -> unit
+
+type TcpActorRegistryTransport(config:TcpConfig) = 
+    let tcpChannel = new TCP(config)
+    let logger = Log.Logger("TcpActorRegistryTransport", Log.defaultFor Log.Debug)
+    let mutable settings : ActorRegistryTransportSettings = Unchecked.defaultof<_>
+
+    let handler internalHandler = 
+        (fun (address,msgId, payload) ->
+             async {
+                try
+                    let msg = settings.Serializer.Deserialize payload
+                    do! internalHandler (address,msg,msgId)
+                with e -> 
+                    logger.Error("Unable to handle Registry Transport message", exn = e) 
+             }
+        )
+
+    interface IActorRegistryTransport with
+        member x.ListeningEndpoint with get() = NetAddress config.ListenerEndpoint
+        member x.Post(NetAddress endpoint, msg, msgId) = 
+            tcpChannel.PublishAsync(endpoint, settings.Serializer.Serialize msg, msgId)
+        member x.Start(setts) = 
+            settings <- setts
+            tcpChannel.Start(handler settings.TransportHandler, settings.CancellationToken)
+  
+
+type ActorRegistryDiscoverySettings = {
+    Beacon : ActorDiscoveryBeacon
+    DiscoveryHandler : (ActorDiscoveryBeacon -> Async<unit>)
+    CancellationToken : CancellationToken
+    Serializer : ISerializer
+}
+
+type IActorRegistryDiscovery = 
+    abstract Start : ActorRegistryDiscoverySettings -> unit
+
+type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) = 
+    let udpChannel = new UDP(udpConfig)
+    let logger = Log.Logger("UdpActorRegistryDiscovery", Log.defaultFor Log.Debug)
+    let broadcastInterval = defaultArg broadcastInterval 1000
+    let mutable settings : ActorRegistryDiscoverySettings = Unchecked.defaultof<_>
+
+    let handler internalHandler = 
+        (fun (_, payload) ->
+            async {
+                try
+                    let msg = settings.Serializer.Deserialize<ActorDiscoveryBeacon>(payload)
+                    do! internalHandler msg
+                with e ->
+                    logger.Error("Unable to handle discovery msg.", exn = e)
+            }
+        )
+
+    interface IActorRegistryDiscovery with
+        member x.Start(setts) =
+            settings <- setts
+            let beaconBytes = settings.Serializer.Serialize(settings.Beacon)
+            udpChannel.Start(handler settings.DiscoveryHandler, settings.CancellationToken)
+            udpChannel.Heartbeat(broadcastInterval, (fun _ -> beaconBytes), settings.CancellationToken)
+
+
+type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, system:ActorSystem) = 
     
     let registry = new InMemoryActorRegistry() :> ActorRegistry
     let messages = new ConcurrentDictionary<Guid, AsyncResultCell<ActorProtocol>>()
     let clients = new ConcurrentDictionary<string,NetAddress>()
-    let tcpChannel : TCP = new TCP(tcpConfig)
-    let udpChannel : UDP = new UDP(udpConfig)
     let logger = Log.Logger("RemoteRegistry", Log.defaultFor Log.Debug)
 
-    let tcpHandler = (fun (address:NetAddress, messageId:TcpMessageId, payload:byte[]) -> 
+    let transportHandler = (fun (address:NetAddress, msg:ActorProtocol, messageId:MessageId) -> 
         async { 
             try
-                let msg = system.Serializer.Deserialize payload
                 match msg with
                 | Resolve(path) -> 
-                    let transport = 
+                    let actorTransport = 
                         path.Transport |> Option.bind ActorHost.ResolveTransport
                     let resolvedPaths = 
-                        match transport with
+                        match actorTransport with
                         | Some(t) -> 
                             registry.Resolve path
                             |> List.map (fun ref -> ActorRef.path ref |> ActorPath.rebase t.BasePath)
@@ -46,7 +114,7 @@ type RemotableInMemoryActorRegistry(tcpConfig, udpConfig, system:ActorSystem) =
                             let tcp = ActorHost.ResolveTransport "actor.tcp" |> Option.get
                             registry.Resolve path
                             |> List.map (fun ref -> ActorRef.path ref |> ActorPath.rebase tcp.BasePath)
-                    do! tcpChannel.PublishAsync(address.Endpoint, system.Serializer.Serialize (Resolved resolvedPaths), messageId)
+                    do! transport.Post(address,(Resolved resolvedPaths), messageId)
                 | Resolved _ as rs -> 
                     match messages.TryGetValue(messageId) with
                     | true, resultCell -> resultCell.Complete(rs)
@@ -56,16 +124,15 @@ type RemotableInMemoryActorRegistry(tcpConfig, udpConfig, system:ActorSystem) =
             with e -> 
                let msg = sprintf "TCP: Unable to handle message : %s" e.Message
                logger.Error(msg, exn = new InvalidMessageException(e))
-               do! tcpChannel.PublishAsync(address.Endpoint, system.Serializer.Serialize (Error(msg,e)), messageId)
+               do! transport.Post(address, Error(msg,e), messageId)
         }
     )
 
-    let udpHandler = (fun (address:NetAddress, payload:byte[]) ->
+    let discoveryHandler = (fun (msg:ActorDiscoveryBeacon) ->
         async {
             try
-                let msg = system.Serializer.Deserialize payload
                 match msg with
-                | Beacon(hostName, netAddress) -> 
+                | ActorDiscoveryBeacon(hostName, netAddress) -> 
                     if not <| clients.ContainsKey(hostName)
                     then 
                         clients.TryAdd(hostName, netAddress) |> ignore
@@ -77,10 +144,9 @@ type RemotableInMemoryActorRegistry(tcpConfig, udpConfig, system:ActorSystem) =
     )
     
     do
-        let beaconBytes = system.Serializer.Serialize(Beacon(system.Name, NetAddress(tcpChannel.Endpoint)))
-        tcpChannel.Start(tcpHandler, system.CancelToken)
-        udpChannel.Start(udpHandler, system.CancelToken)
-        udpChannel.Heartbeat(1000, (fun () -> beaconBytes), system.CancelToken)
+        let beacon = ActorDiscoveryBeacon(system.Name, transport.ListeningEndpoint)
+        transport.Start({ TransportHandler = transportHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
+        discovery.Start({ Beacon = beacon; DiscoveryHandler = discoveryHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
     
     let handledResolveResponse result =
          match result with
@@ -105,7 +171,7 @@ type RemotableInMemoryActorRegistry(tcpConfig, udpConfig, system:ActorSystem) =
                                          let msgId = Guid.NewGuid()
                                          let resultCell = new AsyncResultCell<ActorProtocol>()
                                          messages.TryAdd(msgId, resultCell) |> ignore
-                                         do! tcpChannel.PublishAsync(client.Endpoint, system.Serializer.Serialize(Resolve path), msgId)
+                                         do! transport.Post(client, Resolve path, msgId)
                                          let! result = resultCell.AwaitResult(?timeout = timeout)
                                          messages.TryRemove(msgId) |> ignore
                                          return handledResolveResponse result
@@ -129,8 +195,8 @@ module ActorHostRemotingExtensions =
 
     type ActorSystem with
         
-        member x.EnableRemoting(tcpConfig, udpConfig) = 
+        member x.EnableRemoting(transport, udpConfig) = 
             x.Configure (fun c -> 
-                c.Registry <- (new RemotableInMemoryActorRegistry(tcpConfig, udpConfig, x))
+                c.Registry <- (new RemotableInMemoryActorRegistry(transport, udpConfig, x))
             )
             x

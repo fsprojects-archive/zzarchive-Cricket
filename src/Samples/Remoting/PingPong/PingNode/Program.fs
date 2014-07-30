@@ -11,8 +11,8 @@ ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))])
 let system = ActorHost.CreateSystem("pingpong")
                       .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
                       .EnableRemoting(
-                            TcpConfig.Default(IPEndPoint.Create(12003)),
-                            UdpConfig.Default()
+                            new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12003))),
+                            new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
                       )
 let ping count =
     actor {

@@ -168,7 +168,7 @@ with
             Backlog = defaultArg backlog 10000
         }
 
-type TcpMessageId = Guid
+type MessageId = Guid
 
 type TcpHandlerResponse = 
     | Payload of byte[]
