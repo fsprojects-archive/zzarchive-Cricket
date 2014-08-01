@@ -54,14 +54,12 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
-  
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="Serialization.fs" />
     <Compile Include="Trie.fs" />
     <Compile Include="Async.fs" />
     <Compile Include="Logger.fs" />
-    <Compile Include="Net.fs" />
     <Compile Include="Mailbox.fs" />
     <Compile Include="EventStream.fs" />
     <Compile Include="ActorPath.fs" />
@@ -70,8 +68,9 @@
     <Compile Include="ActorRegistry.fs" />
     <Compile Include="ActorHost.fs" />
     <Compile Include="ActorSelection.fs" />
-    <Compile Include="TcpTransport.fs" />
     <Compile Include="ActorRemoting.fs" />
+    <Compile Include="Sockets.fs" />
+    <Compile Include="Transports.fs" />
     <Compile Include="AssemblyInfo.fs" />
     <None Include="FSharp.Actor.fsx" />
     <None Include="packages.config" />

@@ -8,85 +8,7 @@ open System.Net.NetworkInformation
 open System.Collections.Concurrent
 open System.Threading
 open Microsoft.FSharp.Control
-open Nessos.FsPickler
-
-module internal Net =
-
-    let getIPAddress() = 
-        if NetworkInterface.GetIsNetworkAvailable()
-        then 
-            let host = Dns.GetHostEntry(Dns.GetHostName())
-            host.AddressList
-            |> Seq.find (fun add -> add.AddressFamily = AddressFamily.InterNetwork)
-        else IPAddress.Loopback
-    
-    let getFirstFreePort() = 
-        let defaultPort = 8080
-        let usedports = 
-            IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners() 
-            |> Seq.map (fun x -> x.Port)
-        
-        let ports = 
-            seq { 
-                for port in defaultPort..defaultPort + 2048 do
-                    yield port
-            }
-        
-        let port = ports |> Seq.find (fun p -> Seq.forall ((<>) p) usedports)
-        port
-    
-    let availableEndpoint() =
-        new IPEndPoint(getIPAddress(), getFirstFreePort())
-
-    let sendTcpAsync endpoint msg = async {
-            use client = new TcpClient()
-            client.Connect(endpoint)
-            use stream  = client.GetStream()
-            do! stream.WriteBytesAsync(msg)
-            do! stream.FlushAsync().ContinueWith(ignore) |> Async.AwaitTask
-        }
-  
-[<AutoOpen>]
-module SystemNetExtensions =      
-    type IPEndPoint with
-        static member Create(?port:int) = new IPEndPoint(Net.getIPAddress(), defaultArg port (Net.getFirstFreePort()))
-
-[<CustomComparison; CustomEquality>]
-type NetAddress = 
-    | NetAddress of IPEndPoint
-    override x.Equals(y:obj) =
-        match y with
-        | :? IPEndPoint as ip -> ip.ToString().Equals(x.ToString())
-        | :? NetAddress as add -> 
-            match add with
-            | NetAddress(null) -> false
-            | NetAddress(ip) ->  ip.ToString().Equals(x.ToString())
-        | _ -> false
-    member x.Endpoint 
-        with get() = 
-            match x with
-            | NetAddress(ip) -> ip
-    member x.HostName
-        with get() = 
-            match Dns.GetHostEntry(x.Endpoint.Address) with
-            | null -> failwithf "Unable to get hostname for IPAddress: %A" x.Endpoint.Address
-            | he -> he.HostName
-    member x.Port
-        with get() = x.Endpoint.Port
-    override x.GetHashCode() = 
-        match x with
-        | NetAddress(ip) -> ip.GetHashCode()
-    static member OfEndPoint(ip:EndPoint) = NetAddress(ip :?> IPEndPoint)
-    interface IComparable with
-        member x.CompareTo(y:obj) =
-            match y with
-            | :? IPEndPoint as ip -> ip.ToString().CompareTo(x.ToString())
-            | :? NetAddress as add -> 
-                match add with
-                | NetAddress(ip) ->  ip.ToString().CompareTo(x.ToString())
-            | _ -> -1
-
-
+ 
 type UdpConfig = {
     Id : Guid
     MulticastPort : int
@@ -116,6 +38,7 @@ type UDP(config:UdpConfig) =
             let client = new UdpClient()
             client.ExclusiveAddressUse <- false
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true)
+            client.AllowNatTraversal(true)
             client.Client.Bind(new IPEndPoint(IPAddress.Any, config.MulticastPort))
             client.JoinMulticastGroup(config.MulticastGroup)
             client
@@ -168,16 +91,11 @@ with
             Backlog = defaultArg backlog 10000
         }
 
-type MessageId = Guid
-
-type TcpHandlerResponse = 
-    | Payload of byte[]
-    | Empty
-
 type TCP(config:TcpConfig) =        
     let mutable isStarted = false
     let mutable handler : (NetAddress * Guid * byte[] -> Async<Unit>) = (fun (_,_,_) -> async { return () })
     let mutable listeningEndpoint : IPEndPoint = null
+    let clients = new ConcurrentDictionary<string, TcpClient>()
 
     let listener =
         lazy
@@ -206,11 +124,13 @@ type TCP(config:TcpConfig) =
             let ipEndpoint = listeningEndpoint.Address.GetAddressBytes()
             let portBytes = BitConverter.GetBytes listeningEndpoint.Port
             let header = Array.append (Array.append (messageId.ToByteArray()) ipEndpoint) portBytes
-            use client = new TcpClient()           
-            client.Connect(endpoint)
+            let key = endpoint.ToString()
+            use client = new TcpClient()  
+            client.Connect(endpoint)         
             use stream  = client.GetStream()
             do! stream.WriteBytesAsync(Array.append header payload)
             do! stream.FlushAsync().ContinueWith(ignore) |> Async.AwaitTask
+            
         }
     
     member x.Publish(endpoint, payload, ?messageId) = 

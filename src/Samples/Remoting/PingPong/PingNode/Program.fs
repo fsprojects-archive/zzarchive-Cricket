@@ -42,7 +42,7 @@ let main argv =
     Console.WriteLine("Press enter to start")
     Console.ReadLine() |> ignore
 
-    let pingRef = system.SpawnActor(ping 1000)
+    let pingRef = system.SpawnActor(ping 10000)
     pingRef <-- Pong
 
     Console.WriteLine("Press enter to exit")
