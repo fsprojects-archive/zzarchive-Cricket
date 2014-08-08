@@ -119,7 +119,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                          |> Seq.map (fun client -> async { 
                                          let msgId = Guid.NewGuid()
                                          let resultCell = new AsyncResultCell<ActorProtocol>()
-                                         messages.TryAdd(msgId, resultCell) |> ignore
+                                         messages.AddOrUpdate(msgId, resultCell, fun _ _ -> resultCell) |> ignore
                                          do! transport.Post(client, Resolve path, msgId)
                                          let! result = resultCell.AwaitResult(?timeout = timeout)
                                          messages.TryRemove(msgId) |> ignore

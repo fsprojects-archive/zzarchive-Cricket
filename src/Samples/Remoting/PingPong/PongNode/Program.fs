@@ -23,7 +23,7 @@ let pong =
                 let! msg = cell.Receive()
                 match msg.Message with
                 | Ping -> 
-                      if count % 100 = 0 then cell.Logger.Info("Pong: ping " + (count.ToString()))
+                      if count % 1000 = 0 then cell.Logger.Info("Pong: ping " + (count.ToString()))
                       msg.Sender <-- Pong
                       return! loop (count + 1)
                 | Pong _ -> failwithf "Pong: received a pong message, panic..."

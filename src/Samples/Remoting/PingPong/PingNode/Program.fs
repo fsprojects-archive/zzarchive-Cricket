@@ -24,7 +24,7 @@ let ping count =
                 let! msg = cell.Receive()
                 match msg.Message with
                 | Pong when count > 0 -> 
-                      if count % 100 = 0 then cell.Logger.Info("Ping: pong")
+                      if count % 1000 = 0 then cell.Logger.Info("Pong: ping " + (count.ToString()))
                       pong <-- Ping
                       return! loop (count - 1)
                 | Ping -> failwithf "Ping: received a ping message, panic..."
@@ -42,7 +42,7 @@ let main argv =
     Console.WriteLine("Press enter to start")
     Console.ReadLine() |> ignore
 
-    let pingRef = system.SpawnActor(ping 10000)
+    let pingRef = system.SpawnActor(ping 100000)
     pingRef <-- Pong
 
     Console.WriteLine("Press enter to exit")
