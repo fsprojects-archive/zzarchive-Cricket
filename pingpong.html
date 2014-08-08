@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>pingpong</title>
+    <title>Ping - Pong
+</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="An actor framework for F#">
     <meta name="author" content="Colin Bull">
@@ -44,6 +45,10 @@
       <div class="row">
         <div class="span9" id="main">
           
+<h1>Ping - Pong</h1>
+
+<p>A slighlty</p>
+
 <table class="pre"><tr><td class="lines"><pre class="fssnip">
 <span class="l"> 1: </span>
 <span class="l"> 2: </span>
@@ -148,7 +153,7 @@
                 <span class="k">match</span> <span onmouseout="hideTip(event, 'fs21', 58)" onmouseover="showTip(event, 'fs21', 58)" class="i">msg</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 59)" onmouseover="showTip(event, 'fs23', 59)" class="i">Message</span> <span class="k">with</span>
                 | <span onmouseout="hideTip(event, 'fs9', 60)" onmouseover="showTip(event, 'fs9', 60)" class="i">Ping</span> <span class="k">-&gt;</span> 
                       <span class="k">if</span> <span onmouseout="hideTip(event, 'fs13', 61)" onmouseover="showTip(event, 'fs13', 61)" class="i">count</span> <span class="o">%</span> <span class="n">1000</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs17', 62)" onmouseover="showTip(event, 'fs17', 62)" class="i">cell</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 63)" onmouseover="showTip(event, 'fs24', 63)" class="i">Logger</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs25', 64)" onmouseover="showTip(event, 'fs25', 64)" class="i">Info</span>(<span class="s">&quot;</span><span class="s">Pong</span><span class="s">:</span><span class="s"> </span><span class="s">ping</span><span class="s"> </span><span class="s">&quot;</span> <span class="o">+</span> (<span onmouseout="hideTip(event, 'fs13', 65)" onmouseover="showTip(event, 'fs13', 65)" class="i">count</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 66)" onmouseover="showTip(event, 'fs28', 66)" class="i">ToString</span>()))
-                      <span class="o">!~</span><span onmouseout="hideTip(event, 'fs21', 67)" onmouseover="showTip(event, 'fs21', 67)" class="i">msg</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 68)" onmouseover="showTip(event, 'fs29', 68)" class="i">Sender</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs10', 69)" onmouseover="showTip(event, 'fs10', 69)" class="i">Pong</span>
+                      <span onmouseout="hideTip(event, 'fs21', 67)" onmouseover="showTip(event, 'fs21', 67)" class="i">msg</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 68)" onmouseover="showTip(event, 'fs29', 68)" class="i">Sender</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs10', 69)" onmouseover="showTip(event, 'fs10', 69)" class="i">Pong</span>
                       <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs19', 70)" onmouseover="showTip(event, 'fs19', 70)" class="i">loop</span> (<span onmouseout="hideTip(event, 'fs13', 71)" onmouseover="showTip(event, 'fs13', 71)" class="i">count</span> <span class="o">+</span> <span class="n">1</span>)
                 | <span onmouseout="hideTip(event, 'fs10', 72)" onmouseover="showTip(event, 'fs10', 72)" class="i">Pong</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs26', 73)" onmouseover="showTip(event, 'fs26', 73)" class="i">failwithf</span> <span class="s">&quot;</span><span class="s">Pong</span><span class="s">:</span><span class="s"> </span><span class="s">received</span><span class="s"> </span><span class="s">a</span><span class="s"> </span><span class="s">pong</span><span class="s"> </span><span class="s">message</span><span class="s">,</span><span class="s"> </span><span class="s">panic</span><span class="s">.</span><span class="s">.</span><span class="s">.</span><span class="s">&quot;</span>
                 | _ <span class="k">-&gt;</span> <span class="k">return</span> ()
@@ -196,7 +201,7 @@
 <div class="tip" id="fs26">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
 <div class="tip" id="fs27">val pong : ActorConfiguration&lt;PingPong&gt;<br /><br />Full name: Pingpong.pong</div>
 <div class="tip" id="fs28">System.Int32.ToString() : string<br />System.Int32.ToString(provider: System.IFormatProvider) : string<br />System.Int32.ToString(format: string) : string<br />System.Int32.ToString(format: string, provider: System.IFormatProvider) : string</div>
-<div class="tip" id="fs29">Message.Sender: actorPath</div>
+<div class="tip" id="fs29">Message.Sender: actorRef</div>
 <div class="tip" id="fs30">val pingRef : actorRef<br /><br />Full name: Pingpong.pingRef</div>
 <div class="tip" id="fs31">member ActorSystem.SpawnActor : config:ActorConfiguration&lt;&#39;a&gt; -&gt; actorRef</div>
 <div class="tip" id="fs32">val pongRef : actorRef<br /><br />Full name: Pingpong.pongRef</div>
