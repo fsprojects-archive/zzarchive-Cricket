@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{DFA86739-6DF5-4F49-8867-7308598D24FB}"
 	ProjectSection(SolutionItems) = preProject
@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{83F16175
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D5255-776D-4B61-85F9-73C37AA1FB9A}"
 	ProjectSection(SolutionItems) = preProject
+		docs\content\actor_hosts_and_actor_systems.fsx = docs\content\actor_hosts_and_actor_systems.fsx
+		docs\content\actor_lookup.fsx = docs\content\actor_lookup.fsx
 		docs\content\index.fsx = docs\content\index.fsx
 		docs\content\pingpong.fsx = docs\content\pingpong.fsx
 		docs\content\tutorial.fsx = docs\content\tutorial.fsx
