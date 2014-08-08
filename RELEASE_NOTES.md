@@ -7,3 +7,7 @@
 #### 0.0.3-alpha - July 27th 2014
 * Major changes basically a complete re-write. See docs for new API.
 
+#### 0.0.4-alpha - August 8th 2014
+* Changed implementation of TCP transport to use pooled SocketAsyncEventArgs.
+* Added fully working remoting example.
+

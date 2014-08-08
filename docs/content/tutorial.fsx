@@ -10,19 +10,42 @@ open FSharp.Actor
 Hello World Example
 ===================
 
-The example below is essentially the `Hello World` of actors.
-Here we create a discriminated union to represent the type of messages that we want the actor to process. 
-Next we create an actor called `/greeter` to handle the messages. Then finally we use `<--` to send the message
-so the actor can process it. 
+The example below is essentially the `Hello World` of actors. It is a 
+simple actor called `greeter` which responds to messages of type `Say`. Given a message the actor will write
+a response to the debug log then wait for another message. 
 *)
 
 ActorHost.Start()
 let system = ActorHost.CreateSystem("greeterSystem")
 
+(**
+Before we create any actor we must start the actor host and create an actor system for 
+out actor to live in. There is only one actor host per process but there can be many 
+actor systems (for more info on Actor Systems see [here](actor_hosts_and_actor_systems.html))
+
+Next we create a type to represent the messages that we want to send. In this example we create a three
+legged union to represent our messages, but this could just of easily been a class, record or any other 
+type really. Typically though unions are a good fit for defining message types. 
+*)
+
 type Say =
     | Hello
     | HelloWorld
     | Name of string
+
+(**
+Now we have our message type, its is time to create our actor. To do this we can use the
+`actor {}` syntax. The syntax allows for various different properties to be set (see [here](reference/fsharp-actor-actorconfiguration-1.html)),
+but name and messageHandler are the minimum required to get a functioning actor. The messageHandler is simply a function that provides the behaviour 
+of the actor. It is of type `ActorCell<'a> -> Async<unit>` where the [ActorCell<'a>](reference/fsharp-actor-actorcell-1.html) 
+type holds the context for this actor. To wait for a message we simply call receive, this will block this thread until a message 
+arrives at the actor. Once it arrives, the function will resume and process the message. Once we have finished defininf our actor
+configuration we can spawn the actor. 
+
+When you spawn an actor, you spawn it within an actor system. This allows the actor framework to provide lookup and supervisory services.
+It is possible to spawn an actor outside of a system by using the actor constructor, but you would have to work with this reference directly 
+and you wouldn't be able to lookup the actor or participate in any remoting.
+*)
 
 let greeter = 
     actor {
@@ -41,13 +64,51 @@ let greeter =
             loop())
     } |> system.SpawnActor
 
+(**
+Once the actor is spawned it is now ready to except messages. To post a message to an actor we can use the `<--` operator, like this.
+*)
+
 greeter <-- Name("from F# Actor")
 
 (**
-In the above example we have created simple actor called `greeter` which responds to messages of type `Say`. 
+This requires you to have a direct reference to the actor, which is not always practical. It would be nice to be able to resolve actors by name
+at runtime and in fact the framework lets you do this using the `!!` operator. 
 *)
 
+let resolvedGreeter = !!"greeter"
+
 (**
+The `!!` operator returns an [actorSelection](reference/fsharp-actor-actorselection-0.html) type, which can represent one or many actors that 
+match the path you gave (for more on actor lookup see [here](actor_lookup.html)). once we have an `actorSelection` we can use it exactly 
+like the direct reference. 
+*)
+
+resolvedGreeter <-- Hello
+
+(**
+Or we can inline all of this
+*)
+
+!!"greeter" <-- Hello
+
+(**
+
+System Messages
+---------------
+
+Great.. so at this point we have an actor and can send messages to it. But we have no obvious way of shutting down this actor once we are done with it. Now we could
+add an extra leg to our message type `Stop` for example that would cause the message loop to not recursively return but instead simply exit. And in some domains this 
+will be desirable. But it is worth noting that the F# Actor Framework, provides a set of [System Messages](reference/fsharp-actor-systemmessage.html) that allow you to control
+certain framework level items to do with your actor, like shutting down, restarting or several other tasks to do with supervisors. 
+
+Here we will just focus on shutting down the actor, since this is built into the framework all we have to do is send it the `Shutdown` message
+*)
+
+greeter <-- Shutdown
+
+(**
+Thats about it for the basics, for more indepth examples have a look at the links below. 
+
 More in depth examples
 ----------------------
  * [Ping Pong](pingpong.html) - A slightly more advanced example, showing how two actors can communicate with each other.
