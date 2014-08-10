@@ -271,20 +271,21 @@ module Socket =
             let args = connection.Checkout() 
             args.SetBuffer(args.Offset, 1)
             args.RemoteEndPoint <- remoteEndpoint
-            executeSafe connection.Socket.ConnectAsync (complete connection) args
+            connection.Socket.Connect(remoteEndpoint)
+            //executeSafe connection.Socket.ConnectAsync (complete connection) args
             connection
 
         let send connection (data:byte[]) = 
             let rec send' offset = 
                 if offset < data.Length
-                then 
-                    let saea = connection.Checkout()
-                    let size = min (data.Length - offset) connection.BufferSize
-                    saea.UserToken <- { (saea.UserToken :?> Token) with Socket = connection.Socket; Endpoint = connection.Socket.RemoteEndPoint :?> IPEndPoint }
-                    Buffer.BlockCopy(data, offset, saea.Buffer, saea.Offset, size)
-                    saea.SetBuffer(saea.Offset, size)
+                then
                     if connection.Socket.Connected
                     then 
+                        let saea = connection.Checkout()
+                        let size = min (data.Length - offset) connection.BufferSize
+                        saea.UserToken <- { (saea.UserToken :?> Token) with Socket = connection.Socket; Endpoint = connection.Socket.RemoteEndPoint :?> IPEndPoint }
+                        Buffer.BlockCopy(data, offset, saea.Buffer, saea.Offset, size)
+                        saea.SetBuffer(saea.Offset, size)
                         executeSafe connection.Socket.SendAsync (complete connection) saea
                         send' (offset + size)
                     else raise (ConnectionLost(connection.Socket.RemoteEndPoint :?> IPEndPoint))
@@ -373,7 +374,7 @@ with
             ListenerEndpoint = listenerEndpoint
             Backlog = defaultArg backlog 100
             PoolSize = defaultArg poolSize 300
-            BufferSize = defaultArg bufferSize 1024
+            BufferSize = defaultArg bufferSize 4096
         }
 
 type TCP(config:TcpConfig) =        

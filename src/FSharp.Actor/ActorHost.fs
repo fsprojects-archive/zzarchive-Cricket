@@ -23,7 +23,7 @@ type ActorSystem internal(systemName, ?configurator) as self =
             Registry = new InMemoryActorRegistry()
             EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
-            Serializer = new XmlSerializer()
+            Serializer = new BinarySerializer()
             OnError = (fun ctx -> ctx.Sender <-- Restart)
         }
 

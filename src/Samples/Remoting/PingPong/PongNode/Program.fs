@@ -6,15 +6,6 @@ open System.Net
 open FSharp.Actor
 open PingPong
 
-ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12000)))])
-
-let system = ActorHost.CreateSystem("pingpong")
-                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
-                      .EnableRemoting(
-                            new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12001))),
-                            new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
-                      )
-
 let pong = 
     actor {
         name "pong"
@@ -35,6 +26,19 @@ let pong =
 
 [<EntryPoint>]
 let main argv = 
+    
+    let transportPort = Int32.Parse(argv.[0])
+    let registryTransportPort = Int32.Parse(argv.[1])
+    let nodeName = argv.[2]
+    
+    ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(transportPort)))])
+
+    let system = ActorHost.CreateSystem(nodeName)
+                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
+                      .EnableRemoting(
+                            new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(registryTransportPort))),
+                            new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
+                      )
 
     system.SpawnActor(pong) |> ignore
 
