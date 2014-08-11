@@ -5,8 +5,10 @@ open System.Threading
 open System.Net.Sockets
 open System.Collections.Concurrent
 
-type InvalidMessageException(innerEx:Exception) =
+type InvalidMessageException(payload:obj, innerEx:Exception) =
     inherit Exception("Unable to handle msg", innerEx)
+
+    member val Buffer = payload with get
 
 type RemotingEvents =
     | NewActorSystem of string * NetAddress
@@ -72,7 +74,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                     logger.Error(sprintf "Remote error received %s" msg, exn = err)
             with e -> 
                let msg = sprintf "TCP: Unable to handle message : %s" e.Message
-               logger.Error(msg, exn = new InvalidMessageException(e))
+               logger.Error(msg, exn = new InvalidMessageException(msg, e))
                do! transport.Post(address, Error(msg,e), messageId)
         }
     )
@@ -88,7 +90,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                         system.EventStream.Publish(NewActorSystem(hostName, netAddress))
                         logger.Debug(sprintf "New actor Host %s %A" hostName netAddress)
             with e -> 
-               logger.Error("UDP: Unable to handle message", exn = new InvalidMessageException(e))  
+               logger.Error("UDP: Unable to handle message", exn = new InvalidMessageException(msg, e))  
         }
     )
     
@@ -128,7 +130,6 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                          |> Async.Parallel
                     let paths = remotePaths |> Array.toList |> List.concat
                     return paths @ registry.Resolve(path)     
-
              }
                  
         member x.Resolve(path) = (x :> ActorRegistry).ResolveAsync(path, None) |> Async.RunSynchronously                   

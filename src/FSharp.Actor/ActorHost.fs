@@ -8,11 +8,10 @@ type ActorSystemConfiguration = {
      mutable EventStream : IEventStream
      mutable Logger : Log.Logger
      mutable OnError : (ErrorContext -> unit)
-     mutable Serializer : ISerializer
      mutable CancellationToken : Threading.CancellationToken
 }
 
-type ActorSystem internal(systemName, ?configurator) as self = 
+type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as self = 
     
     let mutable supervisor = Unchecked.defaultof<_>
     let mutable deadLetter = Unchecked.defaultof<_>
@@ -23,7 +22,6 @@ type ActorSystem internal(systemName, ?configurator) as self =
             Registry = new InMemoryActorRegistry()
             EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
-            Serializer = new BinarySerializer()
             OnError = (fun ctx -> ctx.Sender <-- Restart)
         }
 
@@ -46,7 +44,7 @@ type ActorSystem internal(systemName, ?configurator) as self =
     member x.Name with get() = systemName
     member x.EventStream with get() = configuration.EventStream
     member x.CancelToken with get() = configuration.CancellationToken
-    member x.Serializer with get() = configuration.Serializer
+    member x.Serializer with get() = serializer
 
     member internal x.Configure(configurator : ActorSystemConfiguration -> unit) = configurator configuration
 
@@ -95,7 +93,7 @@ type ActorHost() =
             Registry = new ConcurrentDictionaryBasedRegistry<string,ActorSystem>(fun sys -> sys.Name)
             EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
-            Serializer = new XmlSerializer()
+            Serializer = new BinarySerializer()
         }
 
      static let onlyIfStarted f = 
@@ -124,7 +122,7 @@ type ActorHost() =
                 configuration.Logger.Error(msg)
                 failwith msg
             else 
-                let sys = (new ActorSystem(name, ?configurator = configurator)).Start()
+                let sys = (new ActorSystem(name, configuration.Serializer, ?configurator = configurator)).Start()
                 configuration.Registry.Register(sys)
                 sys)
 

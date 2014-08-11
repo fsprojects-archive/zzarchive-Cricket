@@ -11,16 +11,15 @@ open Microsoft.FSharp.Control
 
 module Message = 
     
-    let unpack (message : byte[]) = 
-        if message.Length > 16
-           then
-               let messageIdBytes = message.[0..15]
-               let ipAddress = IPAddress(message.[16..19])
-               let port = BitConverter.ToInt32(message.[20..23], 0)
-               let endpoint = new IPEndPoint(ipAddress, port)
-               let guid = new Guid(messageIdBytes)
-               Some (NetAddress.OfEndPoint endpoint, guid, message.[24..])
-        else None
+    let unpack (message : byte[]) =
+        try
+           let guid = new Guid(message.[0..15])
+           let ipAddress = IPAddress(message.[16..19])
+           let port = BitConverter.ToInt32(message.[20..23], 0)
+           let endpoint = new IPEndPoint(ipAddress, port)
+           NetAddress.OfEndPoint endpoint, guid, message.[24..]
+        with e -> 
+            raise (InvalidMessageException(message, e))
 
     let pack (endpoint:IPEndPoint) (messageId:Guid) payload =
         let ipEndpoint = endpoint.Address.GetAddressBytes()
@@ -59,7 +58,9 @@ type Pool<'a>(ctx, poolSize:int, ctor) =
 
 
 module Socket = 
-        
+    
+    exception ConnectionLost of IPEndPoint
+       
     type Token = {
         Id : int
         Socket : Socket
@@ -88,7 +89,7 @@ module Socket =
         member x.BufferSize with get() = socketBufferSize
 
         member x.CheckIn(args:SocketAsyncEventArgs) = 
-            if args.Count < socketBufferSize then args.SetBuffer(args.Offset, socketBufferSize)
+            args.SetBuffer(buffer,(args.UserToken :?> Token).Id * socketBufferSize , socketBufferSize)
            // printfn "Checked in %d" (args.UserToken :?> Token).Id
             args.UserToken <- {(args.UserToken :?> Token) with Socket = null; Endpoint = null }
             pool.CheckIn(args)
@@ -104,191 +105,212 @@ module Socket =
                 (fun i -> 
                     let args = new SocketAsyncEventArgs()
                     args.SetBuffer(buffer, i * socketBufferSize, socketBufferSize)
-                    args.Completed |> Event.add callback
-                    args, null
+                    let dispose = args.Completed |> Observable.subscribe callback
+                    args, dispose
                 )
             pool <- new Pool<SocketAsyncEventArgs>(ctx, poolSize, build)
           
-    module Common = 
 
-        let read (args:SocketAsyncEventArgs) = 
-            let data = Array.zeroCreate<byte> args.BytesTransferred
-            Buffer.BlockCopy(args.Buffer, args.Offset, data, 0, args.BytesTransferred)
-            data
+    let read (args:SocketAsyncEventArgs) = 
+        let data = Array.zeroCreate<byte> args.BytesTransferred
+        Buffer.BlockCopy(args.Buffer, args.Offset, data, 0, args.BytesTransferred)
+        data
+    
+    let disconnect connection (args:SocketAsyncEventArgs) = 
+        let token = (args.UserToken :?> Token)
+        try
+            token.Socket.Shutdown(SocketShutdown.Both)
+            if token.Socket.Connected then token.Socket.Disconnect(true)
+            connection.Handler (Disconnected token.Endpoint)
+        finally 
+            token.Socket.Close()
+    
+    let executeSafe f g args = if not(f args) then g args
+    
+    let create (pool:SocketArgPool) handler (endpoint:IPEndPoint) =
+        let socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+        socket.Bind(endpoint)
+        { Checkout = pool.CheckOut; Checkin = pool.CheckIn; Socket = socket; BufferSize = pool.BufferSize; Handler = handler; }
+    
+    type Server private(endpoint:IPEndPoint, handler, ?backlog, ?poolSize, ?bufferSize) = 
+        let backlog = defaultArg backlog 1000
+        let poolSize = defaultArg poolSize 1000
+        let bufferSize = defaultArg bufferSize 4096
 
-        let disconnect connection (args:SocketAsyncEventArgs) = 
+        let connectionPool = new SocketArgPool("connection pool", max poolSize (backlog * 2), bufferSize)
+        let workerPool = new SocketArgPool("worker pool", poolSize, bufferSize)
+        let socket = 
+            let socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            socket
+
+        let rec accept args = 
+            let args = if args <> null then args else connectionPool.CheckOut()
+            args.AcceptSocket <- null;
+            executeSafe socket.AcceptAsync complete args
+        
+        and processAccept (args:SocketAsyncEventArgs) = 
+            let acceptSocket = args.AcceptSocket
+            match args.SocketError with
+            | SocketError.Success ->
+                let acceptor = connectionPool.CheckOut()
+                executeSafe socket.AcceptAsync complete acceptor
+                
+                let receiver = workerPool.CheckOut()
+                receiver.UserToken <- { (receiver.UserToken :?> Token) with Socket = acceptSocket; Endpoint = acceptSocket.RemoteEndPoint :?> IPEndPoint }
+                executeSafe acceptSocket.ReceiveAsync processReceive receiver
+
+                if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
+                then
+                    let data = read args
+                    handler (Received (acceptSocket.RemoteEndPoint :?> IPEndPoint  , data))
+
+            | a -> failwithf "Socket Error %A" a
+        
+        and complete (args:SocketAsyncEventArgs) = 
+            try
+                match args.LastOperation with
+                | SocketAsyncOperation.Accept -> processAccept args
+                | SocketAsyncOperation.Connect -> processConnect args
+                | SocketAsyncOperation.Receive -> processReceive args
+                | SocketAsyncOperation.Send -> processSend args
+                | SocketAsyncOperation.Disconnect -> disconnect args
+                | a -> failwithf "complete BROKEN unrecognised operation!!! %A" a 
+            finally
+                workerPool.CheckIn(args)
+        
+        and processConnect (args:SocketAsyncEventArgs) =
+            match args.SocketError with
+            | SocketError.Success -> 
+                handler (Connected (args.RemoteEndPoint :?> IPEndPoint))
+                executeSafe args.ConnectSocket.ReceiveAsync complete (workerPool.CheckOut())
+            | a -> failwithf "processConnect BROKEN unrecognised operation!!! %A" a 
+
+        and processReceive (args:SocketAsyncEventArgs) =
+            let token = args.UserToken :?> Token
+            if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
+            then
+                let data = read args
+                handler (Received (token.Endpoint , data))
+
+                if token.Socket.Connected then 
+                    let newArg = workerPool.CheckOut()
+                    newArg.UserToken <- token
+                    executeSafe token.Socket.ReceiveAsync complete newArg
+            else disconnect args
+
+        and processSend (args:SocketAsyncEventArgs) =
+            let token = args.UserToken :?> Token
+            match args.SocketError with
+            | SocketError.Success -> 
+                handler (Sent (args.RemoteEndPoint :?> IPEndPoint, read args))
+                executeSafe token.Socket.ReceiveAsync complete args
+            | a -> disconnect args
+
+        and disconnect (args:SocketAsyncEventArgs) = 
             let token = (args.UserToken :?> Token)
             try
                 token.Socket.Shutdown(SocketShutdown.Both)
                 if token.Socket.Connected then token.Socket.Disconnect(true)
-                connection.Handler (Disconnected token.Endpoint)
+                handler (Disconnected token.Endpoint)
             finally 
                 token.Socket.Close()
-
-        let executeSafe f g args = if not(f args) then g args
-
-        let create (pool:SocketArgPool) handler (endpoint:IPEndPoint) =
-            let socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+        
+        member x.Listen() =
             socket.Bind(endpoint)
-            { Checkout = pool.CheckOut; Checkin = pool.CheckIn; Socket = socket; BufferSize = pool.BufferSize; Handler = handler; }
+            socket.Listen(backlog)
 
-    module Server = 
-        
-        open Common
-
-        let rec private accept (connection:Connection) args = 
-            let args = if args <> null then args else connection.Checkout()
-            args.AcceptSocket <- null;
-            executeSafe connection.Socket.AcceptAsync (completeAccept connection) args
-        
-        and private completeAccept connection (args:SocketAsyncEventArgs) =
-            try
-                match args.LastOperation with
-                | SocketAsyncOperation.Accept -> processAccept connection args 
-                | SocketAsyncOperation.Disconnect -> Common.disconnect connection args
-                | a -> failwithf "compelteAccept BROKEN unrecognised operation!!! %A" a 
-            finally
-                args.DisconnectReuseSocket <- true
-                connection.Checkin(args)
-
-        and private processAccept connection (args:SocketAsyncEventArgs) = 
-            let socket = args.AcceptSocket
-            match args.SocketError with
-            | SocketError.Success ->
-                let readArgs = connection.Checkout()
-                readArgs.UserToken <- { (readArgs.UserToken :?> Token) with Socket = socket; Endpoint = socket.RemoteEndPoint :?> IPEndPoint }
-                executeSafe socket.ReceiveAsync (processReceive connection) readArgs
-                
-                if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
-                then
-                    let data = Common.read args
-                    connection.Handler (Received (socket.RemoteEndPoint :?> IPEndPoint  , data))
-
-                executeSafe connection.Socket.AcceptAsync (completeAccept connection) (connection.Checkout())
-            | a -> failwithf "Socket Error %A" a
-        
-        and private complete connection (args:SocketAsyncEventArgs) = 
-            try
-                match args.LastOperation with
-                | SocketAsyncOperation.Accept -> processAccept connection args
-                | SocketAsyncOperation.Connect -> processConnect connection args
-                | SocketAsyncOperation.Receive -> processReceive connection args
-                | SocketAsyncOperation.Send -> processSend connection args
-                | SocketAsyncOperation.Disconnect -> Common.disconnect connection args
-                | a -> failwithf "complete BROKEN unrecognised operation!!! %A" a 
-            finally
-                connection.Checkin(args)
-        
-        and private processConnect connection (args:SocketAsyncEventArgs) =
-            match args.SocketError with
-            | SocketError.Success -> 
-                connection.Handler (Connected (args.RemoteEndPoint :?> IPEndPoint))
-                executeSafe args.ConnectSocket.ReceiveAsync (complete connection) (connection.Checkout())
-            | a -> failwithf "processConnect BROKEN unrecognised operation!!! %A" a 
-
-        and private processReceive connection (args:SocketAsyncEventArgs) =
-            let token = args.UserToken :?> Token
-            if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
-            then
-                let data = Common.read args
-                connection.Handler (Received (token.Endpoint , data))
-
-                if token.Socket.Connected then 
-                    let newArg = connection.Checkout()
-                    newArg.UserToken <- token
-                    executeSafe token.Socket.ReceiveAsync (complete connection) newArg
-            else Common.disconnect connection args
-
-        and private processSend connection (args:SocketAsyncEventArgs) =
-            let token = args.UserToken :?> Token
-            match args.SocketError with
-            | SocketError.Success -> 
-                connection.Handler (Sent (args.RemoteEndPoint :?> IPEndPoint, read args))
-                executeSafe token.Socket.ReceiveAsync (complete connection) args
-            | a -> Common.disconnect connection args
-
-        let create handler poolSize bufferSize (endpoint:IPEndPoint) =
-            let pool = new SocketArgPool("SAEA pool", poolSize, bufferSize)
-            let connection = Common.create pool handler endpoint
-            pool.Start (complete connection)
-            connection
-
-        let listen connection backlog = 
-            connection.Socket.Listen(backlog)
+            workerPool.Start(complete)
+            connectionPool.Start(complete)
 
             for i in 1 .. backlog do
-                accept connection null
+                accept null
 
-    module Client = 
-        
-        exception ConnectionLost of IPEndPoint
+        static member Create(endpoint:IPEndPoint, handler, ?backlog, ?poolSize, ?bufferSize) =
+            let pool = new Server(endpoint, handler, ?backlog = backlog, ?poolSize = poolSize, ?bufferSize = bufferSize)
+            pool
 
-        open Common
+    type Client(handler, ?endpoint:IPEndPoint, ?poolSize, ?bufferSize) = 
+        let poolSize = defaultArg poolSize 50
+        let bufferSize = defaultArg bufferSize 4096
+        let endpoint = defaultArg endpoint (new IPEndPoint(IPAddress.Any, 0))
+        let pool = new SocketArgPool("SAEA client pool", poolSize, bufferSize)
+        let socket = 
+            let socket = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp)
+            socket
 
-        let rec private complete connection (args:SocketAsyncEventArgs) = 
+        let rec complete (args:SocketAsyncEventArgs) = 
             try
                 match args.LastOperation with
-                | SocketAsyncOperation.Connect -> processConnect connection args
-                | SocketAsyncOperation.Disconnect -> disconnect connection args
-                | SocketAsyncOperation.Receive -> processReceive connection args
-                | SocketAsyncOperation.Send -> processSend connection args
+                | SocketAsyncOperation.Connect -> processConnect args
+                | SocketAsyncOperation.Disconnect -> disconnect args
+                | SocketAsyncOperation.Receive -> processReceive args
+                | SocketAsyncOperation.Send -> processSend args
                 | a -> failwithf "complete BROKEN unrecognised operation!!! %A" a 
             finally
-                connection.Checkin(args)
+                pool.CheckIn(args)
 
-        and private processReceive connection (args:SocketAsyncEventArgs) =
+        and processReceive (args:SocketAsyncEventArgs) =
             let token = args.UserToken :?> Token
             if args.SocketError = SocketError.Success
             then
                 if args.BytesTransferred > 0 
                 then
-                    let data = Common.read args
-                    connection.Handler (Received (token.Endpoint , data))
+                    let data = read args
+                    handler (Received (token.Endpoint , data))
 
                     if token.Socket.Connected then 
-                        let newArg = connection.Checkout()
+                        let newArg = pool.CheckOut()
                         newArg.UserToken <- token
-                        executeSafe token.Socket.ReceiveAsync (complete connection) newArg
+                        executeSafe token.Socket.ReceiveAsync complete newArg
 
-        and private processSend connection (args:SocketAsyncEventArgs) =
+        and processSend (args:SocketAsyncEventArgs) =
             let token = args.UserToken :?> Token
             match args.SocketError with
             | SocketError.Success -> 
-                connection.Handler (Sent (args.RemoteEndPoint :?> IPEndPoint, read args))
-            | a -> Common.disconnect connection args
+                handler (Sent (args.RemoteEndPoint :?> IPEndPoint, read args))
+            | a -> disconnect args
 
-        and private processConnect connection args = 
+        and processConnect args = 
             match args.SocketError with
             | SocketError.Success -> 
-                connection.Handler (Connected (args.RemoteEndPoint :?> IPEndPoint))
-                executeSafe args.ConnectSocket.ReceiveAsync (complete connection) (connection.Checkout())
-            | a -> failwithf "processConnect BROKEN unrecognised operation!!! %A" a 
+                handler (Connected (args.RemoteEndPoint :?> IPEndPoint))
+                executeSafe args.ConnectSocket.ReceiveAsync complete (pool.CheckOut())
+            | a -> failwithf "processConnect BROKEN unrecognised operation!!! %A" a
+
+        and disconnect (args:SocketAsyncEventArgs) = 
+            let token = (args.UserToken :?> Token)
+            try
+                token.Socket.Shutdown(SocketShutdown.Both)
+                if token.Socket.Connected then token.Socket.Disconnect(true)
+                handler (Disconnected token.Endpoint)
+            finally 
+                token.Socket.Close()
         
-        let create handler poolSize bufferSize remoteEndpoint = 
-            let pool = new SocketArgPool("SAEA client pool", poolSize, bufferSize)
-            let connection = Common.create pool handler (new IPEndPoint(IPAddress.Any, 0))
-            pool.Start (complete connection)
-            let args = connection.Checkout() 
+        static member Create(handler, ?endpoint, ?poolSize, ?bufferSize) = 
+            let client = new Client(handler, ?endpoint = endpoint, ?poolSize = poolSize, ?bufferSize = bufferSize)
+            client
+
+        member x.Connect(remoteEndpoint) =
+            pool.Start complete
+            let args = pool.CheckOut() 
             args.SetBuffer(args.Offset, 1)
             args.RemoteEndPoint <- remoteEndpoint
-            connection.Socket.Connect(remoteEndpoint)
-            //executeSafe connection.Socket.ConnectAsync (complete connection) args
-            connection
-
-        let send connection (data:byte[]) = 
+            socket.Connect(remoteEndpoint)
+            
+        member x.Send (data:byte[]) = 
             let rec send' offset = 
                 if offset < data.Length
                 then
-                    if connection.Socket.Connected
+                    if socket.Connected
                     then 
-                        let saea = connection.Checkout()
-                        let size = min (data.Length - offset) connection.BufferSize
-                        saea.UserToken <- { (saea.UserToken :?> Token) with Socket = connection.Socket; Endpoint = connection.Socket.RemoteEndPoint :?> IPEndPoint }
+                        let saea = pool.CheckOut()
+                        let size = min (data.Length - offset) bufferSize
+                        saea.UserToken <- { (saea.UserToken :?> Token) with Socket = socket; Endpoint = socket.RemoteEndPoint :?> IPEndPoint }
                         Buffer.BlockCopy(data, offset, saea.Buffer, saea.Offset, size)
                         saea.SetBuffer(saea.Offset, size)
-                        executeSafe connection.Socket.SendAsync (complete connection) saea
+                        executeSafe socket.SendAsync complete  saea
                         send' (offset + size)
-                    else raise (ConnectionLost(connection.Socket.RemoteEndPoint :?> IPEndPoint))
+                    else raise (ConnectionLost(socket.RemoteEndPoint :?> IPEndPoint))
             send' 0
  
 type UdpConfig = {
@@ -381,28 +403,28 @@ type TCP(config:TcpConfig) =
     let mutable isStarted = false
     let mutable handler : (NetAddress * Guid * byte[] -> Async<Unit>) = (fun (_,_,_) -> async { return () })
     let mutable cancellationToken  : CancellationToken = Unchecked.defaultof<_>
-    let clients = new ConcurrentDictionary<string, Socket.Connection>()
+    let clients = new ConcurrentDictionary<string, Socket.Client>()
 
-    let rec messageHandler message = async {
-            match Message.unpack message with
-            | Some(msg) -> do! handler msg
-            | None -> ()
-        }
+    let rec messageHandler recievedFrom message = async { do! handler (Message.unpack message) }
 
-    let onReceive event = 
+    let onReceive event =
         match event with
         | Socket.Connected(ep) -> ()//printfn "%A" event
         | Socket.Disconnected(ep) -> ()//printfn "%A" event
-        | Socket.Received(address, bytes) -> Async.Start(messageHandler bytes, cancellationToken)
+        | Socket.Received(address, bytes) -> Async.Start(messageHandler address bytes, cancellationToken)
         | Socket.Sent(address, bytes) -> ()//printfn "%A" event
 
-    let socket = Socket.Server.create onReceive config.PoolSize config.BufferSize config.ListenerEndpoint
+    let server = Socket.Server.Create(config.ListenerEndpoint, onReceive, config.Backlog, config.PoolSize, config.BufferSize)
 
     let publishAsync (endpoint:IPEndPoint) (messageId:Guid) payload = async {
             let msg = Message.pack config.ListenerEndpoint messageId payload
             let key = endpoint.ToString()
-            let client = clients.GetOrAdd(key, fun _ -> Socket.Client.create onReceive config.PoolSize config.BufferSize endpoint) 
-            Socket.Client.send client msg        
+            let client = clients.GetOrAdd(key, fun _ -> 
+                                                    let c = Socket.Client.Create(onReceive, poolSize = config.PoolSize, bufferSize = config.BufferSize)
+                                                    c.Connect(endpoint)
+                                                    c
+                                         ) 
+            client.Send msg        
         }
     
     member x.Publish(endpoint, payload, ?messageId) = 
@@ -417,5 +439,5 @@ type TCP(config:TcpConfig) =
         if not isStarted
         then 
             handler <- msgHandler
-            Socket.Server.listen socket config.Backlog
+            server.Listen()
             isStarted <- true

@@ -8,7 +8,7 @@ open PingPong
 
 ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))])
 
-let system = ActorHost.CreateSystem("pingpong")
+let system = ActorHost.CreateSystem("ping")
                       .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
                       .EnableRemoting(
                             new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12003))),

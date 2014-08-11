@@ -5,6 +5,11 @@ open System
 type actorRef = 
     | ActorRef of IActor
     | Null
+    with
+        override x.ToString() = 
+            match x with
+            | ActorRef(actor) -> actor.Path.ToString()
+            | Null -> "ActorRef(Null)"
 
 and IActor = 
     inherit IDisposable
