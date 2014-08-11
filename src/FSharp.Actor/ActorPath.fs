@@ -28,7 +28,7 @@ type actorPath = {
                 sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") port  (String.Join("/", x.Path))
             | _ -> 
                 sprintf "%s://%s@%s/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") (String.Join("/", x.Path))
-
+        
         member x.IsAbsolute
                 with get() =  
                     x.Transport.IsSome
@@ -126,6 +126,8 @@ module ActorPath =
                 | None -> failwithf "Unable to find ipV4 address for %s" host
         | a -> failwithf "A host name type of %A is not currently supported" a
     
+
+        
     let rebase (basePath:actorPath) (path:actorPath) =
         if basePath.IsAbsolute
         then

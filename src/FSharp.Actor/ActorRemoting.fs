@@ -132,7 +132,14 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                     return paths @ registry.Resolve(path)     
              }
                  
-        member x.Resolve(path) = (x :> ActorRegistry).ResolveAsync(path, None) |> Async.RunSynchronously                   
+        member x.Resolve(path) =
+            let isFromLocalTransport = 
+                ActorHost.Transports 
+                |> Seq.exists (fun t -> t.BasePath.Transport = path.Transport || t.BasePath.Host = path.Host)
+
+            if isFromLocalTransport
+            then registry.Resolve(path)
+            else (x :> ActorRegistry).ResolveAsync(path, None) |> Async.RunSynchronously                   
         
         member x.Register(actor) = registry.Register actor
         

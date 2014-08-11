@@ -114,6 +114,8 @@ type ActorHost() =
      static member ResolveTransport transport = 
         onlyIfStarted(fun () -> configuration.Transports.TryFind transport)
 
+     static member Transports with get() = configuration.Transports |> Map.toSeq |> Seq.map snd
+
      static member CreateSystem(name, ?configurator) =
         onlyIfStarted(fun () -> 
             if not <| configuration.Registry.Resolve(name).IsEmpty

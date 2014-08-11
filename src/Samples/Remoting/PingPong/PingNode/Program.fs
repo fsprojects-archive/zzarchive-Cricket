@@ -23,8 +23,8 @@ let ping count =
             let rec loop count = async {
                 let! msg = cell.Receive()
                 match msg.Message with
-                | Pong when count > 0 -> 
-                      if count % 1000 = 0 then cell.Logger.Info("Pong: ping " + (count.ToString()))
+                | Pong when count > 0 ->
+                      if count % 1000 = 0 then cell.Logger.Info("Ping: ping " + (count.ToString()))
                       pong <-- Ping
                       return! loop (count - 1)
                 | Ping -> failwithf "Ping: received a ping message, panic..."
