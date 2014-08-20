@@ -9,7 +9,10 @@ open FSharp.Actor
 Ping - Pong
 ===========
 
-A slighlty
+This example consists of two actors Ping and Pong that exchange a set of messages. When the Ping actor is created
+a counter is initialized in this case to 100000. Once this counter reaches zero the messages stop flowing and the 
+actors shutdown. The message cascade is started by the Ping actor which sends a Ping message to the Pong actor, 
+which then returns a Pong message back to the Ping actor, which then decrements its count.
 *)
 
 ActorHost.Start()
@@ -67,6 +70,3 @@ let pingRef = system.SpawnActor(ping 10000)
 let pongRef = system.SpawnActor(pong)
 
 pingRef <-- Pong
-
-pingRef <-- Restart
-pongRef <-- Restart

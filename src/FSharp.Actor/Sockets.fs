@@ -106,7 +106,6 @@ module Socket =
                     args, dispose
                 )
             pool <- new Pool<SocketAsyncEventArgs>(ctx, poolSize, build)
-          
 
     let read (args:SocketAsyncEventArgs) = 
         let length = BitConverter.ToInt32(args.Buffer, args.Offset)

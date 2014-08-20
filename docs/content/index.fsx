@@ -66,9 +66,9 @@ The library is available under Public Domain license, which allows modification 
 redistribution for both commercial and non-commercial purposes. For more information see the 
 [License file][license] in the GitHub repository. 
 
-  [content]: https://github.com/colinbull/FSharp.Actor/tree/master/docs/content
-  [gh]: https://github.com/colinbull/FSharp.Actor
-  [issues]: https://github.com/colinbull/FSharp.Actor/issues
-  [readme]: https://github.com/colinbull/FSharp.Actor/blob/master/README.md
-  [license]: https://github.com/colinbull/FSharp.Actor/blob/master/LICENSE.txt
+  [content]: https://github.com/fsprojects/FSharp.Actor/tree/master/docs/content
+  [gh]: https://github.com/fsprojects/FSharp.Actor
+  [issues]: https://github.com/fsprojects/FSharp.Actor/issues
+  [readme]: https://github.com/fsprojects/FSharp.Actor/blob/master/README.md
+  [license]: https://github.com/fsprojects/FSharp.Actor/blob/master/LICENSE.txt
 *)

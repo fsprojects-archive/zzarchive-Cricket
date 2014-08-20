@@ -37,6 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 		docs\content\actor_lookup.fsx = docs\content\actor_lookup.fsx
 		docs\content\index.fsx = docs\content\index.fsx
 		docs\content\pingpong.fsx = docs\content\pingpong.fsx
+		docs\content\pingpong_remoting.fsx = docs\content\pingpong_remoting.fsx
 		docs\content\tutorial.fsx = docs\content\tutorial.fsx
 	EndProjectSection
 EndProject
@@ -96,5 +97,8 @@ Global
 		{F6692506-85CD-4938-8373-82276CA987AE} = {60DA9018-EDE4-4F5A-9233-63FB93C7D207}
 		{DB53842E-77D6-44C2-8CEF-21321A29D658} = {F6692506-85CD-4938-8373-82276CA987AE}
 		{7DE72277-5AB4-4626-99F9-F540D7361D38} = {F6692506-85CD-4938-8373-82276CA987AE}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal
