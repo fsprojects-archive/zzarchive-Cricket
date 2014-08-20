@@ -11,3 +11,7 @@
 * Changed implementation of TCP transport to use pooled SocketAsyncEventArgs.
 * Added fully working remoting example.
 
+#### 0.0.5-alpha - August 20th 2014
+* Fixed a overlapped buffer issue on send in TCP transport
+
+
