@@ -88,16 +88,13 @@ module Socket =
 
         member x.BufferSize with get() = socketBufferSize
 
-        member x.CheckIn(args:SocketAsyncEventArgs) = 
-            args.SetBuffer(buffer,(args.UserToken :?> Token).Id * socketBufferSize , socketBufferSize)
-           // printfn "Checked in %d" (args.UserToken :?> Token).Id
+        member x.CheckIn(args:SocketAsyncEventArgs) =
             args.UserToken <- {(args.UserToken :?> Token) with Socket = null; Endpoint = null }
             pool.CheckIn(args)
 
         member x.CheckOut() = 
             let (id,args) = pool.Checkout()
             if args.UserToken = null then args.UserToken <- { Id = id; Socket = null; Endpoint = null }
-           // printfn "Checked out %d" id
             args
 
         member x.Start(callback) = 
@@ -112,18 +109,10 @@ module Socket =
           
 
     let read (args:SocketAsyncEventArgs) = 
-        let data = Array.zeroCreate<byte> args.BytesTransferred
-        Buffer.BlockCopy(args.Buffer, args.Offset, data, 0, args.BytesTransferred)
+        let length = BitConverter.ToInt32(args.Buffer, args.Offset)
+        let data = Array.zeroCreate<byte> length
+        Buffer.BlockCopy(args.Buffer, args.Offset + 4, data, 0, length)
         data
-    
-    let disconnect connection (args:SocketAsyncEventArgs) = 
-        let token = (args.UserToken :?> Token)
-        try
-            token.Socket.Shutdown(SocketShutdown.Both)
-            if token.Socket.Connected then token.Socket.Disconnect(true)
-            connection.Handler (Disconnected token.Endpoint)
-        finally 
-            token.Socket.Close()
     
     let executeSafe f g args = if not(f args) then g args
     
@@ -151,18 +140,19 @@ module Socket =
         and processAccept (args:SocketAsyncEventArgs) = 
             let acceptSocket = args.AcceptSocket
             match args.SocketError with
-            | SocketError.Success ->
-                let acceptor = connectionPool.CheckOut()
-                executeSafe socket.AcceptAsync complete acceptor
-                
-                let receiver = workerPool.CheckOut()
-                receiver.UserToken <- { (receiver.UserToken :?> Token) with Socket = acceptSocket; Endpoint = acceptSocket.RemoteEndPoint :?> IPEndPoint }
-                executeSafe acceptSocket.ReceiveAsync processReceive receiver
-
+            | SocketError.Success ->                
                 if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
                 then
                     let data = read args
-                    handler (Received (acceptSocket.RemoteEndPoint :?> IPEndPoint  , data))
+                    if data.Length > 0
+                    then handler (Received (acceptSocket.RemoteEndPoint :?> IPEndPoint  , data))
+
+                let acceptor = connectionPool.CheckOut()
+                executeSafe socket.AcceptAsync complete acceptor
+
+                let receiver = workerPool.CheckOut()
+                receiver.UserToken <- { (receiver.UserToken :?> Token) with Socket = acceptSocket; Endpoint = acceptSocket.RemoteEndPoint :?> IPEndPoint }
+                executeSafe acceptSocket.ReceiveAsync processReceive receiver
 
             | a -> failwithf "Socket Error %A" a
         
@@ -189,8 +179,10 @@ module Socket =
             let token = args.UserToken :?> Token
             if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
             then
+                
                 let data = read args
-                handler (Received (token.Endpoint , data))
+                if data.Length > 0
+                then handler (Received (token.Endpoint , data))
 
                 if token.Socket.Connected then 
                     let newArg = workerPool.CheckOut()
@@ -256,7 +248,8 @@ module Socket =
                 if args.BytesTransferred > 0 
                 then
                     let data = read args
-                    handler (Received (token.Endpoint , data))
+                    if data.Length > 0
+                    then handler (Received (token.Endpoint , data))
 
                     if token.Socket.Connected then 
                         let newArg = pool.CheckOut()
@@ -264,9 +257,8 @@ module Socket =
                         executeSafe token.Socket.ReceiveAsync complete newArg
 
         and processSend (args:SocketAsyncEventArgs) =
-            let token = args.UserToken :?> Token
             match args.SocketError with
-            | SocketError.Success -> 
+            | SocketError.Success ->
                 handler (Sent (args.RemoteEndPoint :?> IPEndPoint, read args))
             | a -> disconnect args
 
@@ -285,6 +277,7 @@ module Socket =
                 handler (Disconnected token.Endpoint)
             finally 
                 token.Socket.Close()
+                pool.CheckIn(args)
         
         static member Create(handler, ?endpoint, ?poolSize, ?bufferSize) = 
             let client = new Client(handler, ?endpoint = endpoint, ?poolSize = poolSize, ?bufferSize = bufferSize)
@@ -298,6 +291,7 @@ module Socket =
             socket.Connect(remoteEndpoint)
             
         member x.Send (data:byte[]) = 
+            let data = Array.append (BitConverter.GetBytes(data.Length)) data
             let rec send' offset = 
                 if offset < data.Length
                 then
@@ -307,7 +301,6 @@ module Socket =
                         let size = min (data.Length - offset) bufferSize
                         saea.UserToken <- { (saea.UserToken :?> Token) with Socket = socket; Endpoint = socket.RemoteEndPoint :?> IPEndPoint }
                         Buffer.BlockCopy(data, offset, saea.Buffer, saea.Offset, size)
-                        saea.SetBuffer(saea.Offset, size)
                         executeSafe socket.SendAsync complete  saea
                         send' (offset + size)
                     else raise (ConnectionLost(socket.RemoteEndPoint :?> IPEndPoint))
@@ -329,7 +322,7 @@ with
 
 type UDP(config:UdpConfig) =       
     let mutable isStarted = false
-    let mutable handler = (fun (_,_) -> async { return () })
+    let mutable handler = (fun (_,_) -> ())
 
     let publisher =
         lazy
@@ -354,7 +347,7 @@ type UDP(config:UdpConfig) =
                 let guid = new Guid(received.Buffer.[0..15])
                 if guid <> config.Id
                 then 
-                    do! handler (NetAddress.OfEndPoint received.RemoteEndPoint, received.Buffer.[16..])
+                    handler (NetAddress.OfEndPoint received.RemoteEndPoint, received.Buffer.[16..])
                 
             return! messageHandler()
         }
@@ -401,17 +394,17 @@ with
 
 type TCP(config:TcpConfig) =        
     let mutable isStarted = false
-    let mutable handler : (NetAddress * Guid * byte[] -> Async<Unit>) = (fun (_,_,_) -> async { return () })
+    let mutable handler : (NetAddress * Guid * byte[] -> Unit) = (fun (_,_,_) -> ())
     let mutable cancellationToken  : CancellationToken = Unchecked.defaultof<_>
     let clients = new ConcurrentDictionary<string, Socket.Client>()
 
-    let rec messageHandler recievedFrom message = async { do! handler (Message.unpack message) }
+    let rec messageHandler recievedFrom message = handler (Message.unpack message)
 
     let onReceive event =
         match event with
         | Socket.Connected(ep) -> ()//printfn "%A" event
         | Socket.Disconnected(ep) -> ()//printfn "%A" event
-        | Socket.Received(address, bytes) -> Async.Start(messageHandler address bytes, cancellationToken)
+        | Socket.Received(address, bytes) -> messageHandler address bytes
         | Socket.Sent(address, bytes) -> ()//printfn "%A" event
 
     let server = Socket.Server.Create(config.ListenerEndpoint, onReceive, config.Backlog, config.PoolSize, config.BufferSize)

@@ -22,19 +22,19 @@ type ActorDiscoveryBeacon =
     | ActorDiscoveryBeacon of hostName:string * NetAddress
 
 type ActorRegistryTransportSettings = {
-    TransportHandler : ((NetAddress * ActorProtocol * MessageId) -> Async<unit>)
+    TransportHandler : ((NetAddress * ActorProtocol * MessageId) -> unit)
     CancellationToken : CancellationToken
     Serializer : ISerializer
 }
 
 type IActorRegistryTransport = 
     abstract ListeningEndpoint : NetAddress with get
-    abstract Post : NetAddress * ActorProtocol * MessageId -> Async<unit>
+    abstract Post : NetAddress * ActorProtocol * MessageId -> unit
     abstract Start : ActorRegistryTransportSettings -> unit
 
 type ActorRegistryDiscoverySettings = {
     Beacon : ActorDiscoveryBeacon
-    DiscoveryHandler : (ActorDiscoveryBeacon -> Async<unit>)
+    DiscoveryHandler : (ActorDiscoveryBeacon -> unit)
     CancellationToken : CancellationToken
     Serializer : ISerializer
 }
@@ -50,7 +50,6 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
     let logger = Log.Logger("RemoteRegistry", Log.defaultFor Log.Debug)
 
     let transportHandler = (fun (address:NetAddress, msg:ActorProtocol, messageId:MessageId) -> 
-        async { 
             try
                 match msg with
                 | Resolve(path) -> 
@@ -65,7 +64,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                             let tcp = ActorHost.ResolveTransport "actor.tcp" |> Option.get
                             registry.Resolve path
                             |> List.map (fun ref -> ActorRef.path ref |> ActorPath.rebase tcp.BasePath)
-                    do! transport.Post(address,(Resolved resolvedPaths), messageId)
+                    transport.Post(address,(Resolved resolvedPaths), messageId)
                 | Resolved _ as rs -> 
                     match messages.TryGetValue(messageId) with
                     | true, resultCell -> resultCell.Complete(rs)
@@ -75,12 +74,10 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
             with e -> 
                let msg = sprintf "TCP: Unable to handle message : %s" e.Message
                logger.Error(msg, exn = new InvalidMessageException(msg, e))
-               do! transport.Post(address, Error(msg,e), messageId)
-        }
+               transport.Post(address, Error(msg,e), messageId)
     )
 
     let discoveryHandler = (fun (msg:ActorDiscoveryBeacon) ->
-        async {
             try
                 match msg with
                 | ActorDiscoveryBeacon(hostName, netAddress) -> 
@@ -90,8 +87,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                         system.EventStream.Publish(NewActorSystem(hostName, netAddress))
                         logger.Debug(sprintf "New actor Host %s %A" hostName netAddress)
             with e -> 
-               logger.Error("UDP: Unable to handle message", exn = new InvalidMessageException(msg, e))  
-        }
+               logger.Error("UDP: Unable to handle message", exn = new InvalidMessageException(msg, e))
     )
     
     do
@@ -122,7 +118,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                                          let msgId = Guid.NewGuid()
                                          let resultCell = new AsyncResultCell<ActorProtocol>()
                                          messages.AddOrUpdate(msgId, resultCell, fun _ _ -> resultCell) |> ignore
-                                         do! transport.Post(client, Resolve path, msgId)
+                                         do transport.Post(client, Resolve path, msgId)
                                          let! result = resultCell.AwaitResult(?timeout = timeout)
                                          messages.TryRemove(msgId) |> ignore
                                          return handledResolveResponse result

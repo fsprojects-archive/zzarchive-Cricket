@@ -1,10 +1,5 @@
 ﻿namespace FSharp.Actor
 
-open System
-open System.Net
-open System.Net.Sockets
-open System.Threading
-open System.Collections.Concurrent
 open FSharp.Actor
 
 type TCPTransport(config:TcpConfig, ?logger) as self = 
@@ -15,13 +10,12 @@ type TCPTransport(config:TcpConfig, ?logger) as self =
     let mutable serializer = Unchecked.defaultof<ISerializer>
 
     let handler =(fun (address:NetAddress, msgId, payload) -> 
-                  async {
                     try
                         let msg = serializer.Deserialize<RemoteMessage>(payload)
                         (!~msg.Target).Post(msg.Message, new RemoteActor(msg.Sender, self) :> IActor |> ActorRef)
                     with e -> 
                         logger.Error("Error handling message: " + e.Message, exn = e)
-                  })
+                 )
 
     let tcp = new TCP(config) 
 
@@ -40,19 +34,17 @@ type TcpActorRegistryTransport(config:TcpConfig) =
 
     let handler internalHandler = 
         (fun (address,msgId, payload) ->
-             async {
                 try
                     let msg = settings.Serializer.Deserialize payload
-                    do! internalHandler (address,msg,msgId)
+                    internalHandler (address,msg,msgId)
                 with e -> 
-                    logger.Error("Unable to handle Registry Transport message", exn = e) 
-             }
+                    logger.Error("Unable to handle Registry Transport message", exn = e)
         )
 
     interface IActorRegistryTransport with
         member x.ListeningEndpoint with get() = NetAddress config.ListenerEndpoint
         member x.Post(NetAddress endpoint, msg, msgId) = 
-            tcpChannel.PublishAsync(endpoint, settings.Serializer.Serialize msg, msgId)
+            tcpChannel.Publish(endpoint, settings.Serializer.Serialize msg, msgId)
         member x.Start(setts) = 
             settings <- setts
             tcpChannel.Start(handler settings.TransportHandler, settings.CancellationToken)
@@ -65,13 +57,11 @@ type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) =
 
     let handler internalHandler = 
         (fun (_, payload) ->
-            async {
                 try
                     let msg = settings.Serializer.Deserialize<ActorDiscoveryBeacon>(payload)
-                    do! internalHandler msg
+                    internalHandler msg
                 with e ->
                     logger.Error("Unable to handle discovery msg.", exn = e)
-            }
         )
 
     interface IActorRegistryDiscovery with
