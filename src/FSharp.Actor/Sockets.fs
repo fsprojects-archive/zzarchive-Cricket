@@ -304,20 +304,36 @@ module Socket =
                         send' (offset + size)
                     else raise (ConnectionLost(socket.RemoteEndPoint :?> IPEndPoint))
             send' 0
- 
+
+type UdpConnectMethod = 
+    | Multicast of group:IPAddress
+    | Broadcast
+    | Direct of ip:IPAddress
+
 type UdpConfig = {
     Id : Guid
-    MulticastPort : int
-    MulticastGroup : IPAddress
+    Port : int
+    ConnectMethod : UdpConnectMethod
 }
 with
-    static member Default<'a>(?id, ?port, ?group) = 
+    static member Default(?id, ?port, ?connectMethod) = 
         {
             Id = defaultArg id (Guid.NewGuid())
-            MulticastPort = defaultArg port 2222
-            MulticastGroup = defaultArg group (IPAddress.Parse("239.0.0.222"))
+            Port = defaultArg port 2222
+            ConnectMethod = defaultArg connectMethod Broadcast
         }
-    member x.RemoteEndpoint = new IPEndPoint(x.MulticastGroup, x.MulticastPort)
+    static member Multicast(?id, ?port, ?group) =
+        UdpConfig.Default(?id = id, ?port = port, connectMethod = Multicast(defaultArg group (IPAddress.Parse("239.0.0.222"))))
+    static member Broadcast(?id, ?port) =
+        UdpConfig.Default(?id = id, ?port = port, connectMethod = Broadcast)
+    static member Direct(address, ?id, ?port) =
+        UdpConfig.Default(?id = id, ?port = port, connectMethod = Direct(address))
+    member x.RemoteEndpoint = 
+        match x.ConnectMethod with
+        | Multicast(group) -> new IPEndPoint(group, x.Port)
+        | Broadcast -> new IPEndPoint(IPAddress.Broadcast, x.Port)
+        | Direct(address) -> new IPEndPoint(address, x.Port)
+
 
 type UDP(config:UdpConfig) =       
     let mutable isStarted = false
@@ -326,17 +342,22 @@ type UDP(config:UdpConfig) =
     let publisher =
         lazy
             let client = new UdpClient()
-            client.JoinMulticastGroup(config.MulticastGroup)
+            match config.ConnectMethod with
+            | Multicast(grp) ->  client.JoinMulticastGroup(grp)
+            | Broadcast _ -> client.EnableBroadcast <- true
+            | Direct _ -> ()
             client
 
     let listener =
         lazy
             let client = new UdpClient()
             client.ExclusiveAddressUse <- false
-            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true)
-            client.AllowNatTraversal(true)
-            client.Client.Bind(new IPEndPoint(IPAddress.Any, config.MulticastPort))
-            client.JoinMulticastGroup(config.MulticastGroup)
+            client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true) 
+            client.Client.Bind(new IPEndPoint(IPAddress.Any, config.Port))
+            match config.ConnectMethod with
+            | Multicast(grp) ->  client.JoinMulticastGroup(grp)
+            | Broadcast _ -> client.EnableBroadcast <- true
+            | Direct _ -> ()
             client
 
     let rec messageHandler() = async {
