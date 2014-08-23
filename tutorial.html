@@ -214,10 +214,11 @@ certain framework level items to do with your actor, like shutting down, restart
 <h2>More in depth examples</h2>
 
 <ul>
-<li><a href="pingpong.html">Ping Pong</a> - A slightly more advanced example, showing how two actors can communicate with each other.</li>
+<li><a href="pingpong.html">Ping Pong</a> - A slightly more advanced example, showing how two actors can communicate with each other within the same process.</li>
+<li><a href="pingpong_remoting.html">Ping Pong - Remoting Version</a> - Same as the in process Ping Pong example, however the actors are in seperate processes.</li>
 </ul>
 
-<div class="tip" id="fs1">Multiple items<br />type ActorHost =<br />&#160;&#160;new : unit -&gt; ActorHost<br />&#160;&#160;static member private AddTransports : transports:seq&lt;#ITransport&gt; -&gt; unit<br />&#160;&#160;static member Configure : configurator:(ActorHostConfiguration -&gt; unit) -&gt; unit<br />&#160;&#160;static member CreateSystem : name:string * ?configurator:(ActorSystemConfiguration -&gt; unit) -&gt; ActorSystem<br />&#160;&#160;static member ResolveTransport : transport:string -&gt; ITransport option<br />&#160;&#160;static member Start : ?transports:#ITransport list -&gt; unit<br />&#160;&#160;static member TryResolveSystem : name:string -&gt; ActorSystem option<br />&#160;&#160;static member Systems : ActorSystem list<br /><br />Full name: FSharp.Actor.ActorHost<br /><br />--------------------<br />new : unit -&gt; ActorHost</div>
+<div class="tip" id="fs1">Multiple items<br />type ActorHost =<br />&#160;&#160;new : unit -&gt; ActorHost<br />&#160;&#160;static member private AddTransports : transports:seq&lt;#ITransport&gt; -&gt; unit<br />&#160;&#160;static member Configure : configurator:(ActorHostConfiguration -&gt; unit) -&gt; unit<br />&#160;&#160;static member CreateSystem : name:string * ?configurator:(ActorSystemConfiguration -&gt; unit) -&gt; ActorSystem<br />&#160;&#160;static member ResolveTransport : transport:string -&gt; ITransport option<br />&#160;&#160;static member Start : ?transports:#ITransport list -&gt; unit<br />&#160;&#160;static member TryResolveSystem : name:string -&gt; ActorSystem option<br />&#160;&#160;static member Systems : ActorSystem list<br />&#160;&#160;static member Transports : seq&lt;ITransport&gt;<br /><br />Full name: FSharp.Actor.ActorHost<br /><br />--------------------<br />new : unit -&gt; ActorHost</div>
 <div class="tip" id="fs2">static member ActorHost.Start : ?transports:#ITransport list -&gt; unit</div>
 <div class="tip" id="fs3">val system : ActorSystem<br /><br />Full name: Tutorial.system</div>
 <div class="tip" id="fs4">static member ActorHost.CreateSystem : name:string * ?configurator:(ActorSystemConfiguration -&gt; unit) -&gt; ActorSystem</div>
