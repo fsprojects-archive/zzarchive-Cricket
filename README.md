@@ -1,4 +1,4 @@
-Fsharp.Actor
+FSharp.Actor
 ============
 
 F# Actor is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
