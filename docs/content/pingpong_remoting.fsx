@@ -29,17 +29,17 @@ type PingPong =
     | Pong
     | Stop
 
-(*
+(**
 To configure the a process that contains actors for remoting, we need to configure the transports that are available 
 to the host. In this case we are using the built in TCP transport. 
-**)
+*)
 ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))])
 
-(*
+(**
 Once the actor host has started we need to create a system to hold the actor and enable remoting on that system, by
 calling the `EnableRemoting` method. This method takes two parameters. The first parameter defines how actor systems 
 will communicate with each other when looking up actors. The second defines how the actor systems discover each other.
-**)
+*)
 let system = ActorHost.CreateSystem("ping")
                       .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
                       .EnableRemoting(
@@ -47,10 +47,10 @@ let system = ActorHost.CreateSystem("ping")
                             new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
                       )
 
-(* 
+(** 
 Once the hosts and systems are setup with the transports configured. The implementation of the actors 
 stays identical to the in-process implementation.
-**)
+*)
 
 let ping count =
     actor {
