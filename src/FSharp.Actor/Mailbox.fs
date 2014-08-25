@@ -11,7 +11,9 @@ open FSharp.Actor
 type IMailbox<'a> = 
     inherit IDisposable
     abstract Post : 'a -> unit
+    abstract TryScan : int * ('a -> Async<'b> option) -> Async<Option<'b>>
     abstract Scan : int * ('a -> Async<'b> option) -> Async<'b>
+    abstract TryReceive : int -> Async<Option<'a>>
     abstract Receive : int -> Async<'a>
 
 type DefaultMailbox<'a>() =
@@ -64,31 +66,53 @@ type DefaultMailbox<'a>() =
                 Some(x)
 
     interface IMailbox<'a> with
-        member this.Receive(timeout) =
+        member this.TryReceive(timeout) =
               let rec await() =
                   async { match receiveFromArrivals() with
                           | None -> 
                               let! gotArrival = Async.AwaitWaitHandle(awaitMsg, timeout)
                               if gotArrival 
-                              then return! await()
-                              else return raise(TimeoutException("Failed to receive message"))
-                          | Some res -> return res }
+                              then
+                                return! await()
+                              else
+                                return None
+                          | Some res -> return Some(res) }
               async { match receiveFromInbox() with
-                      | None -> return! await() 
-                      | Some res -> return res }
-        
-        member this.Scan(timeout, f) = 
+                      | None -> return! await()
+                      | Some res -> return Some(res) }
+
+        member this.Receive(timeout) =
+            async {            
+            let! msg = (this :> IMailbox<'a>).TryReceive(timeout)
+            match msg with
+            | Some(res) -> return res
+            | None -> return raise(TimeoutException("Failed to receive message"))
+            }
+
+        member this.TryScan(timeout, f) = 
               let rec await() =
                   async { match scanArrivals(f) with
                           | None -> 
                               let! gotArrival = Async.AwaitWaitHandle(awaitMsg, timeout)
                               if gotArrival 
                               then return! await()
-                              else return raise(TimeoutException("Failed to receive message"))
-                          | Some res -> return! res }
+                              else return None
+                          | Some res ->                            
+                            let! msg = res
+                            return Some(msg) }
               async { match scanInbox(f, 0) with
                       | None -> return! await() 
-                      | Some res -> return! res }
+                      | Some res ->                        
+                        let! msg = res
+                        return Some(msg) }
+
+        member this.Scan(timeout, f) =
+            async {            
+            let! msg = (this :> IMailbox<'a>).TryScan(timeout, f)
+            match msg with
+            | Some(res) -> return res
+            | None -> return raise(TimeoutException("Failed to receive message"))
+            }
 
         member this.Post(msg) = 
             if disposed 
