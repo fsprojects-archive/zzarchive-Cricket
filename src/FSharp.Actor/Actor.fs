@@ -58,8 +58,12 @@ type ActorCell<'a> = {
     Self : actorRef
 }
 with 
+    member x.TryReceive(?timeout) = 
+        async { return! x.Mailbox.TryReceive(defaultArg timeout Timeout.Infinite) }
     member x.Receive(?timeout) = 
         async { return! x.Mailbox.Receive(defaultArg timeout Timeout.Infinite) }
+    member x.TryScan(f, ?timeout) = 
+        async { return! x.Mailbox.TryScan(defaultArg timeout Timeout.Infinite, f) }
     member x.Scan(f, ?timeout) = 
         async { return! x.Mailbox.Scan(defaultArg timeout Timeout.Infinite, f) }
     member internal x.Path = ActorRef.path x.Self
