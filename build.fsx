@@ -105,8 +105,11 @@ Target "RunTests" (fun _ ->
 // Build a NuGet package
 
 Target "NuGet" (fun _ ->
+    
+    CopyFiles "temp\lib" !!"bin\**\FSharp.Actor.dll"
+
     NuGet (fun p -> 
-        { p with   
+        { p with
             Authors = authors
             Project = project
             Summary = summary
@@ -114,11 +117,14 @@ Target "NuGet" (fun _ ->
             Version = release.NugetVersion
             ReleaseNotes = String.Join(Environment.NewLine, release.Notes)
             Tags = tags
+            WorkingDir = "temp"
             OutputPath = "bin"
             AccessKey = getBuildParamOrDefault "nugetkey" ""
             Publish = hasBuildParam "nugetkey"
             Dependencies = [] })
         ("nuget/" + project + ".nuspec")
+
+    CleanDir "temp"
 )
 
 // --------------------------------------------------------------------------------------

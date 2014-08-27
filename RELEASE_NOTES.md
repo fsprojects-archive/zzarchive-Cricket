@@ -14,4 +14,8 @@
 #### 0.0.5-alpha - August 20th 2014
 * Fixed a overlapped buffer issue on send in TCP transport
 
+#### 0.0.6-alpha - August 27th 2014
+* Added some more UDP config options
+* Fixed NuGet packaging.
+* Merged pull request from @endeavour - adding TryScan and TryReceive functions. 
 
