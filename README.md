@@ -21,7 +21,7 @@ making it very difficult for you to shoot or self in the foot.
 - Simply build FSharp.Actor.sln in Visual Studio, Mono Develop, or Xamarin Studio. You can also use the FAKE script:
 
   * Windows: Run *build.cmd* 
-    * [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/5y6ic907jh8u27j5/branch/master)
+    * [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/4adhvsdt0sktqo95/branch/master)](https://ci.appveyor.com/project/colinbull/fsharp-actor/branch/master)
   * Mono: Run *build.sh*
     * [![Travis Build Status](https://travis-ci.org/fsprojects/FSharp.Actor.svg?branch=master)](https://travis-ci.org/fsprojects/FSharp.Actor)
 
