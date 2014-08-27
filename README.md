@@ -1,12 +1,11 @@
-FSharp.Actor
-============
+# FSharp.Actor
 
 F# Actor is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
-The actor can then respond to the reciept of the message by executing one or more of the following actions (possibly concurrently),
+The actor can then respond to the receipt of the message by executing one or more of the following actions (possibly concurrently),
 
  * Create a number of new actors
  * Send a another message to other actors
- * Change the behaviour to be used upon reciept of the next message.
+ * Change the behaviour to be used upon receipt of the next message.
 
 Currently there are a couple of actor libraries on the .NET platform
     
@@ -17,8 +16,17 @@ Currently there are a couple of actor libraries on the .NET platform
 F# Actor in no way aims to be a clone of either of these however it does draw on the ideas in all of the above frameworks as well as Erlang and OTP. Instead F# actor aims to be as simple and safe to use as possible hopefully
 making it very difficult for you to shoot or self in the foot.
 
-Simple Example
---------------
+## Building
+
+- Simply build FSharp.Actor.sln in Visual Studio, Mono Develop, or Xamarin Studio. You can also use the FAKE script:
+
+  * Windows: Run *build.cmd* 
+    * [![AppVeyor build status](https://ci.appveyor.com/api/projects/status/5y6ic907jh8u27j5/branch/master)
+  * Mono: Run *build.sh*
+    * [![Travis Build Status](https://travis-ci.org/fsprojects/FSharp.Actor.svg?branch=master)](https://travis-ci.org/fsprojects/FSharp.Actor)
+
+## Simple Example
+
 
 	#r "FSharp.Actor.dll"
 	open FSharp.Actor
