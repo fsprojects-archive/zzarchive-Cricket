@@ -59,10 +59,10 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
+          <code onmouseout="hideTip(event, '242', 242)" onmouseover="showTip(event, '242', 242)">
             Post(arg1)
           </code>
-          <div class="tip" id="192">
+          <div class="tip" id="242">
             <strong>Signature:</strong> &#39;a -&gt; unit<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
@@ -75,13 +75,29 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
+          <code onmouseout="hideTip(event, '243', 243)" onmouseover="showTip(event, '243', 243)">
             Receive(arg1)
           </code>
-          <div class="tip" id="194">
+          <div class="tip" id="243">
             <strong>Signature:</strong> int -&gt; Async&lt;&#39;a&gt;<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Mailbox.fs#L17-17" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '244', 244)" onmouseover="showTip(event, '244', 244)">
+            Scan(arg1, arg2)
+          </code>
+          <div class="tip" id="244">
+            <strong>Signature:</strong> (int * (&#39;a -&gt; Async&lt;&#39;b&gt; option)) -&gt; Async&lt;&#39;b&gt;<br />
+              <strong>Modifiers:</strong> abstract<br />
+                          <strong>Type parameters:</strong> 'b          </div>
         </td>
         <td class="xmldoc">
         
@@ -91,11 +107,27 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
-            Scan(arg1, arg2)
+          <code onmouseout="hideTip(event, '245', 245)" onmouseover="showTip(event, '245', 245)">
+            TryReceive(arg1)
           </code>
-          <div class="tip" id="195">
-            <strong>Signature:</strong> (int * (&#39;a -&gt; Async&lt;&#39;b&gt; option)) -&gt; Async&lt;&#39;b&gt;<br />
+          <div class="tip" id="245">
+            <strong>Signature:</strong> int -&gt; Async&lt;Option&lt;&#39;a&gt;&gt;<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Mailbox.fs#L16-16" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '246', 246)" onmouseover="showTip(event, '246', 246)">
+            TryScan(arg1, arg2)
+          </code>
+          <div class="tip" id="246">
+            <strong>Signature:</strong> (int * (&#39;a -&gt; Async&lt;&#39;b&gt; option)) -&gt; Async&lt;Option&lt;&#39;b&gt;&gt;<br />
               <strong>Modifiers:</strong> abstract<br />
                           <strong>Type parameters:</strong> 'b          </div>
         </td>
