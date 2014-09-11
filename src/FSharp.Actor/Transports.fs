@@ -1,5 +1,6 @@
 ﻿namespace FSharp.Actor
 
+open System
 open FSharp.Actor
 
 type TCPTransport(config:TcpConfig, ?logger) as self = 
@@ -25,7 +26,10 @@ type TCPTransport(config:TcpConfig, ?logger) as self =
         member x.Post(target, payload) = Async.Start(tcp.PublishAsync((ActorPath.toNetAddress target).Endpoint, serializer.Serialize payload))
         member x.Start(serialiser, ct) = 
             serializer <- serialiser
+            ct.Register(fun () -> (x :> IDisposable).Dispose()) |> ignore
             tcp.Start(handler, ct)
+        member x.Dispose() = 
+            (tcp :> IDisposable).Dispose()
 
 type TcpActorRegistryTransport(config:TcpConfig) = 
     let tcpChannel = new TCP(config)
@@ -47,7 +51,10 @@ type TcpActorRegistryTransport(config:TcpConfig) =
             tcpChannel.Publish(endpoint, settings.Serializer.Serialize msg, msgId)
         member x.Start(setts) = 
             settings <- setts
+            settings.CancellationToken.Register(fun () -> (x :> IActorRegistryTransport).Dispose()) |> ignore
             tcpChannel.Start(handler settings.TransportHandler, settings.CancellationToken)
+        member x.Dispose() = 
+            (tcpChannel :> IDisposable).Dispose()
 
 type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) = 
     let udpChannel = new UDP(udpConfig)
@@ -67,6 +74,11 @@ type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) =
     interface IActorRegistryDiscovery with
         member x.Start(setts) =
             settings <- setts
-            let beaconBytes = settings.Serializer.Serialize(settings.Beacon)
+            settings.CancellationToken.Register(fun () -> (x :> IActorRegistryDiscovery).Dispose()) |> ignore
+            let beaconBytes = settings.Serializer.Serialize(ActorSystemDiscoveryBeacon(settings.SystemDetails))
             udpChannel.Start(handler settings.DiscoveryHandler, settings.CancellationToken)
-            udpChannel.Heartbeat(broadcastInterval, (fun _ -> beaconBytes), settings.CancellationToken)
+            udpChannel.Heartbeat(broadcastInterval, (fun _ -> beaconBytes))
+
+        member x.Dispose() = 
+            udpChannel.Publish(settings.Serializer.Serialize(ActorSystemShutdownBeacon(settings.SystemDetails))) |> ignore
+            (udpChannel :> System.IDisposable).Dispose()

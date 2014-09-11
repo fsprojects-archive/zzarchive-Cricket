@@ -5,7 +5,8 @@ open System.Net
 open System.Threading
 open System.Collections.Concurrent
 
-type IRegistry<'key, 'ref> = 
+type IRegistry<'key, 'ref> =
+    inherit IDisposable
     abstract Resolve : 'key -> 'ref list
     abstract ResolveAsync : 'key * TimeSpan option -> Async<'ref list>
     abstract Register : 'ref -> unit
@@ -46,6 +47,9 @@ type InMemoryActorRegistry() =
             finally
                 syncObj.ExitWriteLock()
 
+        member x.Dispose() =
+            actors := Trie.empty
+
 type ConcurrentDictionaryBasedRegistry<'key, 'ref>(keyGetter : 'ref -> 'key) = 
     let store = new ConcurrentDictionary<'key, 'ref>()
 
@@ -70,3 +74,11 @@ type ConcurrentDictionaryBasedRegistry<'key, 'ref>(keyGetter : 'ref -> 'key) =
         member x.UnRegister ref = 
             let key = keyGetter ref
             store.TryRemove(key) |> ignore
+
+        member x.Dispose() = 
+            store.Values 
+            |> Seq.iter (fun x -> 
+                match (box x) with
+                | :? IDisposable as v -> v.Dispose()
+                | _ -> ())
+            store.Clear()

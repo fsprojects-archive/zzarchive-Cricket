@@ -39,7 +39,7 @@ type ErrorContext = {
 } 
 
 type SystemMessage =
-    | Shutdown 
+    | Shutdown
     | RestartTree
     | Restart
     | Link of actorRef
@@ -100,10 +100,14 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let setStatus stats = 
         status <- stats
 
-    let shutdown() = 
+    let shutdown includeChildren = 
         async {
-            messageHandlerCancel.Cancel()
             publishEvent(ActorEvent.ActorShutdown(ctx.Self))
+            messageHandlerCancel.Cancel()
+            
+            if includeChildren
+            then Seq.iter (fun t -> post t Shutdown) ctx.Children
+
             match status with
             | ActorStatus.Errored(err) -> logger.Debug("shutdown", exn = err)
             | _ -> logger.Debug("shutdown")
@@ -119,7 +123,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             | ActorRef(actor) -> 
                 actor.Post(Errored({ Error = err; Sender = ctx.Self; Children = ctx.Children }),ctx.Self)
                 return ()
-            | Null -> return! shutdown() 
+            | Null -> return! shutdown true 
         }
 
     let rec messageHandler() =
@@ -127,7 +131,8 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         async {
             try
                 firstArrivalGate.Wait(messageHandlerCancel.Token)
-                do! defn.Behaviour ctx
+                if not(messageHandlerCancel.IsCancellationRequested)
+                then do! defn.Behaviour ctx
                 setStatus ActorStatus.Stopped
                 publishEvent(ActorEvent.ActorShutdown ctx.Self)
             with e -> 
@@ -153,7 +158,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         async {
             let! sysMsg = systemMailbox.Receive(Timeout.Infinite)
             match sysMsg with
-            | Shutdown -> return! shutdown()
+            | Shutdown -> return! shutdown true
             | Restart -> return! restart false
             | RestartTree -> return! restart true
             | Errored(errContext) -> 
@@ -226,6 +231,7 @@ type RemoteMessage = {
 }
 
 type ITransport =
+    inherit IDisposable
     abstract Scheme : string with get
     abstract BasePath : actorPath with get
     abstract Post : actorPath * RemoteMessage -> unit

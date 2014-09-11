@@ -61,10 +61,14 @@ type DefaultEventStream(logger:Log.ILogger) =
         member x.Unsubscribe<'a>() = removeSubscription (typeof<'a>.FullName)
         member x.Dispose() = 
             cts.Cancel()
-            mailbox.Dispose()
-            mailbox <- Unchecked.defaultof<_>;
-            subscriptions.Clear()
-            subscriptions <- null
+            if mailbox <> Unchecked.defaultof<_>
+            then
+                mailbox.Dispose()
+                mailbox <- Unchecked.defaultof<_>;
+            if subscriptions <> null
+            then
+                subscriptions.Clear()
+                subscriptions <- null
 
 
 

@@ -19,7 +19,8 @@ type ActorProtocol =
     | Error of string * exn
 
 type ActorDiscoveryBeacon =
-    | ActorDiscoveryBeacon of hostName:string * NetAddress
+    | ActorSystemDiscoveryBeacon of hostName:string * NetAddress
+    | ActorSystemShutdownBeacon of hostName:string * NetAddress
 
 type ActorRegistryTransportSettings = {
     TransportHandler : ((NetAddress * ActorProtocol * MessageId) -> unit)
@@ -28,18 +29,20 @@ type ActorRegistryTransportSettings = {
 }
 
 type IActorRegistryTransport = 
+    inherit IDisposable
     abstract ListeningEndpoint : NetAddress with get
     abstract Post : NetAddress * ActorProtocol * MessageId -> unit
     abstract Start : ActorRegistryTransportSettings -> unit
 
 type ActorRegistryDiscoverySettings = {
-    Beacon : ActorDiscoveryBeacon
+    SystemDetails : (string * NetAddress)
     DiscoveryHandler : (ActorDiscoveryBeacon -> unit)
     CancellationToken : CancellationToken
     Serializer : ISerializer
 }
 
-type IActorRegistryDiscovery = 
+type IActorRegistryDiscovery =
+    inherit IDisposable 
     abstract Start : ActorRegistryDiscoverySettings -> unit
 
 type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, system:ActorSystem) = 
@@ -80,20 +83,29 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
     let discoveryHandler = (fun (msg:ActorDiscoveryBeacon) ->
             try
                 match msg with
-                | ActorDiscoveryBeacon(hostName, netAddress) -> 
+                | ActorSystemDiscoveryBeacon(hostName, netAddress) -> 
                     if not <| clients.ContainsKey(hostName)
                     then 
                         clients.TryAdd(hostName, netAddress) |> ignore
                         system.EventStream.Publish(NewActorSystem(hostName, netAddress))
                         logger.Debug(sprintf "New actor Host %s %A" hostName netAddress)
+                | ActorSystemShutdownBeacon(hostName, netAddress) ->
+                    if clients.ContainsKey(hostName)
+                    then 
+                        let (success,_) = clients.TryRemove(hostName)
+                        logger.Debug(sprintf "Actor host shutdown %s %A" hostName netAddress)
             with e -> 
                logger.Error("UDP: Unable to handle message", exn = new InvalidMessageException(msg, e))
     )
+
+    let dispose() = 
+        transport.Dispose()
+        discovery.Dispose()
     
     do
-        let beacon = ActorDiscoveryBeacon(system.Name, transport.ListeningEndpoint)
+        system.CancelToken.Register(fun () -> dispose()) |> ignore
         transport.Start({ TransportHandler = transportHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
-        discovery.Start({ Beacon = beacon; DiscoveryHandler = discoveryHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
+        discovery.Start({ SystemDetails = (system.Name, transport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
     
     let handledResolveResponse result =
          match result with
@@ -140,6 +152,8 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
         member x.Register(actor) = registry.Register actor
         
         member x.UnRegister actor = registry.UnRegister actor
+
+        member x.Dispose() = dispose()
 
 [<AutoOpen>]
 module ActorHostRemotingExtensions = 

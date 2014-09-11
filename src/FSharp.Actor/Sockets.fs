@@ -215,6 +215,9 @@ module Socket =
 
             for i in 1 .. backlog do
                 accept null
+        
+        interface IDisposable with
+            member x.Dispose() = socket.Disconnect(true); socket.Dispose()
 
         static member Create(endpoint:IPEndPoint, handler, ?backlog, ?poolSize, ?bufferSize) =
             let pool = new Server(endpoint, handler, ?backlog = backlog, ?poolSize = poolSize, ?bufferSize = bufferSize)
@@ -338,6 +341,7 @@ with
 type UDP(config:UdpConfig) =       
     let mutable isStarted = false
     let mutable handler = (fun (_,_) -> ())
+    let mutable cancellationToken : CancellationToken = Unchecked.defaultof<_>
 
     let publisher =
         lazy
@@ -373,29 +377,42 @@ type UDP(config:UdpConfig) =
         }
 
     let publish payload = async {
-            let bytes = Array.append (config.Id.ToByteArray()) payload
-            let! bytesSent = publisher.Value.SendAsync(bytes, bytes.Length, config.RemoteEndpoint) |> Async.AwaitTask
-            return bytesSent
+            if isStarted
+            then
+                let bytes = Array.append (config.Id.ToByteArray()) payload
+                let! bytesSent = publisher.Value.SendAsync(bytes, bytes.Length, config.RemoteEndpoint) |> Async.AwaitTask
+                return bytesSent
+            else return 0
         }
 
     let rec heartBeat interval payloadF = async {
         do! publish (payloadF()) |> Async.Ignore
         do! Async.Sleep(interval)
-        return! heartBeat interval payloadF
+        if isStarted && (not cancellationToken.IsCancellationRequested)
+        then return! heartBeat interval payloadF
+        else ()
     }
     
     member x.Publish payload = 
         publish payload |> Async.RunSynchronously
     
-    member x.Heartbeat(interval, payloadF, ?ct) =
-        Async.Start(heartBeat interval payloadF, ?cancellationToken = ct)
+    member x.Heartbeat(interval, payloadF) =
+        Async.Start(heartBeat interval payloadF, cancellationToken)
        
-    member x.Start(msghandler,ct) = 
+    member x.Start(msghandler,ct:CancellationToken) = 
         if not(isStarted)
-        then 
+        then
+            cancellationToken <- ct
+            cancellationToken.Register(fun () -> (x :> IDisposable).Dispose()) |> ignore 
             handler <- msghandler
-            Async.Start(messageHandler(), ct)
+            Async.Start(messageHandler(), cancellationToken)
             isStarted <- true
+
+    interface IDisposable with
+        member x.Dispose() = 
+            isStarted <- false
+            listener.Value.Close()
+            publisher.Value.Close()
 
 type TcpConfig = {
     ListenerEndpoint : IPEndPoint
@@ -454,3 +471,7 @@ type TCP(config:TcpConfig) =
             handler <- msgHandler
             server.Listen()
             isStarted <- true
+
+    interface IDisposable with
+        member x.Dispose() =
+            isStarted <- false

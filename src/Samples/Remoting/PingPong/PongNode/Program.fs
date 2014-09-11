@@ -43,5 +43,11 @@ let main argv =
     system.SpawnActor(pong) |> ignore
 
     Console.WriteLine("Press enter to exit")
+
     Console.ReadLine() |> ignore
+
+    ActorHost.Dispose()
+
+    Console.ReadLine() |> ignore
+
     0 // return an integer exit code

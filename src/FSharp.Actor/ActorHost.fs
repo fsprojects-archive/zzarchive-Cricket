@@ -1,6 +1,7 @@
 ﻿namespace FSharp.Actor
 
 open System
+open System.Threading
 open System.Collections.Concurrent
 
 type ActorSystemConfiguration = {
@@ -8,7 +9,7 @@ type ActorSystemConfiguration = {
      mutable EventStream : IEventStream
      mutable Logger : Log.Logger
      mutable OnError : (ErrorContext -> unit)
-     mutable CancellationToken : Threading.CancellationToken
+     mutable CancellationToken : CancellationToken
 }
 
 type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as self = 
@@ -37,6 +38,16 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
             path ActorPath.deadLetter
         } 
         |> self.SpawnActor
+
+    let dispose() = 
+        configuration.Logger.Info("shutting down")
+        supervisor <-- Shutdown
+        deadLetter <-- Shutdown
+        
+        configuration.Registry.Dispose()
+        configuration.EventStream.Dispose()
+        configuration.Logger.Info("shutdown")
+
 
     do 
         (defaultArg configurator ignore) configuration
@@ -69,6 +80,9 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
         configuration.Logger.Debug(sprintf "ActorSystem started %s" x.Name)
         x
 
+    interface IDisposable with
+        member x.Dispose() = dispose()
+
 type ActorSystemRegistry = IRegistry<string, ActorSystem>
 
 type ActorHostConfiguration = {
@@ -77,7 +91,7 @@ type ActorHostConfiguration = {
      mutable EventStream : IEventStream
      mutable Logger : Log.Logger
      mutable Serializer : ISerializer
-     mutable CancellationToken : Threading.CancellationToken
+     mutable CancellationToken : CancellationToken
 }
 
 type ActorHost() = 
@@ -85,6 +99,8 @@ type ActorHost() =
      static let currentProcess = Diagnostics.Process.GetCurrentProcess()
      static let hostName = sprintf "%s:%d@%s" currentProcess.ProcessName currentProcess.Id currentProcess.MachineName
      static let mutable isStarted = false
+     static let mutable isDisposed = false
+     static let cts = new CancellationTokenSource()
 
      static let configuration = 
         {
@@ -92,14 +108,17 @@ type ActorHost() =
             Transports = Map.empty; 
             Registry = new ConcurrentDictionaryBasedRegistry<string,ActorSystem>(fun sys -> sys.Name)
             EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
-            CancellationToken = Async.DefaultCancellationToken
+            CancellationToken = cts.Token
             Serializer = new BinarySerializer()
         }
 
      static let onlyIfStarted f = 
-        if isStarted
-        then f()
-        else failwithf "ActorHost not started, please call ActorHost.Start, this is usually the first thing to do in a Actor Based application"
+        if (not isDisposed)
+        then
+            if isStarted
+            then f()
+            else failwithf "ActorHost not started, please call ActorHost.Start, this is usually the first thing to do in a Actor Based application"
+        else raise(ObjectDisposedException("ActorHost"))
      
      static member Configure(configurator : ActorHostConfiguration -> unit) = configurator configuration
 
@@ -137,12 +156,25 @@ type ActorHost() =
             | [] -> None)
 
      static member Start(?transports) =
-        if not isStarted
+        if (not isDisposed)
         then
-            ActorHost.AddTransports(defaultArg transports []) 
-            Map.iter (fun _ (t:ITransport) -> t.Start(configuration.Serializer, configuration.CancellationToken)) configuration.Transports
-            isStarted <- true
-            configuration.Logger.Debug(sprintf "ActorHost started %s" hostName)
+            if not isStarted
+            then
+                configuration.CancellationToken.Register(fun () -> ActorHost.Dispose()) |> ignore
+                ActorHost.AddTransports(defaultArg transports []) 
+                Map.iter (fun _ (t:ITransport) -> t.Start(configuration.Serializer, configuration.CancellationToken)) configuration.Transports
+                isStarted <- true
+                configuration.Logger.Debug(sprintf "ActorHost started %s" hostName)
+        else raise(ObjectDisposedException("ActorHost"))
+
+     static member Dispose() = 
+        configuration.Logger.Info("shutting down")
+        cts.Cancel()
+        cts.Dispose()
+        configuration.Registry.Dispose()
+        configuration.Transports |> Map.toSeq |> Seq.iter (fun (_,v) -> v.Dispose())
+        configuration.EventStream.Dispose()
+        configuration.Logger.Info("shutdown")
 
 module Actor = 
     
