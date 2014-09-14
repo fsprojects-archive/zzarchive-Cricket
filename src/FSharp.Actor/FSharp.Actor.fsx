@@ -8,8 +8,6 @@ open System
 open System.Threading
 open FSharp.Actor
 
-
-//
 let cts = new CancellationTokenSource()
 let rnd = Random()
 let ctx = Metrics.createContext "testContext"
@@ -17,6 +15,7 @@ let ctx = Metrics.createContext "testContext"
 let guageMetric = Metrics.createGuage ctx "myGuage"
 let counterMetric = Metrics.createCounter ctx "myCounter"
 let timerMetric = Metrics.createTimer ctx "myTimer"
+let meterMetric = Metrics.createMeter ctx "myMeter"
 
 let rec reporter() = 
     async {
@@ -44,9 +43,17 @@ let rec timerCreator() = async {
     return! timerCreator()
 }
 
+let rec meterCreator() = async {
+    for i in 0 .. 100000 do
+        meterMetric.Mark(1L)
+    do! Async.Sleep(5000)
+    return! meterCreator()
+}
+
 Async.Start(guageCreator(), cts.Token)
 Async.Start(timerCreator(), cts.Token)
 Async.Start(counterCreator(), cts.Token)
+Async.Start(meterCreator(), cts.Token)
 
 Async.Start(reporter() , cts.Token)
 

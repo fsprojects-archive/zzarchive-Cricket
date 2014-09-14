@@ -57,3 +57,39 @@ module Math =
                 }
 
             let compute data = data |> Seq.fold update empty
+
+        module ExponentialWeightedAverage = 
+            
+            type EWMA = {
+                Alpha : float
+                Interval : int64 //seconds
+                Count : int64
+                Rate : float option
+            }
+            with
+                member x.Value(?defaultValue) = 
+                    let defValue = defaultArg defaultValue 0.
+                    match x.Rate with
+                    | Some(r) -> r
+                    | None -> defValue
+
+            let alpha interval w = 1. - exp(-(interval / (w * 60.)))
+
+            let mark (x:EWMA) value = 
+                { x with Count =  x.Count + value }
+
+            let tick (x:EWMA) = 
+                let rate = (float (x.Count / x.Interval))
+                match x.Rate with
+                | Some(r) -> 
+                    { x with Rate = Some(r + (x.Alpha * (rate - r))) }
+                | None -> 
+                    { x with Rate = Some rate }
+
+            let create interval averageSpan = 
+                {
+                   Interval = interval
+                   Alpha = alpha (float interval) averageSpan
+                   Count = 0L
+                   Rate = None
+                }
