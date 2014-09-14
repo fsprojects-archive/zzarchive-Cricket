@@ -56,9 +56,11 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Helpers.fs" />
+    <Compile Include="Math.fs" />
     <Compile Include="Serialization.fs" />
     <Compile Include="Trie.fs" />
     <Compile Include="Async.fs" />
+    <Compile Include="Metrics.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Mailbox.fs" />
     <Compile Include="EventStream.fs" />

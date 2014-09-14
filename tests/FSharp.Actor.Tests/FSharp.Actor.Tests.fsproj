@@ -57,7 +57,7 @@
     <Compile Include="TrieTests.fs" />
     <Compile Include="LocalRegistryTests.fs" />
     <Compile Include="ActorPathTests.fs" />
-    <None Include="Script.fsx" />
+    <Compile Include="SampleStatsTests.fs" />
     <None Include="packages.config" />
     <None Include="app.config" />
     <None Include="packages.config" />
