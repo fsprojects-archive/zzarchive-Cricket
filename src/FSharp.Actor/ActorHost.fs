@@ -1,7 +1,9 @@
 ﻿namespace FSharp.Actor
 
 open System
+open System.IO
 open System.Threading
+open Microsoft.FSharp.Control.CommonExtensions
 open System.Collections.Concurrent
 
 type ActorSystemConfiguration = {
@@ -13,18 +15,24 @@ type ActorSystemConfiguration = {
 }
 
 type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as self = 
-    
+     
     let mutable supervisor = Unchecked.defaultof<_>
     let mutable deadLetter = Unchecked.defaultof<_>
 
+    let metricContext = Metrics.createContext systemName
+    let actorCount = Metrics.createCounter metricContext "actorCount"
+    let uptimeCancel = Metrics.createUptime metricContext "uptime" 1000
+
     let configuration =
         {
-            Logger = Log.Logger(sprintf "ActorSystem:[%s]" systemName, Log.defaultFor Log.Debug) 
+            Logger = Log.Logger(sprintf "ActorSystem/%s" systemName, Log.defaultFor Log.Debug) 
             Registry = new InMemoryActorRegistry()
-            EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
+            EventStream = new DefaultEventStream(systemName + "/eventstream", Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
             OnError = (fun ctx -> ctx.Sender <-- Restart)
         }
+    
+    
 
     let createSupervisor() = 
         actor {
@@ -47,7 +55,7 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
         configuration.Registry.Dispose()
         configuration.EventStream.Dispose()
         configuration.Logger.Info("shutdown")
-
+        uptimeCancel()
 
     do 
         (defaultArg configurator ignore) configuration
@@ -64,6 +72,7 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
         let actor = ActorRef(new Actor<_>(config) :> IActor)
         actor <-- SetParent(supervisor)
         configuration.Registry.Register actor
+        actorCount(1L)
         actor
 
     member x.ResolveActor path = 
@@ -85,6 +94,16 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
 
 type ActorSystemRegistry = IRegistry<string, ActorSystem>
 
+type MetricsReportHandler = 
+    | HttpEndpoint of port:int
+    | WriteToFile of path:string
+    | Custom of (Map<string, Map<string, string>> -> Async<unit>)
+
+type MetricsConfiguration = {
+    ReportInterval : int
+    Handler : MetricsReportHandler
+}
+
 type ActorHostConfiguration = {
      mutable Transports : Map<string,ITransport>
      mutable Registry : ActorSystemRegistry
@@ -92,24 +111,28 @@ type ActorHostConfiguration = {
      mutable Logger : Log.Logger
      mutable Serializer : ISerializer
      mutable CancellationToken : CancellationToken
+     mutable Metrics : MetricsConfiguration option
 }
 
 type ActorHost() = 
-     
+    
      static let currentProcess = Diagnostics.Process.GetCurrentProcess()
      static let hostName = sprintf "%s:%d@%s" currentProcess.ProcessName currentProcess.Id currentProcess.MachineName
+     static let metricContext = Metrics.createContext hostName
+     static let systemCount = Metrics.createCounter metricContext "systemCount"
      static let mutable isStarted = false
      static let mutable isDisposed = false
      static let cts = new CancellationTokenSource()
 
-     static let configuration = 
+     static let configuration =
         {
             Logger = Log.Logger(sprintf "ActorHost:[%s]" hostName, Log.defaultFor Log.Debug) 
             Transports = Map.empty; 
             Registry = new ConcurrentDictionaryBasedRegistry<string,ActorSystem>(fun sys -> sys.Name)
-            EventStream = new DefaultEventStream(Log.defaultFor Log.Debug)
+            EventStream = new DefaultEventStream("host/eventstream", Log.defaultFor Log.Debug, metricContext)
             CancellationToken = cts.Token
             Serializer = new BinarySerializer()
+            Metrics = None
         }
 
      static let onlyIfStarted f = 
@@ -130,6 +153,27 @@ type ActorHost() =
                 c.Transports <- Seq.fold addTransport c.Transports transports
             )
 
+     static member private ReportMetrics(interval, handler) = 
+        Metrics.addSystemMetrics metricContext
+        match handler with
+        | Custom f ->
+            let rec reporter() = 
+                async {
+                   do! Async.Sleep(interval)
+                   do! f(Metrics.createReport()) 
+                   return! reporter()        
+                }
+            Async.Start(reporter(), configuration.CancellationToken)
+        | WriteToFile path -> 
+            let rec reporter() = 
+                async {
+                   do! Async.Sleep(interval)
+                   do File.WriteAllText(path, sprintf "%A" (Metrics.createReport())) 
+                   return! reporter()        
+                }
+            Async.Start(reporter(), configuration.CancellationToken)  
+        | HttpEndpoint(port) -> raise(NotImplementedException())          
+
      static member ResolveTransport transport = 
         onlyIfStarted(fun () -> configuration.Transports.TryFind transport)
 
@@ -145,6 +189,7 @@ type ActorHost() =
             else 
                 let sys = (new ActorSystem(name, configuration.Serializer, ?configurator = configurator)).Start()
                 configuration.Registry.Register(sys)
+                systemCount(1L)
                 sys)
 
      static member Systems with get() = onlyIfStarted(fun () -> configuration.Registry.All)
@@ -154,8 +199,8 @@ type ActorHost() =
             match configuration.Registry.Resolve(name) with
             | sys :: _ -> Some sys
             | [] -> None)
-
-     static member Start(?transports) =
+             
+     static member Start(?transports) =        
         if (not isDisposed)
         then
             if not isStarted
@@ -164,6 +209,7 @@ type ActorHost() =
                 ActorHost.AddTransports(defaultArg transports []) 
                 Map.iter (fun _ (t:ITransport) -> t.Start(configuration.Serializer, configuration.CancellationToken)) configuration.Transports
                 isStarted <- true
+                Option.iter (fun c -> ActorHost.ReportMetrics(c.ReportInterval, c.Handler)) configuration.Metrics
                 configuration.Logger.Debug(sprintf "ActorHost started %s" hostName)
         else raise(ObjectDisposedException("ActorHost"))
 

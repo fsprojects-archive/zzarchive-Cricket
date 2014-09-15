@@ -82,8 +82,14 @@ with
     override x.ToString() = "Config: " + x.Path.ToString()
                     
 type Actor<'a>(defn:ActorConfiguration<'a>) as self = 
-    let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>() :> IMailbox<_>)
-    let systemMailbox = new DefaultMailbox<SystemMessage>() :> IMailbox<_>
+    let metricContext = Metrics.createContext (defn.Path.ToString())
+    let shutdownCounter = Metrics.createCounter metricContext "shutdownCount"
+    let errorCounter = Metrics.createCounter metricContext "errorCount"
+    let restartCounter = Metrics.createCounter metricContext "restartCount"
+    let cancelUptimer = Metrics.createUptime metricContext "uptime" 1000
+
+    let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>("mailbox", metricContext) :> IMailbox<_>)
+    let systemMailbox = new DefaultMailbox<SystemMessage>("system_mailbox", metricContext) :> IMailbox<_>
     let logger = new ActorLogger(defn.Path, defn.Logger)
     let firstArrivalGate = new ManualResetEventSlim() 
 
@@ -112,6 +118,8 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             | ActorStatus.Errored(err) -> logger.Debug("shutdown", exn = err)
             | _ -> logger.Debug("shutdown")
             setStatus ActorStatus.Stopped
+            shutdownCounter(1L)
+            cancelUptimer()
             return ()
         }
 
@@ -119,6 +127,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         async {
             setStatus(ActorStatus.Errored(err))
             publishEvent(ActorEvent.ActorErrored(ctx.Self, err))
+            errorCounter(1L)
             match defn.Parent with
             | ActorRef(actor) -> 
                 actor.Post(Errored({ Error = err; Sender = ctx.Self; Children = ctx.Children }),ctx.Self)
@@ -142,6 +151,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let rec restart includeChildren =
         async { 
             publishEvent(ActorEvent.ActorRestart(ctx.Self))
+            restartCounter(1L)
             do messageHandlerCancel.Cancel()
 
             if includeChildren
@@ -258,7 +268,7 @@ module ActorConfiguration =
             SupervisorStrategy = (fun x -> x.Sender <-- Shutdown);
             Parent = Null;
             Children = []; 
-            Behaviour = (fun ctx -> 
+            Behaviour = (fun _ -> 
                  let rec loop() =
                       async { return! loop() }
                  loop()

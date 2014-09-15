@@ -1,6 +1,7 @@
 ﻿namespace FSharp.Actor
 
 open System
+open System.Threading
 open FSharp.Actor
 
 type TCPTransport(config:TcpConfig, ?logger) as self = 
@@ -8,22 +9,35 @@ type TCPTransport(config:TcpConfig, ?logger) as self =
     let basePath = ActorPath.ofString (sprintf "%s://%s/" scheme (config.ListenerEndpoint.ToString()))
     let log = defaultArg logger (Log.defaultFor Log.Debug)
     let logger = new Log.Logger(sprintf "actor.tcp://%A" config.ListenerEndpoint, log)
+    let metricContext = Metrics.createContext (sprintf "transports/%s" scheme)
+    let receivedRate = Metrics.createMeter metricContext "msgs_received"
+    let publishRate = Metrics.createMeter metricContext "msgs_published"
+    let sendTimer = Metrics.createTimer metricContext "time_to_send"
+
+    let mutable token = Unchecked.defaultof<CancellationToken>
     let mutable serializer = Unchecked.defaultof<ISerializer>
 
     let handler =(fun (address:NetAddress, msgId, payload) -> 
                     try
+                        receivedRate.Mark(1L)
                         let msg = serializer.Deserialize<RemoteMessage>(payload)
                         (!~msg.Target).Post(msg.Message, new RemoteActor(msg.Sender, self) :> IActor |> ActorRef)
                     with e -> 
                         logger.Error("Error handling message: " + e.Message, exn = e)
                  )
 
-    let tcp = new TCP(config) 
+    let tcp = new TCP(config)
+
+    let post target payload = 
+        async {
+            publishRate.Mark(1L)
+            do sendTimer(fun () -> Async.StartImmediate(tcp.PublishAsync((ActorPath.toNetAddress target).Endpoint, serializer.Serialize payload), token))
+        }
 
     interface ITransport with
         member x.Scheme with get() = scheme
         member x.BasePath with get() = basePath
-        member x.Post(target, payload) = Async.Start(tcp.PublishAsync((ActorPath.toNetAddress target).Endpoint, serializer.Serialize payload))
+        member x.Post(target, payload) = Async.Start(post target payload)
         member x.Start(serialiser, ct) = 
             serializer <- serialiser
             ct.Register(fun () -> (x :> IDisposable).Dispose()) |> ignore
@@ -35,10 +49,15 @@ type TcpActorRegistryTransport(config:TcpConfig) =
     let tcpChannel = new TCP(config)
     let logger = Log.Logger("TcpActorRegistryTransport", Log.defaultFor Log.Debug)
     let mutable settings : ActorRegistryTransportSettings = Unchecked.defaultof<_>
+    let metricContext = Metrics.createContext "transports/TcpActorRegistryTransport"
+    let receivedRate = Metrics.createMeter metricContext "msgs_received"
+    let publishRate = Metrics.createMeter metricContext "msgs_published"
+    let sendTimer = Metrics.createTimer metricContext "time_to_send"
 
     let handler internalHandler = 
         (fun (address,msgId, payload) ->
                 try
+                    receivedRate.Mark(1L)
                     let msg = settings.Serializer.Deserialize payload
                     internalHandler (address,msg,msgId)
                 with e -> 
@@ -48,7 +67,8 @@ type TcpActorRegistryTransport(config:TcpConfig) =
     interface IActorRegistryTransport with
         member x.ListeningEndpoint with get() = NetAddress config.ListenerEndpoint
         member x.Post(NetAddress endpoint, msg, msgId) = 
-            tcpChannel.Publish(endpoint, settings.Serializer.Serialize msg, msgId)
+            publishRate.Mark(1L)
+            sendTimer (fun () -> tcpChannel.Publish(endpoint, settings.Serializer.Serialize msg, msgId))
         member x.Start(setts) = 
             settings <- setts
             settings.CancellationToken.Register(fun () -> (x :> IActorRegistryTransport).Dispose()) |> ignore
@@ -61,10 +81,13 @@ type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) =
     let logger = Log.Logger("UdpActorRegistryDiscovery", Log.defaultFor Log.Debug)
     let broadcastInterval = defaultArg broadcastInterval 1000
     let mutable settings : ActorRegistryDiscoverySettings = Unchecked.defaultof<_>
+    let metricContext = Metrics.createContext "transports/UdpRegistryDiscovery"
+    let receivedRate = Metrics.createMeter metricContext "msgs_received"
 
     let handler internalHandler = 
         (fun (_, payload) ->
                 try
+                    receivedRate.Mark(1L)
                     let msg = settings.Serializer.Deserialize<ActorDiscoveryBeacon>(payload)
                     internalHandler msg
                 with e ->

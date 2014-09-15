@@ -16,12 +16,16 @@ type IMailbox<'a> =
     abstract TryReceive : int -> Async<Option<'a>>
     abstract Receive : int -> Async<'a>
 
-type DefaultMailbox<'a>() =
+type DefaultMailbox<'a>(id : string, ?metricContext:Metrics.MetricContext) =
     let mutable disposed = false
     let mutable inbox : ResizeArray<_> = new ResizeArray<_>()
     let mutable arrivals = new ConcurrentQueue<_>()
     let awaitMsg = new AutoResetEvent(false)
-    
+
+    let metricContext = defaultArg metricContext (Metrics.createContext id)
+    let msgEnqeueMeter = Metrics.createMeter metricContext (id + "/msg_enqueue")
+    let msgDeqeueMeter = Metrics.createMeter metricContext (id + "/msg_dequeue")
+
     let rec scanInbox(f,n) =
         match inbox with
         | null -> None
@@ -76,10 +80,14 @@ type DefaultMailbox<'a>() =
                                 return! await()
                               else
                                 return None
-                          | Some res -> return Some(res) }
+                          | Some res -> 
+                            do msgDeqeueMeter.Mark 1L
+                            return Some(res) }
               async { match receiveFromInbox() with
                       | None -> return! await()
-                      | Some res -> return Some(res) }
+                      | Some res -> 
+                        do msgDeqeueMeter.Mark 1L
+                        return Some(res) }
 
         member this.Receive(timeout) =
             async {            
@@ -99,11 +107,13 @@ type DefaultMailbox<'a>() =
                               else return None
                           | Some res ->                            
                             let! msg = res
+                            do msgDeqeueMeter.Mark 1L
                             return Some(msg) }
               async { match scanInbox(f, 0) with
                       | None -> return! await() 
                       | Some res ->                        
                         let! msg = res
+                        do msgDeqeueMeter.Mark 1L
                         return Some(msg) }
 
         member this.Scan(timeout, f) =
@@ -119,6 +129,7 @@ type DefaultMailbox<'a>() =
             then ()
             else
                 arrivals.Enqueue(msg)
+                msgEnqeueMeter.Mark 1L
                 awaitMsg.Set() |> ignore
 
         member this.Dispose() = 

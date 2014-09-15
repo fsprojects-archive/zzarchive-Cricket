@@ -36,6 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 		docs\content\actor_hosts_and_actor_systems.fsx = docs\content\actor_hosts_and_actor_systems.fsx
 		docs\content\actor_lookup.fsx = docs\content\actor_lookup.fsx
 		docs\content\index.fsx = docs\content\index.fsx
+		docs\content\metrics.fsx = docs\content\metrics.fsx
 		docs\content\pingpong.fsx = docs\content\pingpong.fsx
 		docs\content\pingpong_remoting.fsx = docs\content\pingpong_remoting.fsx
 		docs\content\tutorial.fsx = docs\content\tutorial.fsx

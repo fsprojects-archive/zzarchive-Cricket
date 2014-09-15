@@ -16,6 +16,7 @@ let guageMetric = Metrics.createGuage ctx "myGuage"
 let counterMetric = Metrics.createCounter ctx "myCounter"
 let timerMetric = Metrics.createTimer ctx "myTimer"
 let meterMetric = Metrics.createMeter ctx "myMeter"
+let uptimeMetric = Metrics.createUptime ctx "myUptime" 1000
 
 let rec reporter() = 
     async {

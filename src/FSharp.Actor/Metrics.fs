@@ -57,10 +57,12 @@ module Metrics =
         | Instantaneous of int64
         | Histogram of Sampling.Sample
         | Meter of MeterValues
+        | Timespan of TimeSpan
         override x.ToString()  = 
             match x with
             | Instantaneous(v) -> v.ToString()
             | Histogram(s) -> sprintf "Min: %d, Max: %d, Average: %.4f, StdDev: %.4f" s.Min s.Max s.Mean s.StandardDeviation
+            | Timespan(s) -> sprintf "Time: %s" (s.ToString())
             | Meter(v) -> 
                 String.Join(", ", [|
                                       sprintf "Average One Minute: %.4f values per second" (v.OneMinuteRate.Value())
@@ -75,6 +77,7 @@ module Metrics =
                | Instantaneous(v) -> v |> box
                | Histogram(s) -> s |> box
                | Meter(m) -> m |> box
+               | Timespan(s) -> s |> box 
                |> unbox<'a>
     
     type MetricValueStore = ConcurrentDictionary<string, MetricValue>
@@ -88,8 +91,8 @@ module Metrics =
 
     let private store = new MetricStore()
 
-    let private addUpdate (ctx:MetricContext) (key:string) (value:MetricValue) = 
-        ctx.Store.AddOrUpdate(key, value, (fun _ _ -> value)) |> ignore
+    let private ensureExists (ctx:MetricContext) (key:string) (value:MetricValue) = 
+        ctx.Store.GetOrAdd(key, value) |> ignore
 
     let private update<'a> (ctx:MetricContext) key updator = 
         let oldValue = ctx.Store.[key]
@@ -104,19 +107,19 @@ module Metrics =
     let contextFromType (typ:Type) = createContext (typ.AssemblyQualifiedName)
 
     let createGuage ctx key : GuageMetric = 
-        addUpdate ctx key (Instantaneous 0L)
+        ensureExists ctx key (Instantaneous 0L)
         (fun v -> 
             update<int64> ctx key (fun _ -> (), Instantaneous(v)) 
         )
 
     let createCounter ctx key : CounterMetric = 
-        addUpdate ctx key (Instantaneous 0L)
+        ensureExists ctx key (Instantaneous 0L)
         (fun inc -> 
             update<int64> ctx key (fun v -> (), Instantaneous(v + inc))
         )
 
     let createTimer ctx key : TimerMetric = 
-        addUpdate ctx key (Histogram(Sampling.empty))
+        ensureExists ctx key (Histogram(Sampling.empty))
         let sw = Stopwatch() 
         (fun func -> 
                 update<Sampling.Sample> ctx key (fun oldValue ->
@@ -127,8 +130,20 @@ module Metrics =
                 )
         )
 
+    let createUptime ctx key interval =
+        ensureExists ctx key (Timespan TimeSpan.Zero)
+        let cts = new CancellationTokenSource()
+        let startTicks = DateTime.Now.Ticks
+        let rec worker() = async {
+            do! Async.Sleep(interval)
+            do update<TimeSpan> ctx key (fun _ -> (), Timespan(TimeSpan(DateTime.Now.Ticks - startTicks)))
+            return! worker()
+        }
+        Async.Start(worker(), cts.Token)
+        (fun () -> cts.Cancel())
+
     let createMeter ctx key : MeterMetric =
-        addUpdate ctx key (Meter(MeterValues.Empty))
+        ensureExists ctx key (Meter(MeterValues.Empty))
         let cts = new CancellationTokenSource()
         let rec worker() = async {
             do! Async.Sleep(5000)
@@ -141,6 +156,8 @@ module Metrics =
             Cancel = (fun () -> cts.Cancel())
         }
 
+    let addSystemMetrics ctx =
+        ()
 
     let getMetrics() = 
         seq { 
