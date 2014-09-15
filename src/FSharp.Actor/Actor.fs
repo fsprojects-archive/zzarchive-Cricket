@@ -88,8 +88,8 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let restartCounter = Metrics.createCounter metricContext "restartCount"
     let cancelUptimer = Metrics.createUptime metricContext "uptime" 1000
 
-    let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>("mailbox", metricContext) :> IMailbox<_>)
-    let systemMailbox = new DefaultMailbox<SystemMessage>("system_mailbox", metricContext) :> IMailbox<_>
+    let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox") :> IMailbox<_>)
+    let systemMailbox = new DefaultMailbox<SystemMessage>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
     let logger = new ActorLogger(defn.Path, defn.Logger)
     let firstArrivalGate = new ManualResetEventSlim() 
 

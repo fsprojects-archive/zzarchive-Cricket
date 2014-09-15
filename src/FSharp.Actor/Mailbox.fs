@@ -16,13 +16,13 @@ type IMailbox<'a> =
     abstract TryReceive : int -> Async<Option<'a>>
     abstract Receive : int -> Async<'a>
 
-type DefaultMailbox<'a>(id : string, ?metricContext:Metrics.MetricContext) =
+type DefaultMailbox<'a>(id : string) =
     let mutable disposed = false
     let mutable inbox : ResizeArray<_> = new ResizeArray<_>()
     let mutable arrivals = new ConcurrentQueue<_>()
     let awaitMsg = new AutoResetEvent(false)
 
-    let metricContext = defaultArg metricContext (Metrics.createContext id)
+    let metricContext = Metrics.createContext id
     let msgEnqeueMeter = Metrics.createMeter metricContext (id + "/msg_enqueue")
     let msgDeqeueMeter = Metrics.createMeter metricContext (id + "/msg_dequeue")
 

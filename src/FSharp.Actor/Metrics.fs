@@ -58,20 +58,26 @@ module Metrics =
         | Histogram of Sampling.Sample
         | Meter of MeterValues
         | Timespan of TimeSpan
-        override x.ToString()  = 
+        member x.AsStringArray() =
             match x with
-            | Instantaneous(v) -> v.ToString()
-            | Histogram(s) -> sprintf "Min: %d, Max: %d, Average: %.4f, StdDev: %.4f" s.Min s.Max s.Mean s.StandardDeviation
-            | Timespan(s) -> sprintf "Time: %s" (s.ToString())
+            | Instantaneous(v) -> 
+                [| sprintf "Value = %d" v |]
+            | Histogram(s) -> 
+                [|
+                  sprintf "Min = %d" s.Min
+                  sprintf "Max = %d" s.Max
+                  sprintf "Average %.4f" s.Mean
+                  sprintf "Standard Deviation = %.4f" s.StandardDeviation
+                |]
+            | Timespan(s) -> [| sprintf "Time = %s" (s.ToString()) |]
             | Meter(v) -> 
-                String.Join(", ", [|
-                                      sprintf "Average One Minute: %.4f values per second" (v.OneMinuteRate.Value())
-                                      sprintf "Average Five Minute: %.4f values per second" (v.FiveMinuteRate.Value())
-                                      sprintf "Average Fifteen Minute: %.4f values per second" (v.FifteenMinuteRate.Value())
-                                      sprintf "Mean: %.4f values per second" v.Mean
-                                      sprintf "Count: %d"  v.Count
-                                  |])
-
+                [|
+                    sprintf "Average One Minute = %.4f values per second" (v.OneMinuteRate.Value())
+                    sprintf "Average Five Minute = %.4f values per second" (v.FiveMinuteRate.Value())
+                    sprintf "Average Fifteen Minute = %.4f values per second" (v.FifteenMinuteRate.Value())
+                    sprintf "Mean = %.4f values per second" v.Mean
+                    sprintf "Count = %d"  v.Count
+                |]
         member x.Value<'a>() = 
                match x with
                | Instantaneous(v) -> v |> box
@@ -79,6 +85,7 @@ module Metrics =
                | Meter(m) -> m |> box
                | Timespan(s) -> s |> box 
                |> unbox<'a>
+
     
     type MetricValueStore = ConcurrentDictionary<string, MetricValue>
 
@@ -171,8 +178,13 @@ module Metrics =
                 yield key, metrics
         }
         
+    module Formatters = 
 
-    let createReport() =             
-        getMetrics() 
-        |> Seq.map (fun (k,v)  -> k, v |> Seq.map (fun (k,v) -> k, v.ToString()) |> Map.ofSeq)
-        |> Map.ofSeq
+        let toString (metrics:seq<string * seq<string * MetricValue>>) =
+            String.Join(Environment.NewLine, 
+                        metrics
+                        |> Seq.map (fun (n, vs) ->
+                            let createLines (name,v:MetricValue) =
+                                sprintf "%s\r\n\t\t%s" name (String.Join(Environment.NewLine + "\t\t", v.AsStringArray()))
+                            sprintf "%s\r\n\t%s" n (String.Join(Environment.NewLine + "\t", Seq.map createLines vs |> Seq.toArray))
+                        ) |> Seq.toArray)

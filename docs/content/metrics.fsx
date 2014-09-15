@@ -14,7 +14,7 @@ Metrics
 *)
 
 
-ActorHost.Configure(fun c -> c.Metrics <- Some { ReportInterval = 5000; Handler = WriteToFile(@"C:\temp\metrics") })
+ActorHost.Configure(fun c -> c.Metrics <- Some { ReportInterval = 5000; Handler = HttpEndpoint 9797 })
 ActorHost.Start()
 let system = ActorHost.CreateSystem("greeterSystem")
 
@@ -42,7 +42,7 @@ let greeter =
 
 let cts = new CancellationTokenSource()
 let rec publisher() = async {
-    do! Async.Sleep(200)
+    do! Async.Sleep(1)
     do greeter <-- Name "Metrics"
     return! publisher()
 }

@@ -97,7 +97,7 @@ type ActorSystemRegistry = IRegistry<string, ActorSystem>
 type MetricsReportHandler = 
     | HttpEndpoint of port:int
     | WriteToFile of path:string
-    | Custom of (Map<string, Map<string, string>> -> Async<unit>)
+    | Custom of (seq<string * seq<string * Metrics.MetricValue>> -> Async<unit>)
 
 type MetricsConfiguration = {
     ReportInterval : int
@@ -129,7 +129,7 @@ type ActorHost() =
             Logger = Log.Logger(sprintf "ActorHost:[%s]" hostName, Log.defaultFor Log.Debug) 
             Transports = Map.empty; 
             Registry = new ConcurrentDictionaryBasedRegistry<string,ActorSystem>(fun sys -> sys.Name)
-            EventStream = new DefaultEventStream("host/eventstream", Log.defaultFor Log.Debug, metricContext)
+            EventStream = new DefaultEventStream("host/eventstream", Log.defaultFor Log.Debug)
             CancellationToken = cts.Token
             Serializer = new BinarySerializer()
             Metrics = None
@@ -160,7 +160,7 @@ type ActorHost() =
             let rec reporter() = 
                 async {
                    do! Async.Sleep(interval)
-                   do! f(Metrics.createReport()) 
+                   do! f(Metrics.getMetrics()) 
                    return! reporter()        
                 }
             Async.Start(reporter(), configuration.CancellationToken)
@@ -168,11 +168,41 @@ type ActorHost() =
             let rec reporter() = 
                 async {
                    do! Async.Sleep(interval)
-                   do File.WriteAllText(path, sprintf "%A" (Metrics.createReport())) 
+                   do File.WriteAllText(path, sprintf "%s" (Metrics.getMetrics() |> Metrics.Formatters.toString)) 
                    return! reporter()        
                 }
             Async.Start(reporter(), configuration.CancellationToken)  
-        | HttpEndpoint(port) -> raise(NotImplementedException())          
+        | HttpEndpoint(port) ->
+            let httpListener = new Net.HttpListener()
+            let rec listenerLoop() = async {
+                let! ctx = httpListener.GetContextAsync() |> Async.AwaitTask
+                let result = Metrics.getMetrics()
+                let writeResponse contentType (responseString:string) = async {
+                        let bytes = Text.Encoding.UTF8.GetBytes(responseString)
+                        ctx.Response.ContentType <- contentType
+                        ctx.Response.ContentEncoding <- Text.Encoding.UTF8
+                        ctx.Response.ContentLength64 <- bytes.LongLength
+                        ctx.Response.OutputStream.Write(bytes, 0, bytes.Length)
+                        ctx.Response.OutputStream.Flush()
+                        ctx.Response.OutputStream.Close()
+                    }
+                let contentType =
+                    [|
+                        "application/json"
+                        "application/xml"
+                        "text/html"
+                    |] |> Array.tryFind (fun x -> ctx.Request.AcceptTypes |> Array.exists (fun a -> a = x))
+                
+                match contentType with
+                | Some(_) -> do! writeResponse "text/html" (Metrics.Formatters.toString result)
+                | _ -> do! writeResponse "text/html" "Unsupported accept type"
+                return! listenerLoop()    
+            }
+            httpListener.Prefixes.Add(sprintf "http://+:%d/" port)
+            httpListener.Start()
+            Async.Start(listenerLoop(), configuration.CancellationToken)
+            configuration.CancellationToken.Register(fun () -> httpListener.Close()) |> ignore
+                     
 
      static member ResolveTransport transport = 
         onlyIfStarted(fun () -> configuration.Transports.TryFind transport)
