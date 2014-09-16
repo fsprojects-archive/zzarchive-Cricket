@@ -29,7 +29,6 @@ let greeter =
         messageHandler (fun actor ->
             let rec loop() = async {
                 let! msg = actor.Receive() //Wait for a message
-
                 match msg.Message with
                 | Hello ->  actor.Logger.Debug("Hello") //Handle Hello leg
                 | HelloWorld -> actor.Logger.Debug("Hello World") //Handle HelloWorld leg
@@ -41,8 +40,8 @@ let greeter =
     } |> system.SpawnActor
 
 let cts = new CancellationTokenSource()
+
 let rec publisher() = async {
-    do! Async.Sleep(1)
     do greeter <-- Name "Metrics"
     return! publisher()
 }

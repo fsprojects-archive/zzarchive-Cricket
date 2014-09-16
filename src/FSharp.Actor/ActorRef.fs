@@ -28,7 +28,7 @@ module ActorRef =
 
     let path = function
         | ActorRef(a) -> a.Path
-        | Null -> ActorPath.deadLetter
+        | Null -> ActorPath.empty
 
     let internal getActorContext() = 
         match CallContext.LogicalGetData("actor") with

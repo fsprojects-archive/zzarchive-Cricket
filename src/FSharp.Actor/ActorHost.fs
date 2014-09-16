@@ -17,7 +17,6 @@ type ActorSystemConfiguration = {
 type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as self = 
      
     let mutable supervisor = Unchecked.defaultof<_>
-    let mutable deadLetter = Unchecked.defaultof<_>
 
     let metricContext = Metrics.createContext systemName
     let actorCount = Metrics.createCounter metricContext "actorCount"
@@ -27,12 +26,10 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
         {
             Logger = Log.Logger(sprintf "ActorSystem/%s" systemName, Log.defaultFor Log.Debug) 
             Registry = new InMemoryActorRegistry()
-            EventStream = new DefaultEventStream(systemName + "/eventstream", Log.defaultFor Log.Debug)
+            EventStream = new DefaultEventStream(systemName, Log.defaultFor Log.Debug)
             CancellationToken = Async.DefaultCancellationToken
             OnError = (fun ctx -> ctx.Sender <-- Restart)
         }
-    
-    
 
     let createSupervisor() = 
         actor {
@@ -41,16 +38,9 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
               }
         |> self.SpawnActor
 
-    let createDeadLetter() = 
-        actor {
-            path ActorPath.deadLetter
-        } 
-        |> self.SpawnActor
-
     let dispose() = 
         configuration.Logger.Info("shutting down")
         supervisor <-- Shutdown
-        deadLetter <-- Shutdown
         
         configuration.Registry.Dispose()
         configuration.EventStream.Dispose()
@@ -84,8 +74,7 @@ type ActorSystem internal(systemName, serializer:ISerializer, ?configurator) as 
 
     member x.Start() = 
         supervisor <- createSupervisor()
-        deadLetter <- createDeadLetter()
-
+        
         configuration.Logger.Debug(sprintf "ActorSystem started %s" x.Name)
         x
 
@@ -112,27 +101,32 @@ type ActorHostConfiguration = {
      mutable Serializer : ISerializer
      mutable CancellationToken : CancellationToken
      mutable Metrics : MetricsConfiguration option
+     mutable Name : string
 }
+
+type DeadLetterMessage = DeadLetterMessage of Message<obj>
 
 type ActorHost() = 
     
-     static let currentProcess = Diagnostics.Process.GetCurrentProcess()
-     static let hostName = sprintf "%s:%d@%s" currentProcess.ProcessName currentProcess.Id currentProcess.MachineName
+     static let hostName = sprintf "%s:%d@%s" Metrics.processName Metrics.processId Metrics.machineName
      static let metricContext = Metrics.createContext hostName
      static let systemCount = Metrics.createCounter metricContext "systemCount"
      static let mutable isStarted = false
      static let mutable isDisposed = false
      static let cts = new CancellationTokenSource()
+     static let mutable system : ActorSystem = Unchecked.defaultof<_> 
+       
 
      static let configuration =
         {
             Logger = Log.Logger(sprintf "ActorHost:[%s]" hostName, Log.defaultFor Log.Debug) 
             Transports = Map.empty; 
             Registry = new ConcurrentDictionaryBasedRegistry<string,ActorSystem>(fun sys -> sys.Name)
-            EventStream = new DefaultEventStream("host/eventstream", Log.defaultFor Log.Debug)
+            EventStream = new DefaultEventStream("ActorHost/eventstream", Log.defaultFor Log.Debug)
             CancellationToken = cts.Token
             Serializer = new BinarySerializer()
             Metrics = None
+            Name = hostName
         }
 
      static let onlyIfStarted f = 
@@ -142,8 +136,28 @@ type ActorHost() =
             then f()
             else failwithf "ActorHost not started, please call ActorHost.Start, this is usually the first thing to do in a Actor Based application"
         else raise(ObjectDisposedException("ActorHost"))
-     
+
+
+     static let mutable deadLetter : actorRef = actorRef.Null
+
+     static let createDeadLetter() = 
+            actor {
+                path (ActorPath.deadLetter "deadletter")
+                messageHandler (fun ctx -> 
+                    let rec loop() = async {
+                        let! msg = ctx.Receive()
+                        configuration.EventStream.Publish(DeadLetterMessage(msg))
+                        return! loop()
+                    }
+
+                    loop()
+                )
+            } |> system.SpawnActor
+               
      static member Configure(configurator : ActorHostConfiguration -> unit) = configurator configuration
+
+     static member PostDeadLetterMessage(msg) = 
+            post deadLetter msg
 
      static member private AddTransports(transports) = 
             let addTransport transports (transport:ITransport) =
@@ -154,7 +168,7 @@ type ActorHost() =
             )
 
      static member private ReportMetrics(interval, handler) = 
-        Metrics.addSystemMetrics metricContext
+        Metrics.addSystemMetrics()
         match handler with
         | Custom f ->
             let rec reporter() = 
@@ -189,12 +203,12 @@ type ActorHost() =
                 let contentType =
                     [|
                         "application/json"
-                        "application/xml"
                         "text/html"
                     |] |> Array.tryFind (fun x -> ctx.Request.AcceptTypes |> Array.exists (fun a -> a = x))
                 
                 match contentType with
-                | Some(_) -> do! writeResponse "text/html" (Metrics.Formatters.toString result)
+                | Some("text/html") -> do! writeResponse "text/html" (Metrics.Formatters.toString result)
+                | Some("application/json") -> do! writeResponse "application/json" (Metrics.Formatters.toJsonString result)
                 | _ -> do! writeResponse "text/html" "Unsupported accept type"
                 return! listenerLoop()    
             }
@@ -240,6 +254,10 @@ type ActorHost() =
                 Map.iter (fun _ (t:ITransport) -> t.Start(configuration.Serializer, configuration.CancellationToken)) configuration.Transports
                 isStarted <- true
                 Option.iter (fun c -> ActorHost.ReportMetrics(c.ReportInterval, c.Handler)) configuration.Metrics
+                system <- ActorHost.CreateSystem("global", (fun c -> c.EventStream <- configuration.EventStream; 
+                                                                     c.CancellationToken <- configuration.CancellationToken)
+                                                            )
+                deadLetter <- createDeadLetter()
                 configuration.Logger.Debug(sprintf "ActorHost started %s" hostName)
         else raise(ObjectDisposedException("ActorHost"))
 

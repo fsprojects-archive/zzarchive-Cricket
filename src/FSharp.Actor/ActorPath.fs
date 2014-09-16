@@ -19,9 +19,10 @@ type actorPath = {
     Host : string option
     Port : int option
     HostType : UriHostNameType option
-    Path : string[]
+    PathComponents : string[]
 }
     with
+        member x.Path with get() = String.Join("/", x.PathComponents) 
         override x.ToString() =
             match x.Port with
             | Some(port) when port > -1 -> 
@@ -41,7 +42,7 @@ type actorPath = {
                 Host = None 
                 Port = None
                 HostType = None 
-                Path = [||] 
+                PathComponents = [||] 
             }    
         static member internal Create(path:string, ?transport, ?system, ?host, ?port, ?hostType) = 
             { 
@@ -50,7 +51,7 @@ type actorPath = {
                 Host = Option.stringIsNoneIfBlank host 
                 Port = port
                 HostType = hostType 
-                Path = path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries); 
+                PathComponents = path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries); 
             }
 
         static member internal OfUri(uri:Uri) = 
@@ -82,7 +83,7 @@ type actorPath = {
                     let hostType = Uri.CheckHostName(host)
                     { state with Host = (Some host); HostType = (Some hostType) }
                 | Port(port) -> { state with Port = (Some port) }
-                | PathComponent(path) -> { state with Path = Array.append state.Path path}
+                | PathComponent(path) -> { state with PathComponents = Array.append state.PathComponents path}
                 | _ -> state
                  
             str.Split([|"/"|], StringSplitOptions.RemoveEmptyEntries)
@@ -90,6 +91,8 @@ type actorPath = {
             |> Array.fold buildPath actorPath.Empty
 
 module ActorPath = 
+    
+    let empty = actorPath.Empty
 
     let ofString (str:string) = actorPath.OfString(str)
 
@@ -97,15 +100,15 @@ module ActorPath =
                    
     let components (path:actorPath) = 
         match path.System with
-        | Some(s) -> s :: (path.Path |> Array.toList)
-        | None -> "*" :: (path.Path |> Array.toList)
+        | Some(s) -> s :: (path.PathComponents |> Array.toList)
+        | None -> "*" :: (path.PathComponents |> Array.toList)
         |> List.choose (function
             | "*" -> Some Trie.Wildcard
             | "/" -> None
             | a -> Some (Trie.Key(a.Trim('/')))
         )
     
-    let deadLetter = ofString "/system/deadletter"
+    let deadLetter name = ofString ("/system/deadletter" + name)
 
     let supervisor name = ofString ("/system/supervisor/" + name)
 

@@ -16,15 +16,19 @@ type IMailbox<'a> =
     abstract TryReceive : int -> Async<Option<'a>>
     abstract Receive : int -> Async<'a>
 
-type DefaultMailbox<'a>(id : string) =
+type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
     let mutable disposed = false
     let mutable inbox : ResizeArray<_> = new ResizeArray<_>()
-    let mutable arrivals = new ConcurrentQueue<_>()
+    let mutable arrivals = 
+        match boundingCapacity with
+        | None -> new ConcurrentQueue<_>()
+        | Some(cap) -> new ConcurrentQueue<_>(new BlockingCollection<_>(cap))
     let awaitMsg = new AutoResetEvent(false)
 
-    let metricContext = Metrics.createContext id
-    let msgEnqeueMeter = Metrics.createMeter metricContext (id + "/msg_enqueue")
-    let msgDeqeueMeter = Metrics.createMeter metricContext (id + "/msg_dequeue")
+    let metricContext = defaultArg metricContext (Metrics.createContext id)
+    let msgEnqeueMeter = Metrics.createMeter metricContext ("msg_enqueue")
+    let msgDeqeueMeter = Metrics.createMeter metricContext ("msg_dequeue")
+    let queueLength = Metrics.createDelegatedGuage metricContext "msg_queue_length" (fun () -> (inbox.Count + arrivals.Count) |> int64)
 
     let rec scanInbox(f,n) =
         match inbox with

@@ -3,6 +3,7 @@
 module Metrics = 
     
     open System
+    open System.IO
     open System.Diagnostics
     open System.Threading
     open System.Collections.Concurrent
@@ -55,31 +56,34 @@ module Metrics =
 
     type MetricValue = 
         | Instantaneous of int64
+        | Delegated of (unit -> MetricValue)
         | Histogram of Sampling.Sample
         | Meter of MeterValues
         | Timespan of TimeSpan
-        member x.AsStringArray() =
+        member x.AsArray() =
             match x with
+            | Delegated(f) -> (f()).AsArray()
             | Instantaneous(v) -> 
-                [| sprintf "Value = %d" v |]
+                [| "Value", sprintf "%u" v |]
             | Histogram(s) -> 
                 [|
-                  sprintf "Min = %d" s.Min
-                  sprintf "Max = %d" s.Max
-                  sprintf "Average %.4f" s.Mean
-                  sprintf "Standard Deviation = %.4f" s.StandardDeviation
+                  "Min",  sprintf "%d" s.Min
+                  "Max",  sprintf "%d" s.Max
+                  "Average", sprintf "%.4f" s.Mean
+                  "Standard Deviation", sprintf "%.4f" s.StandardDeviation
                 |]
-            | Timespan(s) -> [| sprintf "Time = %s" (s.ToString()) |]
+            | Timespan(s) -> [| "Time",  sprintf "%.4f" s.TotalMilliseconds |]
             | Meter(v) -> 
                 [|
-                    sprintf "Average One Minute = %.4f values per second" (v.OneMinuteRate.Value())
-                    sprintf "Average Five Minute = %.4f values per second" (v.FiveMinuteRate.Value())
-                    sprintf "Average Fifteen Minute = %.4f values per second" (v.FifteenMinuteRate.Value())
-                    sprintf "Mean = %.4f values per second" v.Mean
-                    sprintf "Count = %d"  v.Count
+                    "One Minute Average", sprintf "%.4f" (v.OneMinuteRate.Value())
+                    "Five Minute Average",  sprintf "%.4f" (v.FiveMinuteRate.Value())
+                    "Fifteen Minute Average",   sprintf "%.4f" (v.FifteenMinuteRate.Value())
+                    "Mean", sprintf "%.4f" v.Mean
+                    "Count", sprintf "%d" v.Count
                 |]
         member x.Value<'a>() = 
                match x with
+               | Delegated(f) -> (f()).Value<'a>() |> box
                | Instantaneous(v) -> v |> box
                | Histogram(s) -> s |> box
                | Meter(m) -> m |> box
@@ -107,6 +111,10 @@ module Metrics =
         ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
         result
     
+        
+    let currentProcess = Diagnostics.Process.GetCurrentProcess()
+    let processName, processId, machineName = currentProcess.ProcessName, currentProcess.Id, Environment.MachineName
+
     let createContext s =
         let ctx = { Key = s; Store = new MetricValueStore() }
         store.AddOrUpdate(ctx.Key, ctx, fun _ _ -> ctx) 
@@ -116,8 +124,11 @@ module Metrics =
     let createGuage ctx key : GuageMetric = 
         ensureExists ctx key (Instantaneous 0L)
         (fun v -> 
-            update<int64> ctx key (fun _ -> (), Instantaneous(v)) 
+            update<int64> ctx key (fun _ -> (), Instantaneous(v))
         )
+
+    let createDelegatedGuage ctx key action = 
+        ensureExists ctx key (Delegated(fun () -> Instantaneous(action())))  
 
     let createCounter ctx key : CounterMetric = 
         ensureExists ctx key (Instantaneous 0L)
@@ -163,8 +174,33 @@ module Metrics =
             Cancel = (fun () -> cts.Cancel())
         }
 
-    let addSystemMetrics ctx =
-        ()
+    let getPerformanceCounter(category,counter,instance) = 
+        new PerformanceCounter(category, counter, instance, true)
+    
+    let createPerformanceCounterGuage ctx key perfCounter = 
+        let perfCounter = getPerformanceCounter perfCounter
+        ensureExists ctx key (Delegated(fun () -> 
+                let value = perfCounter.NextValue() |> int64
+                printfn "Reading perf counter %A %d" perfCounter.CounterName value
+                Instantaneous(value)))
+
+    let addSystemMetrics() =
+        let ctx = createContext "system_metrics"
+        let instanceName = Path.GetFileNameWithoutExtension(processName)
+        let systemCounters = [
+            (".NET CLR LocksAndThreads", "locks_and_threads"), [
+               "Total # of Contentions", "number_of_contentions" 
+               "Contention Rate / Sec", "contention_rate"
+               "Current Queue Length", "current_queue_length"
+              ]
+            (".NET CLR Memory", "memory"), [
+                "# Bytes in all heaps", "bytes_in_all_heaps"
+                "Gen 0 heap size" , "gen_0_heap_size" 
+              ]
+            ]
+        for ((category, metricCat), counters) in systemCounters do 
+            for (counter, label) in counters do
+                createPerformanceCounterGuage ctx (metricCat + "/" + label) (category, counter, instanceName)
 
     let getMetrics() = 
         seq { 
@@ -181,10 +217,19 @@ module Metrics =
     module Formatters = 
 
         let toString (metrics:seq<string * seq<string * MetricValue>>) =
-            String.Join(Environment.NewLine, 
-                        metrics
-                        |> Seq.map (fun (n, vs) ->
-                            let createLines (name,v:MetricValue) =
-                                sprintf "%s\r\n\t\t%s" name (String.Join(Environment.NewLine + "\t\t", v.AsStringArray()))
-                            sprintf "%s\r\n\t%s" n (String.Join(Environment.NewLine + "\t", Seq.map createLines vs |> Seq.toArray))
-                        ) |> Seq.toArray)
+            let createMetricValue (name,v:MetricValue) =
+                sprintf "%s\r\n\t\t%s" name (String.Join(Environment.NewLine + "\t\t", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "%s = %A" n v)))
+
+            let createMetricType (name, vs) = 
+                 sprintf "%s\r\n\t%s" name (String.Join(Environment.NewLine + "\t", Seq.map createMetricValue vs |> Seq.toArray))
+
+            String.Join(Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray)
+
+        let toJsonString (metrics:seq<string * seq<string * MetricValue>>) = 
+            let createMetricValue (name,v:MetricValue) =
+                sprintf "{ \"Key\": %A,\"Properties\": [%s] }" name (String.Join(", ", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "{ \"Name\": %A, \"Value\": %s }" n v)))
+
+            let createMetricType (name, vs) = 
+                 sprintf "{ \"Key\": %A, \"Values\": [%s] }" name (String.Join(", ", Seq.map createMetricValue vs |> Seq.toArray))
+
+            "[" + String.Join(", " + Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray) + "]"

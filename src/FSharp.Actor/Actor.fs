@@ -15,7 +15,6 @@ open FSharp.Actor
 
 type Message<'a> = {
     Sender : actorRef
-    Target : actorPath
     Message : 'a
 }
 
@@ -227,7 +226,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         member x.Path with get() = defn.Path
         member x.Post(msg:'a, sender) =
              if not(firstArrivalGate.IsSet) then firstArrivalGate.Set()
-             mailbox.Post({Target = ctx.Path; Sender = sender; Message = msg}) 
+             mailbox.Post({ Sender = sender; Message = msg}) 
 
     interface IDisposable with  
         member x.Dispose() =
