@@ -186,15 +186,44 @@ module Metrics =
     let addSystemMetrics() =
         let ctx = createContext "system"
         let instanceName = Path.GetFileNameWithoutExtension(processName)
+        
+        //TODO: This needs to be moved to configuration
         let systemCounters = [
             (".NET CLR LocksAndThreads", "locks_and_threads"), [
                "Total # of Contentions", "number_of_contentions" 
                "Contention Rate / Sec", "contention_rate"
                "Current Queue Length", "current_queue_length"
+               "Queue Length Peak", "queue_length_peak"
+               "Queue Length / sec", "queue_length_per_sec"
+               "# of current logical Threads", "current_logical_threads"
+               "# of current physical Threads", "current_physical_threads"
+               "# of current recognized Threads", "current_recognized_threads"
+               "# of total recognized Threads", "current_total_recognized_threads"
               ]
             (".NET CLR Memory", "memory"), [
                 "# Bytes in all heaps", "bytes_in_all_heaps"
-                "Gen 0 heap size" , "gen_0_heap_size" 
+                "Gen 0 heap size", "gen_0_heap_size"
+                "Gen 1 heap size", "gen_1_heap_size"
+                "Gen 2 heap size", "gen_2_heap_size"
+                "Gen 0 Collections", "gen_0_collections"
+                "Gen 1 Collections", "gen_1_collections"
+                "Gen 2 Collections", "gen_2_collections"
+                "Large Object Heap size", "large_object_heap_size"
+                "% Time in GC", "percentage_time_in_GC"
+              ]
+            (".NET CLR Networking", "networking"), [
+                "Bytes Received", "bytes_received"
+                "Bytes Sent", "bytes_sent"
+                "Connections Established", "connections_established"
+                "Datagrams Received", "datagrams_received"
+                "Datagrams Sent", "datagrams_sent"
+              ]
+            (".NET CLR Networking 4.0.0.0", "networking"), [
+                "Bytes Received", "bytes_received"
+                "Bytes Sent", "bytes_sent"
+                "Connections Established", "connections_established"
+                "Datagrams Received", "datagrams_received"
+                "Datagrams Sent", "datagrams_sent"
               ]
             ]
         for ((category, metricCat), counters) in systemCounters do 
