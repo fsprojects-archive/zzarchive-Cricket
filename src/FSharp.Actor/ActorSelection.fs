@@ -4,26 +4,19 @@ open System
 open FSharp.Actor
 
 type actorSelection = 
-    | ActorSelection of actorRef list
+    | ActorSelection of ActorRef list
     with
        member x.Post(msg) =
             let (ActorSelection(target)) = x 
             List.iter (fun t -> post t  msg) target
        member x.Post(msg, sender) =
             let (ActorSelection(target)) = x 
-            List.iter (fun (t:actorRef) -> postWithSender t sender msg) target
+            List.iter (fun (t:ActorRef) -> postWithSender t sender msg) target
 
 module ActorSelection =
 
-    let ofPath (path:actorPath) =
-        match path.System with
-        | Some(sys) ->
-            match ActorHost.TryResolveSystem sys with
-            | Some(sys) -> sys.ResolveActor path
-            | None -> []
-        | None -> 
-            ActorHost.Systems
-            |> List.collect (fun x -> x.ResolveActor path)
+    let ofPath (path:ActorPath) = 
+        ActorHost.Instance.ResolveActor path
         |> ActorSelection
 
     let ofString (str:string) =
@@ -36,5 +29,5 @@ type actorSelection with
 [<AutoOpen>]
 module ActorSelectionOperators =
    let inline (!!) (path:string) = ActorSelection.ofString path     
-   let inline (!~) (path:actorPath) = ActorSelection.ofPath path
+   let inline (!~) (path:ActorPath) = ActorSelection.ofPath path
           

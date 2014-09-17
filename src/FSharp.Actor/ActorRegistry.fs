@@ -13,11 +13,11 @@ type IRegistry<'key, 'ref> =
     abstract UnRegister : 'ref -> unit
     abstract All : 'ref list with get
 
-type ActorRegistry = IRegistry<actorPath, actorRef>
+type ActorRegistry = IRegistry<ActorPath, ActorRef>
 
 type InMemoryActorRegistry() =
     let syncObj = new ReaderWriterLockSlim()
-    let actors : Trie.trie<actorRef> ref = ref Trie.empty
+    let actors : Trie.trie<ActorRef> ref = ref Trie.empty
     interface ActorRegistry with
         member x.All with get() = !actors |> Trie.values
 
@@ -33,7 +33,7 @@ type InMemoryActorRegistry() =
 
         member x.Register(actor) =
             try
-                let components = ActorPath.components (ActorRef.path actor)
+                let components = ActorPath.components actor.Path
                 syncObj.EnterWriteLock()
                 actors := Trie.add components actor !actors
             finally
@@ -41,7 +41,7 @@ type InMemoryActorRegistry() =
 
         member x.UnRegister actor =
             try
-                let components = ActorPath.components (ActorRef.path actor)
+                let components = ActorPath.components actor.Path
                 syncObj.EnterWriteLock()
                 actors := Trie.remove components !actors
             finally

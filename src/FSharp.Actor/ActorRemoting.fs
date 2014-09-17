@@ -11,16 +11,17 @@ type InvalidMessageException(payload:obj, innerEx:Exception) =
     member val Buffer = payload with get
 
 type RemotingEvents =
-    | NewActorSystem of string * NetAddress
+    | NewActorHost of string * NetAddress
+    | ShutdownActorHost of string * NetAddress
 
 type ActorProtocol = 
-    | Resolve of actorPath
-    | Resolved of actorPath list
+    | Resolve of ActorPath
+    | Resolved of ActorPath list
     | Error of string * exn
 
 type ActorDiscoveryBeacon =
-    | ActorSystemDiscoveryBeacon of hostName:string * NetAddress
-    | ActorSystemShutdownBeacon of hostName:string * NetAddress
+    | ActorDiscoveryBeacon of hostName:string * NetAddress
+    | ActorShutdownBeacon of hostName:string * NetAddress
 
 type ActorRegistryTransportSettings = {
     TransportHandler : ((NetAddress * ActorProtocol * MessageId) -> unit)
@@ -45,7 +46,7 @@ type IActorRegistryDiscovery =
     inherit IDisposable 
     abstract Start : ActorRegistryDiscoverySettings -> unit
 
-type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, system:ActorSystem) = 
+type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, actorHost:ActorHost) = 
     
     let registry = new InMemoryActorRegistry() :> ActorRegistry
     let messages = new ConcurrentDictionary<Guid, AsyncResultCell<ActorProtocol>>()
@@ -57,16 +58,16 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                 match msg with
                 | Resolve(path) -> 
                     let actorTransport = 
-                        path.Transport |> Option.bind ActorHost.ResolveTransport
+                        path.Transport |> Option.bind actorHost.ResolveTransport
                     let resolvedPaths = 
                         match actorTransport with
                         | Some(t) -> 
                             registry.Resolve path
-                            |> List.map (fun ref -> ActorRef.path ref |> ActorPath.rebase t.BasePath)
+                            |> List.map (fun ref -> ref.Path |> ActorPath.rebase t.BasePath)
                         | None ->
-                            let tcp = ActorHost.ResolveTransport "actor.tcp" |> Option.get
+                            let tcp = actorHost.ResolveTransport "actor.tcp" |> Option.get
                             registry.Resolve path
-                            |> List.map (fun ref -> ActorRef.path ref |> ActorPath.rebase tcp.BasePath)
+                            |> List.map (fun ref -> ref.Path |> ActorPath.rebase tcp.BasePath)
                     transport.Post(address,(Resolved resolvedPaths), messageId)
                 | Resolved _ as rs -> 
                     match messages.TryGetValue(messageId) with
@@ -83,13 +84,13 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
     let discoveryHandler = (fun (msg:ActorDiscoveryBeacon) ->
             try
                 match msg with
-                | ActorSystemDiscoveryBeacon(hostName, netAddress) -> 
+                | ActorDiscoveryBeacon(hostName, netAddress) -> 
                     if not <| clients.ContainsKey(hostName)
                     then 
                         clients.TryAdd(hostName, netAddress) |> ignore
-                        system.EventStream.Publish(NewActorSystem(hostName, netAddress))
+                        actorHost.EventStream.Publish(NewActorHost(hostName, netAddress))
                         logger.Debug(sprintf "New actor Host %s %A" hostName netAddress)
-                | ActorSystemShutdownBeacon(hostName, netAddress) ->
+                | ActorShutdownBeacon(hostName, netAddress) ->
                     if clients.ContainsKey(hostName)
                     then 
                         let (success,_) = clients.TryRemove(hostName)
@@ -103,9 +104,10 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
         discovery.Dispose()
     
     do
-        system.CancelToken.Register(fun () -> dispose()) |> ignore
-        transport.Start({ TransportHandler = transportHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
-        discovery.Start({ SystemDetails = (system.Name, transport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = system.CancelToken; Serializer = system.Serializer })
+        let cancelToken = actorHost.CancelToken
+        cancelToken.Register(fun () -> dispose()) |> ignore
+        transport.Start({ TransportHandler = transportHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
+        discovery.Start({ SystemDetails = (actorHost.Name, transport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
     
     let handledResolveResponse result =
          match result with
@@ -113,13 +115,13 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
          | Some(Resolved rs) ->                        
              List.choose (fun path -> 
                  path.Transport 
-                 |> Option.bind ActorHost.ResolveTransport
+                 |> Option.bind actorHost.ResolveTransport
                  |> Option.map (fun transport -> ActorRef(new RemoteActor(path, transport)))
              ) rs
          | Some(Error(msg, err)) -> raise (new Exception(msg, err))
-         | None -> failwith "Resolving Path %A timed out" path
+         | None -> failwith "Resolving Path %A timed out"
 
-    interface IRegistry<actorPath, actorRef> with
+    interface IRegistry<ActorPath, ActorRef> with
         member x.All with get() = registry.All
         
         member x.ResolveAsync(path, timeout) =
@@ -142,7 +144,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                  
         member x.Resolve(path) =
             let isFromLocalTransport = 
-                ActorHost.Transports 
+                actorHost.Transports 
                 |> Seq.exists (fun t -> t.BasePath.Transport = path.Transport || t.BasePath.Host = path.Host)
 
             if isFromLocalTransport
@@ -160,10 +162,10 @@ module ActorHostRemotingExtensions =
     
     open Actor
 
-    type ActorSystem with
+    type ActorHost with
         
         member x.EnableRemoting(transport, udpConfig) = 
             x.Configure (fun c -> 
-                c.Registry <- (new RemotableInMemoryActorRegistry(transport, udpConfig, x))
+                { c with Registry = (new RemotableInMemoryActorRegistry(transport, udpConfig, x)) }
             )
             x

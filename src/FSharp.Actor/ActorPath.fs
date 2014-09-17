@@ -13,7 +13,7 @@ type private actorPathComponent =
     | Port of int
     | PathComponent of string[]
 
-type actorPath = {
+type ActorPath = {
     Transport : string option
     System : string option
     Host : string option
@@ -21,89 +21,85 @@ type actorPath = {
     HostType : UriHostNameType option
     PathComponents : string[]
 }
-    with
-        member x.Path 
-            with get() = 
-                match x.System with
-                | Some(sys) -> sys + "@" + String.Join("/", x.PathComponents)
-                | None -> String.Join("/", x.PathComponents)
-             
-        override x.ToString() =
-            match x.Port with
-            | Some(port) when port > -1 -> 
-                sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") port  (String.Join("/", x.PathComponents))
-            | _ -> 
-                sprintf "%s://%s@%s/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") (String.Join("/", x.PathComponents))
-        
-        member x.IsAbsolute
-                with get() =  
-                    x.Transport.IsSome
-                    && x.Host.IsSome
-
-        static member internal Empty = 
-            { 
-                Transport = None
-                System = None
-                Host = None 
-                Port = None
-                HostType = None 
-                PathComponents = [||] 
-            }    
-        static member internal Create(path:string, ?transport, ?system, ?host, ?port, ?hostType) = 
-            { 
-                Transport = Option.stringIsNoneIfBlank transport
-                System = Option.stringIsNoneIfBlank system 
-                Host = Option.stringIsNoneIfBlank host 
-                Port = port
-                HostType = hostType 
-                PathComponents = path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries); 
-            }
-
-        static member internal OfUri(uri:Uri) = 
-            if uri.IsAbsoluteUri
-            then actorPath.Create(uri.LocalPath, uri.Scheme, uri.UserInfo, uri.Host, uri.Port, uri.HostNameType)
-            else actorPath.Create(uri.ToString())
-
-        static member internal OfString(str:string) =
-            let buildComponents (comp:string) = 
-                if comp.EndsWith(":")
-                then  [| Transport(comp.TrimEnd(':')) |]
-                else
-                    let processHost (host:string) = 
-                        match host.Split(':') with
-                        | [| host; port |] -> [| Host(host); Port(Int32.Parse(port)) |]
-                        | a -> [| Host(host) |]
-                    match comp.Split([|'@'|]) with
-                    | [|a|] when a.Contains(":") -> processHost a
-                    | [|node; host|] ->
-                        let host = processHost host
-                        Array.append [|System node|] host
-                    | a -> [|a |> PathComponent|]
-                
-            let buildPath state comp =
-                match comp with
-                | Transport(trsn) when trsn <> "*" && (not trsn.IsEmpty) -> { state with Transport = (Some trsn) }
-                | System(sys) when sys <> "*" && (not sys.IsEmpty) -> { state with System = (Some sys)}
-                | Host(host) when host <> "*" && (not host.IsEmpty) -> 
-                    let hostType = Uri.CheckHostName(host)
-                    { state with Host = (Some host); HostType = (Some hostType) }
-                | Port(port) -> { state with Port = (Some port) }
-                | PathComponent(path) -> { state with PathComponents = Array.append state.PathComponents path}
-                | _ -> state
-                 
-            str.Split([|"/"|], StringSplitOptions.RemoveEmptyEntries)
-            |> Array.collect buildComponents
-            |> Array.fold buildPath actorPath.Empty
-
-module ActorPath = 
+with
+    member x.Path 
+        with get() = 
+            match x.System with
+            | Some(sys) -> sys + "@" + String.Join("/", x.PathComponents)
+            | None -> String.Join("/", x.PathComponents)
+         
+    override x.ToString() =
+        match x.Port with
+        | Some(port) when port > -1 -> 
+            sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") port  (String.Join("/", x.PathComponents))
+        | _ -> 
+            sprintf "%s://%s@%s/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") (String.Join("/", x.PathComponents))
     
-    let empty = actorPath.Empty
+    member x.IsAbsolute
+            with get() =  
+                x.Transport.IsSome
+                && x.Host.IsSome
+            
+    static member internal Create(path:string, ?transport, ?system, ?host, ?port, ?hostType) = 
+        { 
+            Transport = Option.stringIsNoneIfBlank transport
+            System = Option.stringIsNoneIfBlank system 
+            Host = Option.stringIsNoneIfBlank host 
+            Port = port
+            HostType = hostType 
+            PathComponents = path.Split([|'/'|], StringSplitOptions.RemoveEmptyEntries); 
+        }
 
-    let ofString (str:string) = actorPath.OfString(str)
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module ActorPath = 
 
-    let ofUri uri = actorPath.OfUri uri
+    let empty =
+        { 
+            Transport = None
+            System = None
+            Host = None 
+            Port = None
+            HostType = None 
+            PathComponents = [||] 
+        }
+
+    let ofString (str:string) =
+        let buildComponents (comp:string) = 
+            if comp.EndsWith(":")
+            then  [| Transport(comp.TrimEnd(':')) |]
+            else
+                let processHost (host:string) = 
+                    match host.Split(':') with
+                    | [| host; port |] -> [| Host(host); Port(Int32.Parse(port)) |]
+                    | a -> [| Host(host) |]
+                match comp.Split([|'@'|]) with
+                | [|a|] when a.Contains(":") -> processHost a
+                | [|node; host|] ->
+                    let host = processHost host
+                    Array.append [|System node|] host
+                | a -> [|a |> PathComponent|]
+            
+        let buildPath state comp =
+            match comp with
+            | Transport(trsn) when trsn <> "*" && (not trsn.IsEmpty) -> { state with Transport = (Some trsn) }
+            | System(sys) when sys <> "*" && (not sys.IsEmpty) -> { state with System = (Some sys)}
+            | Host(host) when host <> "*" && (not host.IsEmpty) -> 
+                let hostType = Uri.CheckHostName(host)
+                { state with Host = (Some host); HostType = (Some hostType) }
+            | Port(port) -> { state with Port = (Some port) }
+            | PathComponent(path) -> { state with PathComponents = Array.append state.PathComponents path}
+            | _ -> state
+             
+        str.Split([|"/"|], StringSplitOptions.RemoveEmptyEntries)
+        |> Array.collect buildComponents
+        |> Array.fold buildPath empty
+
+    let ofUri (uri:Uri) =
+        if uri.IsAbsoluteUri
+        then ActorPath.Create(uri.LocalPath, uri.Scheme, uri.UserInfo, uri.Host, uri.Port, uri.HostNameType)
+        else ActorPath.Create(uri.ToString())  
                    
-    let components (path:actorPath) = 
+    let components (path:ActorPath) = 
         match path.System with
         | Some(s) -> s :: (path.PathComponents |> Array.toList)
         | None -> "*" :: (path.PathComponents |> Array.toList)
@@ -122,7 +118,7 @@ module ActorPath =
         then { path with System = None }
         else { path with System = Some system }
 
-    let toNetAddress (path:actorPath) = 
+    let toNetAddress (path:ActorPath) = 
         match path.HostType, path.Host, path.Port with
         | Some(UriHostNameType.IPv4), Some(host), Some(port) -> NetAddress <| new IPEndPoint(IPAddress.Parse(host), port)
         | Some(UriHostNameType.Dns), Some(host), Some(port) -> 
@@ -136,7 +132,7 @@ module ActorPath =
     
 
         
-    let rebase (basePath:actorPath) (path:actorPath) =
+    let rebase (basePath:ActorPath) (path:ActorPath) =
         if basePath.IsAbsolute
         then
             let basePort = basePath.Port

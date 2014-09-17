@@ -16,9 +16,7 @@ which then returns a Pong message back to the Ping actor, which then decrements 
 *)
 
 ActorHost.Start()
-
-let system = ActorHost.CreateSystem("pingpong")
-                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) 
+         .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) |> ignore
 
 type PingPong =
     | Ping
@@ -66,7 +64,7 @@ let pong =
         ) 
     }
 
-let pingRef = system.SpawnActor(ping 10000)
-let pongRef = system.SpawnActor(pong)
+let pingRef = Actor.spawn (ping 10000)
+let pongRef = Actor.spawn (pong)
 
 pingRef <-- Pong

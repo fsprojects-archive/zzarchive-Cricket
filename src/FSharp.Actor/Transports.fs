@@ -98,10 +98,10 @@ type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) =
         member x.Start(setts) =
             settings <- setts
             settings.CancellationToken.Register(fun () -> (x :> IActorRegistryDiscovery).Dispose()) |> ignore
-            let beaconBytes = settings.Serializer.Serialize(ActorSystemDiscoveryBeacon(settings.SystemDetails))
+            let beaconBytes = settings.Serializer.Serialize(ActorDiscoveryBeacon(settings.SystemDetails))
             udpChannel.Start(handler settings.DiscoveryHandler, settings.CancellationToken)
             udpChannel.Heartbeat(broadcastInterval, (fun _ -> beaconBytes))
 
         member x.Dispose() = 
-            udpChannel.Publish(settings.Serializer.Serialize(ActorSystemShutdownBeacon(settings.SystemDetails))) |> ignore
+            udpChannel.Publish(settings.Serializer.Serialize(ActorShutdownBeacon(settings.SystemDetails))) |> ignore
             (udpChannel :> System.IDisposable).Dispose()

@@ -16,12 +16,10 @@ a response to the debug log then wait for another message.
 *)
 
 ActorHost.Start()
-let system = ActorHost.CreateSystem("greeterSystem")
 
 (**
-Before we create any actor we must start the actor host and create an actor system for 
-out actor to live in. There is only one actor host per process but there can be many 
-actor systems (for more info on Actor Systems see [here](actor_hosts_and_actor_systems.html))
+Before we create any actor we must start the actor host for 
+out actor to live in. There is only one actor host per process.
 
 Next we create a type to represent the messages that we want to send. In this example we create a three
 legged union to represent our messages, but this could just of easily been a class, record or any other 
@@ -42,9 +40,6 @@ type holds the context for this actor. To wait for a message we simply call rece
 arrives at the actor. Once it arrives, the function will resume and process the message. Once we have finished defininf our actor
 configuration we can spawn the actor. 
 
-When you spawn an actor, you spawn it within an actor system. This allows the actor framework to provide lookup and supervisory services.
-It is possible to spawn an actor outside of a system by using the actor constructor, but you would have to work with this reference directly 
-and you wouldn't be able to lookup the actor or participate in any remoting.
 *)
 
 let greeter = 
@@ -62,7 +57,7 @@ let greeter =
 
             }
             loop())
-    } |> system.SpawnActor
+    } |> Actor.spawn
 
 (**
 Once the actor is spawned it is now ready to except messages. To post a message to an actor we can use the `<--` operator, like this.

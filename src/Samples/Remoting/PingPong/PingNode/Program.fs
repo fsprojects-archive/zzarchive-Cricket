@@ -6,14 +6,13 @@ open System.Net
 open FSharp.Actor
 open PingPong
 
-ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))])
+ActorHost.Start(fun c -> c.AddTransports([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))]))
+         .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
+         .EnableRemoting(
+               new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12003))),
+               new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
+         ) |> ignore
 
-let system = ActorHost.CreateSystem("ping")
-                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
-                      .EnableRemoting(
-                            new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12003))),
-                            new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
-                      )
 let ping count =
     actor {
         name "ping"
@@ -42,9 +41,10 @@ let main argv =
     Console.WriteLine("Press enter to start")
     Console.ReadLine() |> ignore
 
-    let pingRef = system.SpawnActor(ping 100000)
+    let pingRef = Actor.spawn (ping 100000)
     pingRef <-- Pong
 
     Console.WriteLine("Press enter to exit")
     Console.ReadLine() |> ignore
+    ActorHost.Dispose()
     0 // return an integer exit code

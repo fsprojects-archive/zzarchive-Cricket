@@ -13,10 +13,13 @@ Metrics
 
 *)
 
-
-ActorHost.Configure(fun c -> c.Metrics <- Some { ReportInterval = 5000; Handler = HttpEndpoint 9797 })
-ActorHost.Start()
-let system = ActorHost.CreateSystem("greeterSystem")
+ActorHost.Start(fun c -> 
+    { c with 
+        Metrics = Some {
+            Metrics.Configuration.Default with
+                ReportCreator = Metrics.WriteToFile(5000, @"C:\temp\Metrics.txt", Metrics.Formatters.toString)
+        }
+    })
 
 type Say =
     | Hello
@@ -37,7 +40,7 @@ let greeter =
 
             }
             loop())
-    } |> system.SpawnActor
+    } |> Actor.spawn
 
 let cts = new CancellationTokenSource()
 

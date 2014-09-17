@@ -11,50 +11,14 @@ open FSharp.Actor
 open FSharp.Actor
 #endif
 
-
-
-type Message<'a> = {
-    Sender : actorRef
-    Message : 'a
-}
-
-type ActorEvent = 
-    | ActorStarted of actorRef
-    | ActorShutdown of actorRef
-    | ActorRestart of actorRef
-    | ActorErrored of actorRef * exn
-    | ActorAddedChild of actorRef * actorRef
-    | ActorRemovedChild of actorRef * actorRef
-
-type ActorStatus = 
-    | Running 
-    | Errored of exn
-    | Stopped
-
-type ErrorContext = {
-    Error : exn
-    Sender : actorRef
-    Children : actorRef list
-} 
-
-type SystemMessage =
-    | Shutdown
-    | RestartTree
-    | Restart
-    | Link of actorRef
-    | Unlink of actorRef
-    | SetParent of actorRef
-    | Errored of ErrorContext
-
-type ActorLogger(path:actorPath, logger : Log.ILogger) =
+type ActorLogger(path:ActorPath, logger : Log.ILogger) =
     inherit Log.Logger(path.ToString(), logger)
-
 
 type ActorCell<'a> = {
     Logger : ActorLogger
-    Children : actorRef list
+    Children : ActorRef list
     Mailbox : IMailbox<Message<'a>>
-    Self : actorRef
+    Self : ActorRef
 }
 with 
     member x.TryReceive(?timeout) = 
@@ -65,13 +29,13 @@ with
         async { return! x.Mailbox.TryScan(defaultArg timeout Timeout.Infinite, f) }
     member x.Scan(f, ?timeout) = 
         async { return! x.Mailbox.Scan(defaultArg timeout Timeout.Infinite, f) }
-    member internal x.Path = ActorRef.path x.Self
+    member internal x.Path = x.Self.Path
 
 type ActorConfiguration<'a> = {
-    Path : actorPath
+    Path : ActorPath
     EventStream : IEventStream option
-    Parent : actorRef
-    Children : actorRef list
+    Parent : ActorRef
+    Children : ActorRef list
     SupervisorStrategy : (ErrorContext -> unit)
     Behaviour : (ActorCell<'a> -> Async<unit>)
     Mailbox : IMailbox<Message<'a>> option
@@ -233,32 +197,19 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             messageHandlerCancel.Dispose()
             cts.Dispose()
 
-type RemoteMessage = {
-    Target : actorPath
-    Sender : actorPath
-    Message : obj
-}
 
-type ITransport =
-    inherit IDisposable
-    abstract Scheme : string with get
-    abstract BasePath : actorPath with get
-    abstract Post : actorPath * RemoteMessage -> unit
-    abstract Start : ISerializer * CancellationToken -> unit
-
-type RemoteActor(path:actorPath, transport:ITransport) =
+type RemoteActor(path:ActorPath, transport:ITransport) =
     override x.ToString() = path.ToString()
 
     interface IActor with
         member x.Path with get() = path
         member x.Post(msg, sender) =
-            transport.Post(path, { Target = path; Sender = ActorPath.rebase transport.BasePath (sender |> ActorRef.path); Message = msg })
+            transport.Post(path, { Target = path; Sender = ActorPath.rebase transport.BasePath sender.Path; Message = msg })
         member x.Dispose() = ()
         
 
 [<AutoOpen>]
 module ActorConfiguration = 
-    
 
     type ActorConfigurationBuilder internal() = 
         member x.Zero() = { 
@@ -310,3 +261,47 @@ module ActorConfiguration =
             { ctx with Logger = logger }
 
     let actor = new ActorConfigurationBuilder()
+
+module Actor = 
+    
+    let link (actor:ActorRef) (supervisor:ActorRef) = 
+        actor <-- SetParent(supervisor)
+
+    let unlink (actor:ActorRef) = 
+        actor <-- SetParent(Null);
+
+    let start (config:ActorConfiguration<'a>) =
+        let actor = ActorRef(new Actor<_>(config))
+        actor
+
+    let register (actor:ActorRef) = 
+        ActorHost.Instance.RegisterActor actor
+        actor
+
+    let spawn config =
+        config |> (start >> register)
+
+    let internal getActorContext() = 
+        match CallContext.LogicalGetData("actor") with
+        | null -> None
+        | :? ActorRef as a -> Some a
+        | _ -> failwith "Unexpected type representing actorContext" 
+
+    let sender() = 
+        match getActorContext() with
+        | None -> Null
+        | Some ref -> ref
+ 
+    let post (target:ActorRef) (msg:'a) = 
+        match target with
+        | ActorRef(actor) -> 
+            let sender = sender()
+            actor.Post(msg,sender)
+        | _ -> ()
+
+    let postWithSender (target:ActorRef) (sender:ActorRef) (msg:'a) = 
+        match target with
+        | ActorRef(actor) -> 
+            actor.Post(msg,sender)
+        | _ -> ()
+

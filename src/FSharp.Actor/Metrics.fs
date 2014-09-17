@@ -9,6 +9,9 @@ module Metrics =
     open System.Collections.Concurrent
     open FSharp.Actor.Math.Statistics
     
+    let currentProcess = Diagnostics.Process.GetCurrentProcess()
+    let processName, processId, machineName = currentProcess.ProcessName, currentProcess.Id, Environment.MachineName
+
     ///http://en.wikipedia.org/wiki/Moving_average#Application_to_measuring_computer_performance
     type MeterValues = {
         OneMinuteRate : ExponentialWeightedAverage.EWMA
@@ -98,6 +101,90 @@ module Metrics =
         Store : MetricValueStore
     }
 
+    type Report = seq<string * seq<string * MetricValue>>
+
+    type ReportCreator = 
+        | HttpEndpoint of port:int
+        | WriteToFile of interval:int * path:string * formatter:(Report -> string)
+        | Custom of interval:int * (Report -> Async<unit>)
+    
+    type PerformanceCounterGroup = string * string
+    type PerformanceCounterInstance = string * string
+
+    module Formatters = 
+
+        let toString (metrics:seq<string * seq<string * MetricValue>>) =
+            let createMetricValue (name,v:MetricValue) =
+                sprintf "%s\r\n\t\t%s" name (String.Join(Environment.NewLine + "\t\t", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "%s = %A" n v)))
+
+            let createMetricType (name, vs) = 
+                 sprintf "%s\r\n\t%s" name (String.Join(Environment.NewLine + "\t", Seq.map createMetricValue vs |> Seq.toArray))
+
+            String.Join(Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray)
+
+        let toJsonString (metrics:seq<string * seq<string * MetricValue>>) = 
+            let createMetricValue (name,v:MetricValue) =
+                sprintf "{ \"Key\": %A,\"Properties\": [%s] }" name (String.Join(", ", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "{ \"Name\": %A, \"Value\": %s }" n v)))
+
+            let createMetricType (name, vs) = 
+                 sprintf "{ \"Key\": %A, \"Values\": [%s] }" name (String.Join(", ", Seq.map createMetricValue vs |> Seq.toArray))
+
+            "[" + String.Join(", " + Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray) + "]"
+
+    type Configuration = {
+        ReportCreator : ReportCreator
+        CancellationToken : CancellationToken
+        PerformanceCounters : (PerformanceCounterGroup * (PerformanceCounterInstance list)) list
+    }
+    with
+        member x.AddPerformanceCounterGroup(grp:PerformanceCounterGroup * (PerformanceCounterInstance list)) = 
+            { x with PerformanceCounters = grp :: x.PerformanceCounters}
+        static member Default = 
+            {
+                ReportCreator = WriteToFile(10000, sprintf "metrics_%s_%s_%d.json" machineName processName processId, Formatters.toJsonString)
+                CancellationToken = Async.DefaultCancellationToken
+                PerformanceCounters = 
+                    [
+                        (".NET CLR LocksAndThreads", "locks_and_threads"), [
+                           "Total # of Contentions", "number_of_contentions" 
+                           "Contention Rate / Sec", "contention_rate"
+                           "Current Queue Length", "current_queue_length"
+                           "Queue Length Peak", "queue_length_peak"
+                           "Queue Length / sec", "queue_length_per_sec"
+                           "# of current logical Threads", "current_logical_threads"
+                           "# of current physical Threads", "current_physical_threads"
+                           "# of current recognized Threads", "current_recognized_threads"
+                           "# of total recognized Threads", "current_total_recognized_threads"
+                          ]
+                        (".NET CLR Memory", "memory"), [
+                            "# Bytes in all heaps", "bytes_in_all_heaps"
+                            "Gen 0 heap size", "gen_0_heap_size"
+                            "Gen 1 heap size", "gen_1_heap_size"
+                            "Gen 2 heap size", "gen_2_heap_size"
+                            "# Gen 0 Collections", "gen_0_collections"
+                            "# Gen 1 Collections", "gen_1_collections"
+                            "# Gen 2 Collections", "gen_2_collections"
+                            "Large Object Heap size", "large_object_heap_size"
+                            "% Time in GC", "percentage_time_in_GC"
+                          ]
+                          //These aren't instance based they are global
+//                        (".NET CLR Networking", "networking"), [
+//                            "Bytes Received", "bytes_received"
+//                            "Bytes Sent", "bytes_sent"
+//                            "Connections Established", "connections_established"
+//                            "Datagrams Received", "datagrams_received"
+//                            "Datagrams Sent", "datagrams_sent"
+//                          ]
+//                        (".NET CLR Networking 4.0.0.0", "networking"), [
+//                            "Bytes Received", "bytes_received"
+//                            "Bytes Sent", "bytes_sent"
+//                            "Connections Established", "connections_established"
+//                            "Datagrams Received", "datagrams_received"
+//                            "Datagrams Sent", "datagrams_sent"
+//                          ]
+                   ]
+            }
+
     type MetricStore = ConcurrentDictionary<string, MetricContext>
 
     let private store = new MetricStore()
@@ -111,10 +198,6 @@ module Metrics =
         ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
         result
     
-        
-    let currentProcess = Diagnostics.Process.GetCurrentProcess()
-    let processName, processId, machineName = currentProcess.ProcessName, currentProcess.Id, Environment.MachineName
-
     let createContext s =
         let ctx = { Key = s; Store = new MetricValueStore() }
         store.AddOrUpdate(ctx.Key, ctx, fun _ _ -> ctx) 
@@ -183,49 +266,10 @@ module Metrics =
                 let value = perfCounter.NextValue() |> int64
                 Instantaneous(value)))
 
-    let addSystemMetrics() =
+    let addSystemMetrics(systemCounters) =
         let ctx = createContext "system"
         let instanceName = Path.GetFileNameWithoutExtension(processName)
         
-        //TODO: This needs to be moved to configuration
-        let systemCounters = [
-            (".NET CLR LocksAndThreads", "locks_and_threads"), [
-               "Total # of Contentions", "number_of_contentions" 
-               "Contention Rate / Sec", "contention_rate"
-               "Current Queue Length", "current_queue_length"
-               "Queue Length Peak", "queue_length_peak"
-               "Queue Length / sec", "queue_length_per_sec"
-               "# of current logical Threads", "current_logical_threads"
-               "# of current physical Threads", "current_physical_threads"
-               "# of current recognized Threads", "current_recognized_threads"
-               "# of total recognized Threads", "current_total_recognized_threads"
-              ]
-            (".NET CLR Memory", "memory"), [
-                "# Bytes in all heaps", "bytes_in_all_heaps"
-                "Gen 0 heap size", "gen_0_heap_size"
-                "Gen 1 heap size", "gen_1_heap_size"
-                "Gen 2 heap size", "gen_2_heap_size"
-                "Gen 0 Collections", "gen_0_collections"
-                "Gen 1 Collections", "gen_1_collections"
-                "Gen 2 Collections", "gen_2_collections"
-                "Large Object Heap size", "large_object_heap_size"
-                "% Time in GC", "percentage_time_in_GC"
-              ]
-            (".NET CLR Networking", "networking"), [
-                "Bytes Received", "bytes_received"
-                "Bytes Sent", "bytes_sent"
-                "Connections Established", "connections_established"
-                "Datagrams Received", "datagrams_received"
-                "Datagrams Sent", "datagrams_sent"
-              ]
-            (".NET CLR Networking 4.0.0.0", "networking"), [
-                "Bytes Received", "bytes_received"
-                "Bytes Sent", "bytes_sent"
-                "Connections Established", "connections_established"
-                "Datagrams Received", "datagrams_received"
-                "Datagrams Sent", "datagrams_sent"
-              ]
-            ]
         for ((category, metricCat), counters) in systemCounters do 
             for (counter, label) in counters do
                 createPerformanceCounterGuage ctx (metricCat + "/" + label) (category, counter, instanceName)
@@ -241,23 +285,53 @@ module Metrics =
                     }
                 yield key, metrics
         }
-        
-    module Formatters = 
 
-        let toString (metrics:seq<string * seq<string * MetricValue>>) =
-            let createMetricValue (name,v:MetricValue) =
-                sprintf "%s\r\n\t\t%s" name (String.Join(Environment.NewLine + "\t\t", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "%s = %A" n v)))
-
-            let createMetricType (name, vs) = 
-                 sprintf "%s\r\n\t%s" name (String.Join(Environment.NewLine + "\t", Seq.map createMetricValue vs |> Seq.toArray))
-
-            String.Join(Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray)
-
-        let toJsonString (metrics:seq<string * seq<string * MetricValue>>) = 
-            let createMetricValue (name,v:MetricValue) =
-                sprintf "{ \"Key\": %A,\"Properties\": [%s] }" name (String.Join(", ", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "{ \"Name\": %A, \"Value\": %s }" n v)))
-
-            let createMetricType (name, vs) = 
-                 sprintf "{ \"Key\": %A, \"Values\": [%s] }" name (String.Join(", ", Seq.map createMetricValue vs |> Seq.toArray))
-
-            "[" + String.Join(", " + Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray) + "]"
+    let start(config:Configuration, cancellationToken) =
+        addSystemMetrics(config.PerformanceCounters)
+        match config.ReportCreator with
+        | Custom (interval, f) ->
+            let rec reporter() = 
+                async {
+                   do! Async.Sleep(interval)
+                   do! f(getMetrics()) 
+                   return! reporter()        
+                }
+            Async.Start(reporter(), cancellationToken)
+        | WriteToFile (interval, path, formatter) -> 
+            let rec reporter() = 
+                async {
+                   do! Async.Sleep(interval)
+                   do File.WriteAllText(path, sprintf "%s" (getMetrics() |> formatter)) 
+                   return! reporter()        
+                }
+            Async.Start(reporter(), cancellationToken)  
+        | HttpEndpoint(port) ->
+            let httpListener = new Net.HttpListener()
+            let rec listenerLoop() = async {
+                let! ctx = httpListener.GetContextAsync() |> Async.AwaitTask
+                let result = getMetrics()
+                let writeResponse contentType (responseString:string) = async {
+                        let bytes = Text.Encoding.UTF8.GetBytes(responseString)
+                        ctx.Response.ContentType <- contentType
+                        ctx.Response.ContentEncoding <- Text.Encoding.UTF8
+                        ctx.Response.ContentLength64 <- bytes.LongLength
+                        ctx.Response.OutputStream.Write(bytes, 0, bytes.Length)
+                        ctx.Response.OutputStream.Flush()
+                        ctx.Response.OutputStream.Close()
+                    }
+                let contentType =
+                    [|
+                        "application/json"
+                        "text/html"
+                    |] |> Array.tryFind (fun x -> ctx.Request.AcceptTypes |> Array.exists (fun a -> a = x))
+                
+                match contentType with
+                | Some("text/html") -> do! writeResponse "text/html" (Formatters.toString result)
+                | Some("application/json") -> do! writeResponse "application/json" (Formatters.toJsonString result)
+                | _ -> do! writeResponse "text/html" "Unsupported accept type"
+                return! listenerLoop()    
+            }
+            httpListener.Prefixes.Add(sprintf "http://+:%d/" port)
+            httpListener.Start()
+            Async.Start(listenerLoop(), cancellationToken)
+            config.CancellationToken.Register(fun () -> httpListener.Close()) |> ignore

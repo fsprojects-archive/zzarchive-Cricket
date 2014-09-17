@@ -31,16 +31,14 @@ let main argv =
     let registryTransportPort = Int32.Parse(argv.[1])
     let nodeName = argv.[2]
     
-    ActorHost.Start([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(transportPort)))])
+    ActorHost.Start(fun x -> x.AddTransports [new TCPTransport(TcpConfig.Default(IPEndPoint.Create(transportPort)))])
+             .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
+             .EnableRemoting(
+                   new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(registryTransportPort))),
+                   new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
+             ) |> ignore
 
-    let system = ActorHost.CreateSystem(nodeName)
-                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
-                      .EnableRemoting(
-                            new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(registryTransportPort))),
-                            new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
-                      )
-
-    system.SpawnActor(pong) |> ignore
+    Actor.spawn(pong) |> ignore
 
     Console.WriteLine("Press enter to exit")
 
