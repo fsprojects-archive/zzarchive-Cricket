@@ -181,11 +181,10 @@ module Metrics =
         let perfCounter = getPerformanceCounter perfCounter
         ensureExists ctx key (Delegated(fun () -> 
                 let value = perfCounter.NextValue() |> int64
-                printfn "Reading perf counter %A %d" perfCounter.CounterName value
                 Instantaneous(value)))
 
     let addSystemMetrics() =
-        let ctx = createContext "system_metrics"
+        let ctx = createContext "system"
         let instanceName = Path.GetFileNameWithoutExtension(processName)
         let systemCounters = [
             (".NET CLR LocksAndThreads", "locks_and_threads"), [

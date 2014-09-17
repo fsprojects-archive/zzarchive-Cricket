@@ -29,7 +29,7 @@ type ``With Actor Path``() =
         result.Transport |> should equal None
         result.Host |> should equal None
         result.HostType |> should equal None
-        result.Path |> should equal ["actor"; "mine"]
+        result.PathComponents |> should equal ["actor"; "mine"]
         result.System |> should equal None
         result.Port |> should equal None
 
@@ -38,7 +38,17 @@ type ``With Actor Path``() =
         let result = ActorPath.ofString "actor.transport://*@*/actor/mine"
         result.Host |> should equal None
         result.HostType |> should equal None
-        result.Path |> should equal ["actor"; "mine"]
+        result.PathComponents |> should equal ["actor"; "mine"]
+        result.System |> should equal None
+        result.Port |> should equal None
+        result.Transport |> should equal (Some "actor.transport")
+
+    [<Test>]
+    member t.``I can get the local path``() = 
+        let result = ActorPath.ofString "actor.transport://*@*/actor/mine"
+        result.Host |> should equal None
+        result.HostType |> should equal None
+        result.PathComponents |> should equal ["actor"; "mine"]
         result.System |> should equal None
         result.Port |> should equal None
         result.Transport |> should equal (Some "actor.transport")
@@ -48,7 +58,7 @@ type ``With Actor Path``() =
         let result = ActorPath.ofString "*://system1@*/actor/mine"
         result.Host |> should equal None
         result.HostType |> should equal None
-        result.Path |> should equal ["actor"; "mine"]
+        result.PathComponents |> should equal ["actor"; "mine"]
         result.System |> should equal (Some "system1")
         result.Port |> should equal None
         result.Transport |> should equal None
@@ -58,7 +68,7 @@ type ``With Actor Path``() =
         let result = ActorPath.ofString "*://*@localhost:6667/actor/mine"
         result.Host |> should equal (Some "localhost")
         result.HostType |> should equal (Some UriHostNameType.Dns)
-        result.Path |> should equal ["actor"; "mine"]
+        result.PathComponents |> should equal ["actor"; "mine"]
         result.System |> should equal None
         result.Port |> should equal (Some 6667)
         result.Transport |> should equal None
@@ -68,7 +78,7 @@ type ``With Actor Path``() =
         let result = ActorPath.ofString "*://*@192.168.1.2:6667/actor/mine"
         result.Host |> should equal (Some "192.168.1.2")
         result.HostType |> should equal (Some UriHostNameType.IPv4)
-        result.Path |> should equal ["actor"; "mine"]
+        result.PathComponents |> should equal ["actor"; "mine"]
         result.System |> should equal None
         result.Port |> should equal (Some 6667)
         result.Transport |> should equal None

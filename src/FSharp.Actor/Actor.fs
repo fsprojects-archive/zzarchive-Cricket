@@ -76,18 +76,19 @@ type ActorConfiguration<'a> = {
     Behaviour : (ActorCell<'a> -> Async<unit>)
     Mailbox : IMailbox<Message<'a>> option
     Logger : Log.ILogger
+    MaxQueueLength : int option
 }
 with
     override x.ToString() = "Config: " + x.Path.ToString()
                     
 type Actor<'a>(defn:ActorConfiguration<'a>) as self = 
-    let metricContext = Metrics.createContext (defn.Path.ToString())
+    let metricContext = Metrics.createContext (defn.Path.Path)
     let shutdownCounter = Metrics.createCounter metricContext "shutdownCount"
     let errorCounter = Metrics.createCounter metricContext "errorCount"
     let restartCounter = Metrics.createCounter metricContext "restartCount"
     let cancelUptimer = Metrics.createUptime metricContext "uptime" 1000
 
-    let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox") :> IMailbox<_>)
+    let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox", ?boundingCapacity = defn.MaxQueueLength) :> IMailbox<_>)
     let systemMailbox = new DefaultMailbox<SystemMessage>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
     let logger = new ActorLogger(defn.Path, defn.Logger)
     let firstArrivalGate = new ManualResetEventSlim() 
@@ -97,7 +98,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let mutable defn = defn
     let mutable ctx = { Self = ActorRef(self); Mailbox = mailbox; Logger = logger; Children = defn.Children; }
     let mutable status = ActorStatus.Stopped
-
 
     let publishEvent event = 
         Option.iter (fun (es:IEventStream) -> es.Publish(event)) defn.EventStream
@@ -273,6 +273,7 @@ module ActorConfiguration =
                  loop()
             )
             Logger = Log.defaultFor Log.Debug
+            MaxQueueLength = Some 1000000
             Mailbox = None  }
         member x.Yield(()) = x.Zero()
         [<CustomOperation("inherits", MaintainsVariableSpace = true)>]
@@ -283,6 +284,9 @@ module ActorConfiguration =
         [<CustomOperation("name", MaintainsVariableSpace = true)>]
         member x.Name(ctx:ActorConfiguration<'a>, name) = 
             {ctx with Path = ActorPath.ofString name }
+        [<CustomOperation("maxQueueLength", MaintainsVariableSpace = true)>]
+        member x.MaxQueueLength(ctx:ActorConfiguration<'a>, length) = 
+            { ctx with MaxQueueLength = Some length }
         [<CustomOperation("mailbox", MaintainsVariableSpace = true)>]
         member x.Mailbox(ctx:ActorConfiguration<'a>, mailbox) = 
             {ctx with Mailbox = mailbox }

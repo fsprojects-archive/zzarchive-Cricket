@@ -22,13 +22,18 @@ type actorPath = {
     PathComponents : string[]
 }
     with
-        member x.Path with get() = String.Join("/", x.PathComponents) 
+        member x.Path 
+            with get() = 
+                match x.System with
+                | Some(sys) -> sys + "@" + String.Join("/", x.PathComponents)
+                | None -> String.Join("/", x.PathComponents)
+             
         override x.ToString() =
             match x.Port with
             | Some(port) when port > -1 -> 
-                sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") port  (String.Join("/", x.Path))
+                sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") port  (String.Join("/", x.PathComponents))
             | _ -> 
-                sprintf "%s://%s@%s/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") (String.Join("/", x.Path))
+                sprintf "%s://%s@%s/%s" (defaultArg x.Transport "*") (defaultArg x.System "*") (defaultArg x.Host "*") (String.Join("/", x.PathComponents))
         
         member x.IsAbsolute
                 with get() =  

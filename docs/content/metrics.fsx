@@ -29,10 +29,10 @@ let greeter =
         messageHandler (fun actor ->
             let rec loop() = async {
                 let! msg = actor.Receive() //Wait for a message
-                match msg.Message with
-                | Hello ->  actor.Logger.Debug("Hello") //Handle Hello leg
-                | HelloWorld -> actor.Logger.Debug("Hello World") //Handle HelloWorld leg
-                | Name name -> actor.Logger.Debug(sprintf "Hello, %s" name) //Handle Name leg
+//                match msg.Message with
+//                | Hello ->  actor.Logger.Debug("Hello") //Handle Hello leg
+//                | HelloWorld -> actor.Logger.Debug("Hello World") //Handle HelloWorld leg
+//                | Name name -> actor.Logger.Debug(sprintf "Hello, %s" name) //Handle Name leg
                 return! loop() //Recursively loop
 
             }

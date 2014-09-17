@@ -21,14 +21,16 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
     let mutable inbox : ResizeArray<_> = new ResizeArray<_>()
     let mutable arrivals = 
         match boundingCapacity with
-        | None -> new ConcurrentQueue<_>()
-        | Some(cap) -> new ConcurrentQueue<_>(new BlockingCollection<_>(cap))
+        | None -> new BlockingCollection<_>()
+        | Some(cap) -> new BlockingCollection<_>(cap)
     let awaitMsg = new AutoResetEvent(false)
 
     let metricContext = defaultArg metricContext (Metrics.createContext id)
     let msgEnqeueMeter = Metrics.createMeter metricContext ("msg_enqueue")
     let msgDeqeueMeter = Metrics.createMeter metricContext ("msg_dequeue")
-    let queueLength = Metrics.createDelegatedGuage metricContext "msg_queue_length" (fun () -> (inbox.Count + arrivals.Count) |> int64)
+    let queueLength = Metrics.createDelegatedGuage metricContext "total_queue_length" (fun () -> (inbox.Count + arrivals.Count) |> int64)
+    let arrivalsQueueLength = Metrics.createDelegatedGuage metricContext "arrivals_queue_length" (fun () -> arrivals.Count |> int64)
+    let inboxQueueLength = Metrics.createDelegatedGuage metricContext "inbox_queue_length" (fun () -> inbox.Count |> int64)
 
     let rec scanInbox(f,n) =
         match inbox with
@@ -45,7 +47,7 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
     let rec scanArrivals(f) =
         if arrivals.Count = 0 then None
         else 
-             match arrivals.TryDequeue() with
+             match arrivals.TryTake() with
              | true, msg -> 
                  match f msg with
                  | None -> 
@@ -58,7 +60,7 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
         if arrivals.Count = 0 
         then None
         else
-            match arrivals.TryDequeue() with
+            match arrivals.TryTake() with
             | true, msg -> Some msg
             | false, _ -> None
 
@@ -132,7 +134,7 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
             if disposed 
             then ()
             else
-                arrivals.Enqueue(msg)
+                arrivals.Add(msg)
                 msgEnqeueMeter.Mark 1L
                 awaitMsg.Set() |> ignore
 
