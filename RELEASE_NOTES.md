@@ -23,5 +23,7 @@
 * Added metrics and metric reporting capabilities
 * Removed actor System abstraction
 * DefaultMailbox is now capped by default at 1000000 items. This is configurable
-* 
+* Re-arranged solution so it is a far more logical order
+* Fixed some issues with event streams not getting passed when an actor is registered.
+* Changed how actor paths are built.
 
