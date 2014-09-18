@@ -11,10 +11,17 @@ type ActorRef =
             match x with
             | ActorRef(actor) -> actor.Path.ToString()
             | Null -> "ActorRef(Null)"
-        member x.Path = 
-          match x with
-          | ActorRef(a) -> a.Path
-          | Null -> ActorPath.empty
+        member x.Path 
+            with get() =
+                match x with
+                | ActorRef(actor) -> actor.Path
+                | _ -> ActorPath.deadLetter
+        member x.Post(msg, sender) = 
+            match x with
+            | ActorRef(actor) -> actor.Post(msg, sender)
+            | Null -> 
+                //This really, really, should never ever happen
+                raise(InvalidOperationException("Cannot send a message to a null actor reference"))
 
 and IActor = 
     inherit IDisposable
@@ -71,37 +78,3 @@ type ITransport =
     abstract BasePath : ActorPath with get
     abstract Post : ActorPath * RemoteMessage -> unit
     abstract Start : ISerializer * CancellationToken -> unit
-
-[<AutoOpen>]
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module ActorRef = 
-    
-    open System.Runtime.Remoting.Messaging
-
-    let internal getActorContext() = 
-        match CallContext.LogicalGetData("actor") with
-        | null -> None
-        | :? ActorRef as a -> Some a
-        | _ -> failwith "Unexpected type representing actorContext" 
-
-    let sender() = 
-        match getActorContext() with
-        | None -> Null
-        | Some ref -> ref
- 
-    let post (target:ActorRef) (msg:'a) = 
-        match target with
-        | ActorRef(actor) -> 
-            let sender = sender()
-            actor.Post(msg,sender)
-        | _ -> ()
-
-    let postWithSender (target:ActorRef) (sender:ActorRef) (msg:'a) = 
-        match target with
-        | ActorRef(actor) -> 
-            actor.Post(msg,sender)
-        | _ -> ()
-
-type ActorRef with
-    static member (-->) (msg,target) = post target msg
-    static member (<--) (target,msg)  = post target msg

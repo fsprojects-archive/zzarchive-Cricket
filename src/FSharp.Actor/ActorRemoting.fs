@@ -145,7 +145,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
         member x.Resolve(path) =
             let isFromLocalTransport = 
                 actorHost.Transports 
-                |> Seq.exists (fun t -> t.BasePath.Transport = path.Transport || t.BasePath.Host = path.Host)
+                |> Seq.exists (fun t -> t.BasePath.Transport = path.Transport || t.BasePath.MachineAddress = path.MachineAddress)
 
             if isFromLocalTransport
             then registry.Resolve(path)

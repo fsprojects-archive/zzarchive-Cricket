@@ -3,31 +3,22 @@
 open System
 open FSharp.Actor
 
-type actorSelection = 
+type ActorSelection = 
     | ActorSelection of ActorRef list
     with
-       member x.Post(msg) =
-            let (ActorSelection(target)) = x 
-            List.iter (fun t -> post t  msg) target
-       member x.Post(msg, sender) =
-            let (ActorSelection(target)) = x 
-            List.iter (fun (t:ActorRef) -> postWithSender t sender msg) target
-
-module ActorSelection =
-
-    let ofPath (path:ActorPath) = 
-        ActorHost.Instance.ResolveActor path
-        |> ActorSelection
-
-    let ofString (str:string) =
-        ofPath <| ActorPath.ofString str
-  
-type actorSelection with
-    static member (-->) (msg, ActorSelection(targets)) = Seq.iter (fun x -> post x msg) targets 
-    static member (<--) (ActorSelection(targets), msg) = Seq.iter (fun x -> post x msg) targets
-
-[<AutoOpen>]
-module ActorSelectionOperators =
-   let inline (!!) (path:string) = ActorSelection.ofString path     
-   let inline (!~) (path:ActorPath) = ActorSelection.ofPath path
-          
+        member internal x.Refs 
+            with get() = 
+                let (ActorSelection xs) = x 
+                xs
+        static member op_Implicit(s:'a) =
+            match box s with
+            | :? string as str -> 
+                ActorPath.ofString str
+                |> ActorHost.Instance.ResolveActor 
+                |> ActorSelection
+            | :? ActorPath as path -> 
+                ActorHost.Instance.ResolveActor path 
+                |> ActorSelection
+            | :? ActorRef as ref -> [ref] |> ActorSelection
+            | :? ActorSelection as sel -> sel
+            | _ -> failwithf "Cannot convert %A to an ActorSelection" s      

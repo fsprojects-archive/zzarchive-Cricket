@@ -4,8 +4,6 @@ open System
 open System.IO
 open System.Threading
 
-type DeadLetterMessage = DeadLetterMessage of obj
-
 type ActorHostConfiguration = {
      Transports : Map<string,ITransport>
      Registry : ActorRegistry
@@ -14,12 +12,10 @@ type ActorHostConfiguration = {
      Serializer : ISerializer
      Metrics : Metrics.Configuration option
      Name : string
-     OnError : (ErrorContext -> unit)
-     OnDeadLetter : (DeadLetterMessage -> unit)
 }
 with
     static member Create(?configuration : ActorHostConfiguration -> ActorHostConfiguration) =
-        let hostName = sprintf "%s:%d@%s" Metrics.processName Metrics.processId Metrics.machineName
+        let hostName = Metrics.name
         let defaultConfig = 
             {
                 Logger = Log.Logger(sprintf "ActorHost:[%s]" hostName, Log.defaultFor Log.Debug) 
@@ -29,8 +25,6 @@ with
                 Serializer = new BinarySerializer()
                 Metrics = Some Metrics.Configuration.Default
                 Name = hostName
-                OnError = (fun ctx -> ctx.Sender <-- Restart)
-                OnDeadLetter = (fun _ -> ())
             }
         match configuration with
         | Some(cfg) -> cfg defaultConfig
@@ -68,9 +62,11 @@ type ActorHost private (configuration:ActorHostConfiguration) as self =
      member internal x.CancelToken with get() = cts.Token
      member internal x.Transports with get() = configuration.Transports |> Map.toSeq |> Seq.map snd
      member internal x.Actors with get() =  configuration.Registry.All
+
      member internal x.ResolveActor name = 
         resolutionRequests(1L)
         configuration.Registry.Resolve(name)
+
      member internal x.RegisterActor(ref:ActorRef) = 
         configuration.Registry.Register(ref)
         actorsRegisted(1L)

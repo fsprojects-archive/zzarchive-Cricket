@@ -84,7 +84,7 @@ resolvedGreeter <-- Hello
 Or we can inline all of this
 *)
 
-!!"greeter" <-- Hello
+"greeter" <-- Hello
 
 (**
 

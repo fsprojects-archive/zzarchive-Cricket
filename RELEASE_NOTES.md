@@ -17,5 +17,11 @@
 #### 0.0.6-alpha - August 27th 2014
 * Added some more UDP config options
 * Fixed NuGet packaging.
-* Merged pull request from @endeavour - adding TryScan and TryReceive functions. 
+* Merged pull request from @endeavour - adding TryScan and TryReceive functions.
+
+#### 0.0.7-alpha - 
+* Added metrics and metric reporting capabilities
+* Removed actor System abstraction
+* DefaultMailbox is now capped by default at 1000000 items. This is configurable
+* 
 

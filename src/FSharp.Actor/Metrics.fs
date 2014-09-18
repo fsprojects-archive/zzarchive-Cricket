@@ -12,6 +12,8 @@ module Metrics =
     let currentProcess = Diagnostics.Process.GetCurrentProcess()
     let processName, processId, machineName = currentProcess.ProcessName, currentProcess.Id, Environment.MachineName
 
+    let name = sprintf "%s_%s_%d" machineName processName processId
+
     ///http://en.wikipedia.org/wiki/Moving_average#Application_to_measuring_computer_performance
     type MeterValues = {
         OneMinuteRate : ExponentialWeightedAverage.EWMA
@@ -168,20 +170,20 @@ module Metrics =
                             "% Time in GC", "percentage_time_in_GC"
                           ]
                           //These aren't instance based they are global
-//                        (".NET CLR Networking", "networking"), [
-//                            "Bytes Received", "bytes_received"
-//                            "Bytes Sent", "bytes_sent"
-//                            "Connections Established", "connections_established"
-//                            "Datagrams Received", "datagrams_received"
-//                            "Datagrams Sent", "datagrams_sent"
-//                          ]
-//                        (".NET CLR Networking 4.0.0.0", "networking"), [
-//                            "Bytes Received", "bytes_received"
-//                            "Bytes Sent", "bytes_sent"
-//                            "Connections Established", "connections_established"
-//                            "Datagrams Received", "datagrams_received"
-//                            "Datagrams Sent", "datagrams_sent"
-//                          ]
+                        (".NET CLR Networking", "networking"), [
+                            "Bytes Received", "bytes_received"
+                            "Bytes Sent", "bytes_sent"
+                            "Connections Established", "connections_established"
+                            "Datagrams Received", "datagrams_received"
+                            "Datagrams Sent", "datagrams_sent"
+                          ]
+                        (".NET CLR Networking 4.0.0.0", "networking"), [
+                            "Bytes Received", "bytes_received"
+                            "Bytes Sent", "bytes_sent"
+                            "Connections Established", "connections_established"
+                            "Datagrams Received", "datagrams_received"
+                            "Datagrams Sent", "datagrams_sent"
+                          ]
                    ]
             }
 
@@ -257,14 +259,24 @@ module Metrics =
             Cancel = (fun () -> cts.Cancel())
         }
 
-    let getPerformanceCounter(category,counter,instance) = 
-        new PerformanceCounter(category, counter, instance, true)
+    let tryGetPerformanceCounter(category,counter,instance) = 
+        try
+            if PerformanceCounterCategory.CounterExists(category, counter)
+            then
+                let counter = new PerformanceCounter(category, counter, instance, true)
+                Some(counter)
+            else None
+        with e ->
+            None
     
     let createPerformanceCounterGuage ctx key perfCounter = 
-        let perfCounter = getPerformanceCounter perfCounter
-        ensureExists ctx key (Delegated(fun () -> 
-                let value = perfCounter.NextValue() |> int64
-                Instantaneous(value)))
+        match tryGetPerformanceCounter perfCounter with
+        | Some(counter) ->
+            let reader() = 
+                let value = counter.NextValue() |> int64
+                Instantaneous(value)
+            ensureExists ctx key (Delegated(reader))
+        | None -> ()
 
     let addSystemMetrics(systemCounters) =
         let ctx = createContext "system"

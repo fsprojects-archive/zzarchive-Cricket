@@ -18,7 +18,7 @@ type ActorCell<'a> = {
     Logger : ActorLogger
     Children : ActorRef list
     Mailbox : IMailbox<Message<'a>>
-    Self : ActorRef
+    Self : IActor
 }
 with 
     member x.TryReceive(?timeout) = 
@@ -60,7 +60,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
     let mutable defn = defn
-    let mutable ctx = { Self = ActorRef(self); Mailbox = mailbox; Logger = logger; Children = defn.Children; }
+    let mutable ctx = { Self = self; Mailbox = mailbox; Logger = logger; Children = defn.Children; }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 
@@ -71,11 +71,11 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
 
     let shutdown includeChildren = 
         async {
-            publishEvent(ActorEvent.ActorShutdown(ctx.Self))
+            publishEvent(ActorEvent.ActorShutdown(self.Ref))
             messageHandlerCancel.Cancel()
             
             if includeChildren
-            then Seq.iter (fun t -> post t Shutdown) ctx.Children
+            then Seq.iter (fun (t:ActorRef) -> t.Post(Shutdown, self.Ref)) ctx.Children
 
             match status with
             | ActorStatus.Errored(err) -> logger.Debug("shutdown", exn = err)
@@ -89,13 +89,11 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let handleError (err:exn) =
         async {
             setStatus(ActorStatus.Errored(err))
-            publishEvent(ActorEvent.ActorErrored(ctx.Self, err))
+            publishEvent(ActorEvent.ActorErrored(self.Ref, err))
             errorCounter(1L)
             match defn.Parent with
-            | ActorRef(actor) -> 
-                actor.Post(Errored({ Error = err; Sender = ctx.Self; Children = ctx.Children }),ctx.Self)
-                return ()
             | Null -> return! shutdown true 
+            | _ as actor -> actor.Post(Errored({ Error = err; Sender = self.Ref; Children = ctx.Children }),self.Ref)
         }
 
     let rec messageHandler() =
@@ -106,19 +104,19 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
                 if not(messageHandlerCancel.IsCancellationRequested)
                 then do! defn.Behaviour ctx
                 setStatus ActorStatus.Stopped
-                publishEvent(ActorEvent.ActorShutdown ctx.Self)
+                return! shutdown true
             with e -> 
                 do! handleError e
         }
 
     let rec restart includeChildren =
         async { 
-            publishEvent(ActorEvent.ActorRestart(ctx.Self))
+            publishEvent(ActorEvent.ActorRestart(self.Ref))
             restartCounter(1L)
             do messageHandlerCancel.Cancel()
 
             if includeChildren
-            then Seq.iter (fun t -> post t Restart) ctx.Children
+            then Seq.iter (fun (t:ActorRef) -> t.Post(Restart, self.Ref)) ctx.Children
 
             match status with
             | ActorStatus.Errored(err) -> logger.Debug("restarted", exn = err)
@@ -148,14 +146,14 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
                | Null, Null -> ()
                | ActorRef(a), ActorRef(a') when a' = a -> ()
                | Null, _ -> 
-                    defn.Parent <-- Unlink(ctx.Self)
+                    defn.Parent.Post(Unlink(self.Ref), self.Ref)
                     defn <- { defn with Parent =  ref }
                | _, Null -> 
-                    defn.Parent <-- Link(ctx.Self)
+                    defn.Parent.Post(Link(self.Ref), self.Ref)
                     defn <- { defn with Parent =  ref }
                | ActorRef(a), ActorRef(a') ->
-                    defn.Parent <-- Unlink(ctx.Self)
-                    ref <-- Link(ctx.Self)
+                    defn.Parent.Post(Unlink(self.Ref), self.Ref)
+                    ref.Post(Link(self.Ref), self.Ref)
                     defn <- { defn with Parent =  ref }
                return! systemMessageHandler()
         }
@@ -167,21 +165,25 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             messageHandlerCancel <- null
         messageHandlerCancel <- new CancellationTokenSource()
         Async.Start(async {
-                        CallContext.LogicalSetData("actor", ctx.Self)
-                        publishEvent(ActorEvent.ActorStarted(ctx.Self))
+                        CallContext.LogicalSetData("actor", self.Ref)
+                        publishEvent(ActorEvent.ActorStarted(self.Ref))
                         do! messageHandler()
                     }, messageHandlerCancel.Token)
 
     do 
         Async.Start(systemMessageHandler(), cts.Token)
-        ctx.Children |> List.iter ((-->) (SetParent(ctx.Self)))
+        ctx.Children |> List.iter (fun t -> t.Post(SetParent(self.Ref), self.Ref))
         start()
    
     override x.ToString() = defn.Path.ToString()
 
+    member x.Ref = ActorRef(x)
+
     interface IActor with
         member x.Path with get() = defn.Path
         member x.Post(msg, sender) =
+            if status <> ActorStatus.Stopped
+            then
                match msg with
                | :? SystemMessage as msg -> systemMailbox.Post(msg)
                | msg -> (x :> IActor<'a>).Post(unbox<'a> msg, sender)
@@ -189,8 +191,10 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     interface IActor<'a> with
         member x.Path with get() = defn.Path
         member x.Post(msg:'a, sender) =
-             if not(firstArrivalGate.IsSet) then firstArrivalGate.Set()
-             mailbox.Post({ Sender = sender; Message = msg}) 
+            if status <> ActorStatus.Stopped
+            then
+                if not(firstArrivalGate.IsSet) then firstArrivalGate.Set()
+                mailbox.Post({ Sender = sender; Message = msg}) 
 
     interface IDisposable with  
         member x.Dispose() =
@@ -215,7 +219,7 @@ module ActorConfiguration =
         member x.Zero() = { 
             Path = ActorPath.ofString (Guid.NewGuid().ToString()); 
             EventStream = None
-            SupervisorStrategy = (fun x -> x.Sender <-- Shutdown);
+            SupervisorStrategy = (fun x -> x.Sender.Post(Shutdown, x.Sender));
             Parent = Null;
             Children = []; 
             Behaviour = (fun _ -> 
@@ -262,46 +266,76 @@ module ActorConfiguration =
 
     let actor = new ActorConfigurationBuilder()
 
+
 module Actor = 
     
-    let link (actor:ActorRef) (supervisor:ActorRef) = 
-        actor <-- SetParent(supervisor)
-
-    let unlink (actor:ActorRef) = 
-        actor <-- SetParent(Null);
-
     let start (config:ActorConfiguration<'a>) =
         let actor = ActorRef(new Actor<_>(config))
         actor
 
-    let register (actor:ActorRef) = 
-        ActorHost.Instance.RegisterActor actor
-        actor
+    let register ref =
+        ActorHost.Instance.RegisterActor ref
+        ref
 
-    let spawn config =
+    let spawn (config:ActorConfiguration<'a>) =
+        let config = {
+            config with
+                EventStream = Some ActorHost.Instance.EventStream
+                Path = ActorPath.setHost ActorHost.Instance.Name config.Path
+        }
+
         config |> (start >> register)
 
-    let internal getActorContext() = 
-        match CallContext.LogicalGetData("actor") with
-        | null -> None
-        | :? ActorRef as a -> Some a
-        | _ -> failwith "Unexpected type representing actorContext" 
+    let internal deadLetter =
+        lazy
+            actor {
+                name "deadLetter"
+                messageHandler (fun ctx ->
+                    let rec loop() = async {
+                        let! _ = ctx.Receive()
+                        return! loop()
+                    }
 
-    let sender() = 
-        match getActorContext() with
-        | None -> Null
-        | Some ref -> ref
+                    loop()
+                )
+            } |> spawn
+
+    let postDeadLetter msg sender = deadLetter.Value.Post(msg, sender) 
+
+[<AutoOpen>]
+module ActorOperators =
  
-    let post (target:ActorRef) (msg:'a) = 
-        match target with
-        | ActorRef(actor) -> 
-            let sender = sender()
-            actor.Post(msg,sender)
-        | _ -> ()
+    let inline (!!) a = ActorSelection.op_Implicit a    
+    
+    let internal tryGetSender() = 
+        match CallContext.LogicalGetData("actor") with
+        | :? ActorRef as a -> Some a
+        | _ as a -> None //failwith "Unexpected type representing actorContext expected ActorRef got %A" a
 
-    let postWithSender (target:ActorRef) (sender:ActorRef) (msg:'a) = 
-        match target with
-        | ActorRef(actor) -> 
-            actor.Post(msg,sender)
-        | _ -> ()
+    let postWithSender (targets:ActorSelection) (sender:ActorRef) (msg:'a) = 
+        targets.Refs 
+        |> List.iter (fun target ->
+                        match target with
+                        | ActorRef(target) -> target.Post(msg,sender)
+                        | Null -> Actor.postDeadLetter msg sender)
 
+    let rec post target (msg:'a) = 
+        let sender = 
+            match tryGetSender() with
+            | Some a -> a
+            | None -> Actor.deadLetter.Value
+        postWithSender target sender msg
+
+    let link actor (supervisor:ActorRef) = 
+        post actor (SetParent(supervisor))
+
+    let unlink target = 
+        post target (SetParent(Null))
+
+    let inline (-->) msg t = 
+        let a = ActorSelection.op_Implicit t
+        post a msg
+    
+    let inline (<--) t msg =
+        let a = ActorSelection.op_Implicit t
+        post a msg

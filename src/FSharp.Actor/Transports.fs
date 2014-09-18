@@ -21,7 +21,7 @@ type TCPTransport(config:TcpConfig, ?logger) as self =
                     try
                         receivedRate.Mark(1L)
                         let msg = serializer.Deserialize<RemoteMessage>(payload)
-                        (!~msg.Target).Post(msg.Message, new RemoteActor(msg.Sender, self) :> IActor |> ActorRef)
+                        postWithSender (!!msg.Target) (new RemoteActor(msg.Sender, self) :> IActor |> ActorRef) msg.Message
                     with e -> 
                         logger.Error("Error handling message: " + e.Message, exn = e)
                  )
