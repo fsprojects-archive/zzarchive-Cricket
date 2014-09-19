@@ -16,24 +16,22 @@ ActorHost.Start(fun c -> c.AddTransports([new TCPTransport(TcpConfig.Default(IPE
 let ping count =
     actor {
         name "ping"
-        messageHandler (fun cell ->
-            let pong = !!"pong"
-            printfn "Resolved pong: %A" pong
-            let rec loop count = async {
-                let! msg = cell.Receive()
-                match msg.Message with
-                | Pong when count > 0 ->
-                      if count % 1000 = 0 then cell.Logger.Info("Ping: ping " + (count.ToString()))
-                      pong <-- Ping
-                      return! loop (count - 1)
-                | Ping -> failwithf "Ping: received a ping message, panic..."
-                | _ -> 
-                    pong <-- Stop
-                    return ()
-            }
-            
-            loop count        
-        ) 
+        body (
+                let pong = !!"pong"
+                printfn "Resolved pong: %A" pong
+                let rec loop count = messageHandler {
+                    let! msg = Actor.receive None
+                    match msg with
+                    | Pong when count > 0 ->
+                          if count % 1000 = 0 then printfn "Ping: ping %d" count
+                          pong <-- Ping
+                          return! loop (count - 1)
+                    | Ping -> failwithf "Ping: received a ping message, panic..."
+                    | _ -> pong <-- Stop
+                }
+                
+                loop count        
+           ) 
     }
 
 [<EntryPoint>]

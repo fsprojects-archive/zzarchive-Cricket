@@ -194,21 +194,14 @@ module Metrics =
 
     let private store = new MetricStore()
 
-    let mutable private isStarted = false
-
     let private ensureExists (ctx:MetricContext) (key:string) (value:MetricValue) = 
-        if isStarted 
-        then ctx.Store.GetOrAdd(key, value) |> ignore
+        ctx.Store.GetOrAdd(key, value) |> ignore
 
     let private update<'a,'b> (ctx:MetricContext) key (updator : 'a -> 'b * MetricValue) =
-        if isStarted
-        then
-            let oldValue = ctx.Store.[key]
-            let result, newValue = updator (oldValue.Value<'a>())
-            ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
-            result
-        else 
-            updator (MetricValue.Empty.Value<'a>()) |> fst
+        let oldValue = ctx.Store.[key]
+        let result, newValue = updator (oldValue.Value<'a>())
+        ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
+        result
 
     let private createReportSink getMetrics cancellationToken = function
         | Custom (interval, f) ->
@@ -300,7 +293,7 @@ module Metrics =
             do update<TimeSpan, unit> ctx key (fun _ -> (), Timespan(TimeSpan(DateTime.Now.Ticks - startTicks)))
             return! worker()
         }
-        if isStarted then Async.Start(worker(), cts.Token)
+        Async.Start(worker(), cts.Token)
         (fun () -> cts.Cancel())
 
     let createMeter ctx key : MeterMetric =
@@ -311,7 +304,7 @@ module Metrics =
             do update<MeterValues, unit> ctx key (fun oldValue -> (), Meter(oldValue.Tick()))
             return! worker()
         }
-        if isStarted then Async.Start(worker(), cts.Token)
+        Async.Start(worker(), cts.Token)
         { 
             Mark = (fun v -> update<MeterValues, unit> ctx key (fun oldValue -> (), Meter(oldValue.Mark(v))))
             Cancel = (fun () -> cts.Cancel())
@@ -359,4 +352,3 @@ module Metrics =
     let start(config:Configuration, cancellationToken) =
         addSystemMetrics(config.PerformanceCounters)
         createReportSink getMetrics cancellationToken config.ReportCreator
-        isStarted <- true

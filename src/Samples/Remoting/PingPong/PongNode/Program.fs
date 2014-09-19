@@ -9,16 +9,16 @@ open PingPong
 let pong = 
     actor {
         name "pong"
-        messageHandler (fun cell ->
-            let rec loop count = async {
-                let! msg = cell.Receive()
-                match msg.Message with
+        body (
+            let rec loop count = messageHandler {
+                let! msg = Actor.receive None
+                match msg with
                 | Ping -> 
-                      if count % 1000 = 0 then cell.Logger.Info("Pong: ping " + (count.ToString()))
-                      msg.Sender <-- Pong
+                      if count % 1000 = 0 then printfn "Pong: ping %d" count
+                      do! Actor.reply Pong
                       return! loop (count + 1)
                 | Pong _ -> failwithf "Pong: received a pong message, panic..."
-                | _ -> return ()
+                | _ -> ()
             }
             loop 0        
         ) 

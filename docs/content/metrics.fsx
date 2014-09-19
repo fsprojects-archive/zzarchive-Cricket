@@ -29,13 +29,14 @@ type Say =
 let greeter = 
     actor {
         name "greeter"
-        messageHandler (fun actor ->
-            let rec loop() = async {
-                let! msg = actor.Receive() //Wait for a message
-//                match msg.Message with
-//                | Hello ->  actor.Logger.Debug("Hello") //Handle Hello leg
-//                | HelloWorld -> actor.Logger.Debug("Hello World") //Handle HelloWorld leg
-//                | Name name -> actor.Logger.Debug(sprintf "Hello, %s" name) //Handle Name leg
+        body (
+            let rec loop() = messageHandler {
+                let! msg = Actor.receive None //Wait for a message
+
+                match msg with
+                | Hello ->  printfn "Hello" //Handle Hello leg
+                | HelloWorld -> printfn "Hello World" //Handle HelloWorld leg
+                | Name name -> printfn "Hello, %s" name //Handle Name leg
                 return! loop() //Recursively loop
 
             }

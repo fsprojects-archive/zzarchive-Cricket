@@ -11,41 +11,79 @@ open FSharp.Actor
 open FSharp.Actor
 #endif
 
-type ActorLogger(path:ActorPath, logger : Log.ILogger) =
-    inherit Log.Logger(path.ToString(), logger)
-
 type ActorCell<'a> = {
-    Logger : ActorLogger
     Children : ActorRef list
     Mailbox : IMailbox<Message<'a>>
     Self : IActor
+    mutable CurrentMessage : Message<'a>
 }
 with 
-    member x.TryReceive(?timeout) = 
+    member internal x.TryReceive(?timeout) = 
         async { return! x.Mailbox.TryReceive(defaultArg timeout Timeout.Infinite) }
-    member x.Receive(?timeout) = 
+    member internal x.Receive(?timeout) = 
         async { return! x.Mailbox.Receive(defaultArg timeout Timeout.Infinite) }
-    member x.TryScan(f, ?timeout) = 
+    member internal x.TryScan(f, ?timeout) = 
         async { return! x.Mailbox.TryScan(defaultArg timeout Timeout.Infinite, f) }
-    member x.Scan(f, ?timeout) = 
+    member internal x.Scan(f, ?timeout) = 
         async { return! x.Mailbox.Scan(defaultArg timeout Timeout.Infinite, f) }
     member internal x.Path = x.Self.Path
 
-type ActorConfiguration<'a> = {
+type MessageHandler<'a, 'b> = MH of (ActorCell<'a> -> Async<'b>)
+
+module MessageHandler = 
+
+    let emptyHandler = 
+        (MH (fun _ -> 
+         let rec loop() = 
+             async { return! loop() }
+         loop()))
+
+    type MessageHandlerBuilder() = 
+        member x.Bind(MH handler,f) =
+             MH (fun context -> 
+                  async {
+                     let! comp = handler context
+                     let (MH nextComp) = f comp
+                     return! nextComp context
+                  } 
+             ) 
+        member x.Return(m) = MH(fun ctx -> m)
+        member x.ReturnFrom(m) = m
+        member x.Zero() = x.Return(async.Zero())
+        member x.Delay(f) = x.Bind(x.Zero(), f)
+        member x.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
+        member x.Combine(c1, c2) = x.Bind(c1, fun () -> c2)
+        member x.For(sq:seq<'a>, f:'a -> MessageHandler<'b, 'c>) = 
+          let rec loop (en:System.Collections.Generic.IEnumerator<_>) = 
+            if en.MoveNext() then x.Bind(f en.Current, fun _ -> loop en)
+            else x.Zero()
+          x.Using(sq.GetEnumerator(), loop)
+
+        member x.While(t, f:unit -> MessageHandler<_, unit>) =
+          let rec loop () = 
+            if t() then x.Bind(f(), loop)
+            else x.Zero()
+          loop()
+    
+    let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
+
+type ActorConfiguration<'a,'b> = {
     Path : ActorPath
     EventStream : IEventStream option
     Parent : ActorRef
     Children : ActorRef list
     SupervisorStrategy : (ErrorContext -> unit)
-    Behaviour : (ActorCell<'a> -> Async<unit>)
+    Behaviour : MessageHandler<'a, 'b>
     Mailbox : IMailbox<Message<'a>> option
     Logger : Log.ILogger
     MaxQueueLength : int option
 }
 with
     override x.ToString() = "Config: " + x.Path.ToString()
+
+
                     
-type Actor<'a>(defn:ActorConfiguration<'a>) as self = 
+type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self = 
     let metricContext = Metrics.createContext (defn.Path.Path)
     let shutdownCounter = Metrics.createCounter metricContext "shutdownCount"
     let errorCounter = Metrics.createCounter metricContext "errorCount"
@@ -54,13 +92,12 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
 
     let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox", ?boundingCapacity = defn.MaxQueueLength) :> IMailbox<_>)
     let systemMailbox = new DefaultMailbox<SystemMessage>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
-    let logger = new ActorLogger(defn.Path, defn.Logger)
-    let firstArrivalGate = new ManualResetEventSlim() 
+    let firstArrivalGate = new ManualResetEventSlim(false)
 
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
     let mutable defn = defn
-    let mutable ctx = { Self = self; Mailbox = mailbox; Logger = logger; Children = defn.Children; }
+    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; CurrentMessage = Unchecked.defaultof<_> }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 
@@ -77,9 +114,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             if includeChildren
             then Seq.iter (fun (t:ActorRef) -> t.Post(Shutdown, self.Ref)) ctx.Children
 
-            match status with
-            | ActorStatus.Errored(err) -> logger.Debug("shutdown", exn = err)
-            | _ -> logger.Debug("shutdown")
             setStatus ActorStatus.Stopped
             shutdownCounter(1L)
             cancelUptimer()
@@ -102,7 +136,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             try
                 firstArrivalGate.Wait(messageHandlerCancel.Token)
                 if not(messageHandlerCancel.IsCancellationRequested)
-                then do! defn.Behaviour ctx
+                then do! MessageHandler.toAsync defn.Behaviour ctx
                 setStatus ActorStatus.Stopped
                 return! shutdown true
             with e -> 
@@ -118,9 +152,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             if includeChildren
             then Seq.iter (fun (t:ActorRef) -> t.Post(Restart, self.Ref)) ctx.Children
 
-            match status with
-            | ActorStatus.Errored(err) -> logger.Debug("restarted", exn = err)
-            | _ -> logger.Debug("restarted")
             do start()
             return! systemMessageHandler()
         }
@@ -210,10 +241,13 @@ type RemoteActor(path:ActorPath, transport:ITransport) =
         member x.Post(msg, sender) =
             transport.Post(path, { Target = path; Sender = ActorPath.rebase transport.BasePath sender.Path; Message = msg })
         member x.Dispose() = ()
-        
+
+  
 
 [<AutoOpen>]
 module ActorConfiguration = 
+    
+    let messageHandler = new MessageHandler.MessageHandlerBuilder()
 
     type ActorConfigurationBuilder internal() = 
         member x.Zero() = { 
@@ -222,46 +256,42 @@ module ActorConfiguration =
             SupervisorStrategy = (fun x -> x.Sender.Post(Shutdown, x.Sender));
             Parent = Null;
             Children = []; 
-            Behaviour = (fun _ -> 
-                 let rec loop() =
-                      async { return! loop() }
-                 loop()
-            )
+            Behaviour = MessageHandler.emptyHandler
             Logger = Log.defaultFor Log.Debug
             MaxQueueLength = Some 1000000
             Mailbox = None  }
         member x.Yield(()) = x.Zero()
         [<CustomOperation("inherits", MaintainsVariableSpace = true)>]
-        member x.Inherits(ctx:ActorConfiguration<'a>, b:ActorConfiguration<_>) = b
+        member x.Inherits(ctx:ActorConfiguration<'a,'b>, b:ActorConfiguration<_,_>) = b
         [<CustomOperation("path", MaintainsVariableSpace = true)>]
-        member x.Path(ctx:ActorConfiguration<'a>, name) = 
+        member x.Path(ctx:ActorConfiguration<'a,'b>, name) = 
             {ctx with Path = name }
         [<CustomOperation("name", MaintainsVariableSpace = true)>]
-        member x.Name(ctx:ActorConfiguration<'a>, name) = 
+        member x.Name(ctx:ActorConfiguration<'a,'b>, name) = 
             {ctx with Path = ActorPath.ofString name }
         [<CustomOperation("maxQueueLength", MaintainsVariableSpace = true)>]
-        member x.MaxQueueLength(ctx:ActorConfiguration<'a>, length) = 
+        member x.MaxQueueLength(ctx:ActorConfiguration<'a,'b>, length) = 
             { ctx with MaxQueueLength = Some length }
         [<CustomOperation("mailbox", MaintainsVariableSpace = true)>]
-        member x.Mailbox(ctx:ActorConfiguration<'a>, mailbox) = 
+        member x.Mailbox(ctx:ActorConfiguration<'a,'b>, mailbox) = 
             {ctx with Mailbox = mailbox }
-        [<CustomOperation("messageHandler", MaintainsVariableSpace = true)>]
-        member x.MsgHandler(ctx:ActorConfiguration<'a>, behaviour) = 
+        [<CustomOperation("body", MaintainsVariableSpace = true)>]
+        member x.Body(ctx:ActorConfiguration<'a,'b>, behaviour) = 
             { ctx with Behaviour = behaviour }
         [<CustomOperation("parent", MaintainsVariableSpace = true)>]
-        member x.SupervisedBy(ctx:ActorConfiguration<'a>, sup) = 
+        member x.SupervisedBy(ctx:ActorConfiguration<'a,'b>, sup) = 
             { ctx with Parent = sup }
         [<CustomOperation("children", MaintainsVariableSpace = true)>]
-        member x.Children(ctx:ActorConfiguration<'a>, children) =
+        member x.Children(ctx:ActorConfiguration<'a,'b>, children) =
             { ctx with Children = children }
         [<CustomOperation("supervisorStrategy", MaintainsVariableSpace = true)>]
-        member x.SupervisorStrategy(ctx:ActorConfiguration<'a>, supervisorStrategy) = 
+        member x.SupervisorStrategy(ctx:ActorConfiguration<'a,'b>, supervisorStrategy) = 
             { ctx with SupervisorStrategy = supervisorStrategy }
         [<CustomOperation("raiseEventsOn", MaintainsVariableSpace = true)>]
-        member x.RaiseEventsOn(ctx:ActorConfiguration<'a>, es) = 
+        member x.RaiseEventsOn(ctx:ActorConfiguration<'a,'b>, es) = 
             { ctx with EventStream = Some es }
         [<CustomOperation("Logger", MaintainsVariableSpace = true)>]
-        member x.Logger(ctx:ActorConfiguration<'a>, logger) = 
+        member x.Logger(ctx:ActorConfiguration<'a,'b>, logger) = 
             { ctx with Logger = logger }
 
     let actor = new ActorConfigurationBuilder()
@@ -269,15 +299,15 @@ module ActorConfiguration =
 
 module Actor = 
     
-    let start (config:ActorConfiguration<'a>) =
-        let actor = ActorRef(new Actor<_>(config))
-        actor
+    let start (config:ActorConfiguration<'a,'b>) =
+        let actor = new Actor<'a,'b>(config)
+        ActorRef(actor)
 
     let register ref =
         ActorHost.Instance.RegisterActor ref
         ref
 
-    let spawn (config:ActorConfiguration<'a>) =
+    let spawn (config:ActorConfiguration<'a,'b>) =
         let config = {
             config with
                 EventStream = Some ActorHost.Instance.EventStream
@@ -285,14 +315,38 @@ module Actor =
         }
 
         config |> (start >> register)
+    
+    let context f = MH (fun ctx -> f ctx)
+
+    let receive timeout = MH (fun ctx -> async {
+        let! msg = ctx.Receive(?timeout = timeout)
+        ctx.CurrentMessage <- msg
+        return msg.Message  
+    })
+
+    let tryReceive timeout = MH (fun ctx -> async {
+        let! msg = ctx.TryReceive(?timeout = timeout)
+        return Option.map (fun msg -> ctx.CurrentMessage <- msg; msg.Message) msg 
+    })
+
+    let scan timeout f = MH (fun ctx -> async {
+        let! msg = ctx.Scan(f, ?timeout = timeout)
+        ctx.CurrentMessage <- msg
+        return msg.Message  
+    })
+
+    let tryScan timeout f = MH (fun ctx -> async {
+        let! msg = ctx.TryScan(f, ?timeout = timeout)
+        return Option.map (fun msg -> ctx.CurrentMessage <- msg; msg.Message) msg
+    })
 
     let internal deadLetter =
         lazy
             actor {
                 name "deadLetter"
-                messageHandler (fun ctx ->
-                    let rec loop() = async {
-                        let! _ = ctx.Receive()
+                body (
+                    let rec loop() = messageHandler {
+                        let! msg = receive None
                         return! loop()
                     }
 
@@ -320,6 +374,11 @@ module Actor =
             | Some a -> a
             | None -> deadLetter.Value
         postWithSender target sender msg
+
+    let reply msg = MH (fun ctx -> async {
+        do postWithSender (ActorSelection([ctx.CurrentMessage.Sender])) (ActorRef ctx.Self) msg
+    })
+
 
     let link actor (supervisor:ActorRef) = 
         post actor (SetParent(supervisor))

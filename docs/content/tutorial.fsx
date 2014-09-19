@@ -15,7 +15,7 @@ simple actor called `greeter` which responds to messages of type `Say`. Given a 
 a response to the debug log then wait for another message. 
 *)
 
-ActorHost.Start()
+ActorHost.Start().SubscribeEvents(fun (event:ActorEvent) -> printfn "%A" event)
 
 (**
 Before we create any actor we must start the actor host for 
@@ -45,14 +45,14 @@ configuration we can spawn the actor.
 let greeter = 
     actor {
         name "greeter"
-        messageHandler (fun actor ->
-            let rec loop() = async {
-                let! msg = actor.Receive() //Wait for a message
+        body (
+            let rec loop() = messageHandler {
+                let! msg = Actor.receive None //Wait for a message
 
-                match msg.Message with
-                | Hello ->  actor.Logger.Debug("Hello") //Handle Hello leg
-                | HelloWorld -> actor.Logger.Debug("Hello World") //Handle HelloWorld leg
-                | Name name -> actor.Logger.Debug(sprintf "Hello, %s" name) //Handle Name leg
+                match msg with
+                | Hello ->  printfn "Hello" //Handle Hello leg
+                | HelloWorld -> printfn "Hello World" //Handle HelloWorld leg
+                | Name name -> printfn "Hello, %s" name //Handle Name leg
                 return! loop() //Recursively loop
 
             }

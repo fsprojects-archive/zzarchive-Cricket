@@ -26,45 +26,48 @@ type PingPong =
 let ping count =
     actor {
         name "ping"
-        messageHandler (fun cell ->
-            let pong = !!"pong"
-            printfn "Resolved pong: %A" pong
-            let rec loop count = async {
-                let! msg = cell.Receive()
-                match msg.Message with
-                | Pong when count > 0 -> 
-                      if count % 1000 = 0 then cell.Logger.Info("Ping: pong")
-                      pong <-- Ping
-                      return! loop (count - 1)
-                | Ping -> failwithf "Ping: received a ping message, panic..."
-                | _ -> 
-                    pong <-- Stop
-                    return ()
-            }
-            
-            loop count        
-        ) 
+        body (
+                let pong = 
+                    lazy 
+                        let result = !!"pong"
+                        printfn "Resolved pong: %A" result
+                        result
+
+                let rec loop count = 
+                    messageHandler {
+                        let! msg = Actor.receive None
+                        match msg with
+                        | Pong when count > 0 ->
+                              if count % 1000 = 0 then printfn "Ping: ping %d" count
+                              pong.Value <-- Ping
+                              return! loop (count - 1)
+                        | Ping -> failwithf "Ping: received a ping message, panic..."
+                        | _ -> pong.Value <-- Stop
+                    }
+                
+                loop count        
+           ) 
     }
 
 let pong = 
     actor {
         name "pong"
-        messageHandler (fun cell ->
-            let rec loop count = async {
-                let! msg = cell.Receive()
-                match msg.Message with
+        body (
+            let rec loop count = messageHandler {
+                let! msg = Actor.receive None
+                match msg with
                 | Ping -> 
-                      if count % 1000 = 0 then cell.Logger.Info("Pong: ping " + (count.ToString()))
-                      msg.Sender <-- Pong
+                      if count % 1000 = 0 then printfn "Pong: ping %d" count
+                      do! Actor.reply Pong
                       return! loop (count + 1)
-                | Pong -> failwithf "Pong: received a pong message, panic..."
-                | _ -> return ()
+                | Pong _ -> failwithf "Pong: received a pong message, panic..."
+                | _ -> ()
             }
             loop 0        
         ) 
     }
 
 let pingRef = Actor.spawn (ping 10000)
-let pongRef = Actor.spawn (pong)
+let pongRef = Actor.spawn pong
 
 pingRef <-- Pong
