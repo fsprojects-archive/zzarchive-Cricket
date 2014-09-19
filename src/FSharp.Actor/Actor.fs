@@ -302,11 +302,6 @@ module Actor =
 
     let postDeadLetter msg sender = deadLetter.Value.Post(msg, sender) 
 
-[<AutoOpen>]
-module ActorOperators =
- 
-    let inline (!!) a = ActorSelection.op_Implicit a    
-    
     let internal tryGetSender() = 
         match CallContext.LogicalGetData("actor") with
         | :? ActorRef as a -> Some a
@@ -317,13 +312,13 @@ module ActorOperators =
         |> List.iter (fun target ->
                         match target with
                         | ActorRef(target) -> target.Post(msg,sender)
-                        | Null -> Actor.postDeadLetter msg sender)
+                        | Null -> postDeadLetter msg sender)
 
     let rec post target (msg:'a) = 
         let sender = 
             match tryGetSender() with
             | Some a -> a
-            | None -> Actor.deadLetter.Value
+            | None -> deadLetter.Value
         postWithSender target sender msg
 
     let link actor (supervisor:ActorRef) = 
@@ -332,10 +327,15 @@ module ActorOperators =
     let unlink target = 
         post target (SetParent(Null))
 
+[<AutoOpen>]
+module ActorOperators =
+ 
+    let inline (!!) a = ActorSelection.op_Implicit a    
+    
     let inline (-->) msg t = 
         let a = ActorSelection.op_Implicit t
-        post a msg
+        Actor.post a msg
     
     let inline (<--) t msg =
         let a = ActorSelection.op_Implicit t
-        post a msg
+        Actor.post a msg

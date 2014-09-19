@@ -23,6 +23,11 @@ type ActorRef =
                 //This really, really, should never ever happen
                 raise(InvalidOperationException("Cannot send a message to a null actor reference"))
 
+and Message<'a> = {
+    Sender : ActorRef
+    Message : 'a
+}
+
 and IActor = 
     inherit IDisposable
     abstract Path : ActorPath with get
@@ -32,11 +37,6 @@ type IActor<'a> =
     inherit IDisposable
     abstract Path : ActorPath with get
     abstract Post : 'a * ActorRef -> unit
-
-type Message<'a> = {
-    Sender : ActorRef
-    Message : 'a
-}
 
 type ActorEvent = 
     | ActorStarted of ActorRef
@@ -65,6 +65,7 @@ type SystemMessage =
     | Unlink of ActorRef
     | SetParent of ActorRef
     | Errored of ErrorContext
+           
 
 type RemoteMessage = {
     Target : ActorPath

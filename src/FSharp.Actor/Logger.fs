@@ -2,15 +2,23 @@
 
 open System
 
+module Trace = 
 
-module private LoggingGlobals = 
-    let random = System.Random()
+    type Span =
+      { Annotations : string[]
+        Timestamp : int64 
+        SpanId : uint64
+        ParentId : uint64 option }
+      static member Empty =
+        { Annotations = [||]; Timestamp = 0L; SpanId = 0UL; ParentId = None }
+      static member Create(annotations, ?parentId, ?spanId) =
+        let new_id = Random.randomLong()
+        { Annotations = annotations; Timestamp = DateTime.UtcNow.Ticks; SpanId = defaultArg spanId new_id; ParentId = parentId }
 
-    let randomLong() =
-        let buffer = Array.zeroCreate<byte> sizeof<UInt64>
-        random.NextBytes buffer
-        BitConverter.ToUInt64(buffer, 0)
-
+    type ITracer =
+        abstract Trace : Span -> unit
+        
+    
 
 module Log =
     /// The log levels specify the severity of the message.
@@ -100,40 +108,14 @@ module Log =
         interface IEquatable<LogLevel> with
           member x.Equals other =
             x.ToInt() = other.ToInt()
-    
-    /// A record that keeps track of what request this is.
-    /// In an uint64 there are 18 446 744 073 709 551 616 number
-    /// of possible values, so you can be fairly certain a given request
-    /// id is unique, given a good random number generator.
-    type TraceHeader =
-        /// if this is the 'first' traced request, then trace_id equals
-        /// req_id. If it's the second, then trace_id = req_parent_id
-        /// or otherwise third or later then trace_id, req_id and req_parent_id
-        /// are all disjunct
-      { trace_id      : uint64
-        /// the request id assigned when suave received the http request
-        /// In ZipKin/Dapper-speak, this is the span id
-      ; req_id        : uint64
-        /// possibly a parent
-        /// In ZipKin/Dapper-speak, this is the span parent id
-      ; req_parent_id : uint64 option }
-      static member Empty =
-        { trace_id      = 0UL
-        ; req_id        = 0UL
-        ; req_parent_id = None }
-      static member Create(?trace_id, ?span_parent_id) =
-        let new_id = LoggingGlobals.randomLong()
-        { trace_id      = defaultArg trace_id new_id
-        ; req_id        = new_id
-        ; req_parent_id = span_parent_id }
-    
+        
     /// When logging, write a log line like this with the source of your
     /// log line as well as a message and an optional exception.
     type LogLine =
         /// the trace id and span id
         /// If using tracing, then this LogLine is an annotation to a
         /// span instead of a 'pure' log entry
-      { trace         : TraceHeader
+      { trace         : Trace.Span
         /// the level that this log line has
       ; level         : LogLevel
         /// the source of the log line, e.g. 'ModuleName.FunctionName'
@@ -222,7 +204,7 @@ module Log =
     type Logger(path:string, logger : ILogger) = 
     
          member x.Write(level, message, ?trace, ?exn) = 
-             write logger level path (defaultArg trace TraceHeader.Empty) exn message
+             write logger level path (defaultArg trace Trace.Span.Empty) exn message
     
          member x.Info(message, ?trace, ?exn) =
              x.Write(Info, message, ?trace = trace, ?exn = exn)

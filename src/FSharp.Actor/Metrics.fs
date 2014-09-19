@@ -55,7 +55,7 @@ module Metrics =
         Cancel : unit -> unit
     }
 
-    type TimerMetric = (unit -> unit) -> unit
+    type TimerMetric<'a> = (unit -> 'a) -> 'a
     type GuageMetric = (int64 -> unit)
     type CounterMetric = (int64 -> unit)
 
@@ -65,6 +65,7 @@ module Metrics =
         | Histogram of Sampling.Sample
         | Meter of MeterValues
         | Timespan of TimeSpan
+        | Empty
         member x.AsArray() =
             match x with
             | Delegated(f) -> (f()).AsArray()
@@ -86,13 +87,15 @@ module Metrics =
                     "Mean", sprintf "%.4f" v.Mean
                     "Count", sprintf "%d" v.Count
                 |]
+            | Empty -> [||]
         member x.Value<'a>() = 
                match x with
                | Delegated(f) -> (f()).Value<'a>() |> box
                | Instantaneous(v) -> v |> box
                | Histogram(s) -> s |> box
                | Meter(m) -> m |> box
-               | Timespan(s) -> s |> box 
+               | Timespan(s) -> s |> box
+               | Empty -> Unchecked.defaultof<'a> |> box 
                |> unbox<'a>
 
     
@@ -191,116 +194,23 @@ module Metrics =
 
     let private store = new MetricStore()
 
+    let mutable private isStarted = false
+
     let private ensureExists (ctx:MetricContext) (key:string) (value:MetricValue) = 
-        ctx.Store.GetOrAdd(key, value) |> ignore
+        if isStarted 
+        then ctx.Store.GetOrAdd(key, value) |> ignore
 
-    let private update<'a> (ctx:MetricContext) key updator = 
-        let oldValue = ctx.Store.[key]
-        let result, newValue = updator (oldValue.Value<'a>())
-        ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
-        result
-    
-    let createContext s =
-        let ctx = { Key = s; Store = new MetricValueStore() }
-        store.AddOrUpdate(ctx.Key, ctx, fun _ _ -> ctx) 
+    let private update<'a,'b> (ctx:MetricContext) key (updator : 'a -> 'b * MetricValue) =
+        if isStarted
+        then
+            let oldValue = ctx.Store.[key]
+            let result, newValue = updator (oldValue.Value<'a>())
+            ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
+            result
+        else 
+            updator (MetricValue.Empty.Value<'a>()) |> fst
 
-    let contextFromType (typ:Type) = createContext (typ.AssemblyQualifiedName)
-
-    let createGuage ctx key : GuageMetric = 
-        ensureExists ctx key (Instantaneous 0L)
-        (fun v -> 
-            update<int64> ctx key (fun _ -> (), Instantaneous(v))
-        )
-
-    let createDelegatedGuage ctx key action = 
-        ensureExists ctx key (Delegated(fun () -> Instantaneous(action())))  
-
-    let createCounter ctx key : CounterMetric = 
-        ensureExists ctx key (Instantaneous 0L)
-        (fun inc -> 
-            update<int64> ctx key (fun v -> (), Instantaneous(v + inc))
-        )
-
-    let createTimer ctx key : TimerMetric = 
-        ensureExists ctx key (Histogram(Sampling.empty))
-        let sw = Stopwatch() 
-        (fun func -> 
-                update<Sampling.Sample> ctx key (fun oldValue ->
-                        sw.Reset(); sw.Start()
-                        let result = func()
-                        sw.Stop()
-                        result, Histogram(Sampling.update oldValue sw.ElapsedMilliseconds)
-                )
-        )
-
-    let createUptime ctx key interval =
-        ensureExists ctx key (Timespan TimeSpan.Zero)
-        let cts = new CancellationTokenSource()
-        let startTicks = DateTime.Now.Ticks
-        let rec worker() = async {
-            do! Async.Sleep(interval)
-            do update<TimeSpan> ctx key (fun _ -> (), Timespan(TimeSpan(DateTime.Now.Ticks - startTicks)))
-            return! worker()
-        }
-        Async.Start(worker(), cts.Token)
-        (fun () -> cts.Cancel())
-
-    let createMeter ctx key : MeterMetric =
-        ensureExists ctx key (Meter(MeterValues.Empty))
-        let cts = new CancellationTokenSource()
-        let rec worker() = async {
-            do! Async.Sleep(5000)
-            do update<MeterValues> ctx key (fun oldValue -> (), Meter(oldValue.Tick()))
-            return! worker()
-        }
-        Async.Start(worker(), cts.Token)
-        { 
-            Mark = (fun v -> update<MeterValues> ctx key (fun oldValue -> (), Meter(oldValue.Mark(v))))
-            Cancel = (fun () -> cts.Cancel())
-        }
-
-    let tryGetPerformanceCounter(category,counter,instance) = 
-        try
-            if PerformanceCounterCategory.CounterExists(category, counter)
-            then
-                let counter = new PerformanceCounter(category, counter, instance, true)
-                Some(counter)
-            else None
-        with e ->
-            None
-    
-    let createPerformanceCounterGuage ctx key perfCounter = 
-        match tryGetPerformanceCounter perfCounter with
-        | Some(counter) ->
-            let reader() = 
-                let value = counter.NextValue() |> int64
-                Instantaneous(value)
-            ensureExists ctx key (Delegated(reader))
-        | None -> ()
-
-    let addSystemMetrics(systemCounters) =
-        let ctx = createContext "system"
-        let instanceName = Path.GetFileNameWithoutExtension(processName)
-        
-        for ((category, metricCat), counters) in systemCounters do 
-            for (counter, label) in counters do
-                createPerformanceCounterGuage ctx (metricCat + "/" + label) (category, counter, instanceName)
-
-    let getMetrics() = 
-        seq { 
-            for metric in store do
-                let key = metric.Key
-                let metrics = 
-                    seq { 
-                        for metric in metric.Value.Store do
-                            yield metric.Key, metric.Value
-                    }
-                yield key, metrics
-        }
-
-    let start(config:Configuration, cancellationToken) =
-        addSystemMetrics(config.PerformanceCounters)
-        match config.ReportCreator with
+    let private createReportSink getMetrics cancellationToken = function
         | Custom (interval, f) ->
             let rec reporter() = 
                 async {
@@ -346,4 +256,107 @@ module Metrics =
             httpListener.Prefixes.Add(sprintf "http://+:%d/" port)
             httpListener.Start()
             Async.Start(listenerLoop(), cancellationToken)
-            config.CancellationToken.Register(fun () -> httpListener.Close()) |> ignore
+            cancellationToken.Register(fun () -> httpListener.Close()) |> ignore
+    
+    let createContext s =
+        let ctx = { Key = s; Store = new MetricValueStore() }
+        store.AddOrUpdate(ctx.Key, ctx, fun _ _ -> ctx) 
+
+    let contextFromType (typ:Type) = createContext (typ.AssemblyQualifiedName)
+
+    let createGuage ctx key : GuageMetric = 
+        ensureExists ctx key (Instantaneous 0L)
+        (fun v -> 
+            update<int64, unit> ctx key (fun _ -> (), Instantaneous(v))
+        )
+
+    let createDelegatedGuage ctx key action = 
+        ensureExists ctx key (Delegated(fun () -> Instantaneous(action())))  
+
+    let createCounter ctx key : CounterMetric = 
+        ensureExists ctx key (Instantaneous 0L)
+        (fun inc -> 
+            update<int64, unit> ctx key (fun v -> (), Instantaneous(v + inc))
+        )
+
+    let createTimer ctx key : TimerMetric<'a> = 
+        ensureExists ctx key (Histogram(Sampling.empty))
+        let sw = Stopwatch() 
+        (fun func -> 
+                update<Sampling.Sample, 'a> ctx key (fun oldValue ->
+                        sw.Reset(); sw.Start()
+                        let result = func()
+                        sw.Stop()
+                        result, Histogram(Sampling.update oldValue sw.ElapsedMilliseconds)
+                )
+        )
+
+    let createUptime ctx key interval =
+        ensureExists ctx key (Timespan TimeSpan.Zero)
+        let cts = new CancellationTokenSource()
+        let startTicks = DateTime.Now.Ticks
+        let rec worker() = async {
+            do! Async.Sleep(interval)
+            do update<TimeSpan, unit> ctx key (fun _ -> (), Timespan(TimeSpan(DateTime.Now.Ticks - startTicks)))
+            return! worker()
+        }
+        if isStarted then Async.Start(worker(), cts.Token)
+        (fun () -> cts.Cancel())
+
+    let createMeter ctx key : MeterMetric =
+        ensureExists ctx key (Meter(MeterValues.Empty))
+        let cts = new CancellationTokenSource()
+        let rec worker() = async {
+            do! Async.Sleep(5000)
+            do update<MeterValues, unit> ctx key (fun oldValue -> (), Meter(oldValue.Tick()))
+            return! worker()
+        }
+        if isStarted then Async.Start(worker(), cts.Token)
+        { 
+            Mark = (fun v -> update<MeterValues, unit> ctx key (fun oldValue -> (), Meter(oldValue.Mark(v))))
+            Cancel = (fun () -> cts.Cancel())
+        }
+
+    let tryGetPerformanceCounter(category,counter,instance) = 
+        try
+            if PerformanceCounterCategory.CounterExists(category, counter)
+            then
+                let counter = new PerformanceCounter(category, counter, instance, true)
+                Some(counter)
+            else None
+        with e ->
+            None
+    
+    let createPerformanceCounterGuage ctx key perfCounter = 
+        match tryGetPerformanceCounter perfCounter with
+        | Some(counter) ->
+            let reader() = 
+                let value = counter.NextValue() |> int64
+                Instantaneous(value)
+            ensureExists ctx key (Delegated(reader))
+        | None -> ()
+
+    let addSystemMetrics(systemCounters) =
+        let ctx = createContext "system"
+        let instanceName = Path.GetFileNameWithoutExtension(processName)
+        
+        for ((category, metricCat), counters) in systemCounters do 
+            for (counter, label) in counters do
+                createPerformanceCounterGuage ctx (metricCat + "/" + label) (category, counter, instanceName)
+
+    let getMetrics() = 
+        seq { 
+            for metric in store do
+                let key = metric.Key
+                let metrics = 
+                    seq { 
+                        for metric in metric.Value.Store do
+                            yield metric.Key, metric.Value
+                    }
+                yield key, metrics
+        }
+
+    let start(config:Configuration, cancellationToken) =
+        addSystemMetrics(config.PerformanceCounters)
+        createReportSink getMetrics cancellationToken config.ReportCreator
+        isStarted <- true

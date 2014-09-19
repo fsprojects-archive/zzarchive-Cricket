@@ -74,7 +74,7 @@
     <Compile Include="Sockets.fs" />
     <Compile Include="Transports.fs" />
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="FSharp.Actor.fsx" />
+    <None Include="Scratch.fsx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

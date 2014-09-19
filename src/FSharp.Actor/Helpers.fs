@@ -17,6 +17,15 @@ module internal Helpers =
         let stringIsNoneIfBlank (str : string option) = 
             str |> Option.bind (fun sys -> if sys.IsEmpty then None else Some sys)
 
+module internal Random = 
+    
+    let random = System.Random()
+
+    let randomLong() =
+        let buffer = Array.zeroCreate<byte> sizeof<UInt64>
+        random.NextBytes buffer
+        BitConverter.ToUInt64(buffer, 0)
+
 module internal Net =
 
     let getIPAddress() = 
