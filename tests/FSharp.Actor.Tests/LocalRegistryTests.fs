@@ -8,7 +8,7 @@ open FSharp.Actor
 type NullActor(path) =
     interface IActor with
         member x.Path with get() = ActorPath.ofString path
-        member x.Post(msg, sender) = raise <| NotImplementedException()
+        member x.Post(msg) = raise <| NotImplementedException()
         member x.Dispose() = ()
 
 [<TestFixture; Category("Unit")>]

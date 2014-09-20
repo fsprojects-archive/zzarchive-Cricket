@@ -38,7 +38,8 @@ Currently there are a couple of actor libraries on the .NET platform
  * [F# Core](http://msdn.microsoft.com/en-us/library/ee370357.aspx) - The FSharp.Core library actually has its own actor implementation in the form of the `MailboxProcessor<'T>` type. 
 
 F# Actor in no way aims to be a clone of either of these however it does draw on the ideas in all of the above frameworks as well as Erlang and OTP. Instead F# actor aims to be as simple and safe to use as possible hopefully
-making it very difficult for you to shoot or self in the foot.  
+making it difficult for you to shoot or self in the foot.
+
 
 Samples & documentation
 -----------------------
@@ -49,6 +50,14 @@ The API reference is automatically generated from Markdown comments in the libra
 
 
  * [Tutorial](tutorial.html) contains a further explanation of this sample library.
+
+ * [Diagnostics](diagnostics.html) including Metrics and Message Tracing
+
+ * [Supervisor Trees and Error Recovery](supervisors_error_recovery.html)
+
+ * [Remoting](remoting.html)
+ 
+ * [Actor Lookup & Location Transparency](actor_lookup.html)
 
  * [API Reference](reference/index.html) contains automatically generated documentation for all types, modules
    and functions in the library. This includes additional brief samples on using most of the

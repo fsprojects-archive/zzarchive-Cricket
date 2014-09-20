@@ -3,9 +3,10 @@
 open System
 open System.Threading
 open System.Collections.Concurrent
-
+open FSharp.Actor.Diagnostics
 #if INTERACTIVE
 open FSharp.Actor
+open FSharp.Actor.Diagnostics
 #endif
 
 type IMailbox<'a> = 
@@ -26,11 +27,11 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
     let awaitMsg = new AutoResetEvent(false)
 
     let metricContext = defaultArg metricContext (Metrics.createContext id)
-    let msgEnqeueMeter = Metrics.createMeter metricContext ("msg_enqueue")
-    let msgDeqeueMeter = Metrics.createMeter metricContext ("msg_dequeue")
-    let queueLength = Metrics.createDelegatedGuage metricContext "total_queue_length" (fun () -> (inbox.Count + arrivals.Count) |> int64)
-    let arrivalsQueueLength = Metrics.createDelegatedGuage metricContext "arrivals_queue_length" (fun () -> arrivals.Count |> int64)
-    let inboxQueueLength = Metrics.createDelegatedGuage metricContext "inbox_queue_length" (fun () -> inbox.Count |> int64)
+    let msgEnqeueMeter = Metrics.createMeter(metricContext,("msg_enqueue"))
+    let msgDeqeueMeter = Metrics.createMeter(metricContext,("msg_dequeue"))
+    let queueLength = Metrics.createDelegatedGuage(metricContext,"total_queue_length",(fun () -> (inbox.Count + arrivals.Count) |> int64))
+    let arrivalsQueueLength = Metrics.createDelegatedGuage(metricContext,"arrivals_queue_length",(fun () -> arrivals.Count |> int64))
+    let inboxQueueLength = Metrics.createDelegatedGuage(metricContext,"inbox_queue_length",(fun () -> inbox.Count |> int64))
 
     let rec scanInbox(f,n) =
         match inbox with
@@ -87,12 +88,12 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
                               else
                                 return None
                           | Some res -> 
-                            do msgDeqeueMeter.Mark 1L
+                            do msgDeqeueMeter 1L
                             return Some(res) }
               async { match receiveFromInbox() with
                       | None -> return! await()
                       | Some res -> 
-                        do msgDeqeueMeter.Mark 1L
+                        do msgDeqeueMeter 1L
                         return Some(res) }
 
         member this.Receive(timeout) =
@@ -113,13 +114,13 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
                               else return None
                           | Some res ->                            
                             let! msg = res
-                            do msgDeqeueMeter.Mark 1L
+                            do msgDeqeueMeter 1L
                             return Some(msg) }
               async { match scanInbox(f, 0) with
                       | None -> return! await() 
                       | Some res ->                        
                         let! msg = res
-                        do msgDeqeueMeter.Mark 1L
+                        do msgDeqeueMeter 1L
                         return Some(msg) }
 
         member this.Scan(timeout, f) =
@@ -135,7 +136,7 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
             then ()
             else
                 arrivals.Add(msg)
-                msgEnqeueMeter.Mark 1L
+                msgEnqeueMeter 1L
                 awaitMsg.Set() |> ignore
 
         member this.Dispose() = 

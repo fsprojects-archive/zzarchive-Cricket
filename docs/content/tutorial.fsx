@@ -15,7 +15,7 @@ simple actor called `greeter` which responds to messages of type `Say`. Given a 
 a response to the debug log then wait for another message. 
 *)
 
-ActorHost.Start().SubscribeEvents(fun (event:ActorEvent) -> printfn "%A" event)
+ActorHost.Start()
 
 (**
 Before we create any actor we must start the actor host for 
@@ -107,7 +107,7 @@ Thats about it for the basics, for more indepth examples have a look at the link
 More in depth examples
 ----------------------
  * [Ping Pong](pingpong.html) - A slightly more advanced example, showing how two actors can communicate with each other within the same process.
- * [Ping Pong - Remoting Version](pingpong_remoting.html) - Same as the in process Ping Pong example, however the actors are in seperate processes.
+ * [Ping Pong - Remoting Version](remoting.html) - Same as the in process Ping Pong example, however the actors are in seperate processes.
 *)
 
 

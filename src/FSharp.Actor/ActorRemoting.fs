@@ -5,6 +5,30 @@ open System.Threading
 open System.Net.Sockets
 open System.Collections.Concurrent
 
+
+type RemoteMessage = {
+    Id : uint64
+    Target : ActorPath
+    Sender : ActorPath
+    Message : obj
+}
+
+type ITransport =
+    inherit IDisposable
+    abstract Scheme : string with get
+    abstract BasePath : ActorPath with get
+    abstract Post : ActorPath * RemoteMessage -> unit
+    abstract Start : ISerializer * CancellationToken -> unit
+
+type RemoteActor(path:ActorPath, transport:ITransport) =
+    override x.ToString() = path.ToString()
+
+    interface IActor with
+        member x.Path with get() = path
+        member x.Post(msg) =
+            transport.Post(path, { Id = msg.Id; Target = path; Sender = ActorPath.rebase transport.BasePath msg.Sender.Path; Message = msg.Message })
+        member x.Dispose() = ()
+
 type InvalidMessageException(payload:obj, innerEx:Exception) =
     inherit Exception("Unable to handle msg", innerEx)
 
@@ -46,29 +70,34 @@ type IActorRegistryDiscovery =
     inherit IDisposable 
     abstract Start : ActorRegistryDiscoverySettings -> unit
 
-type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, actorHost:ActorHost) = 
+type RemotableInMemoryActorRegistry(transports : seq<ITransport>, registryTransport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, actorHost:ActorHost) = 
     
     let registry = new InMemoryActorRegistry() :> ActorRegistry
     let messages = new ConcurrentDictionary<Guid, AsyncResultCell<ActorProtocol>>()
     let clients = new ConcurrentDictionary<string,NetAddress>()
     let logger = Log.Logger("RemoteRegistry", Log.defaultFor Log.Debug)
+    let transports = 
+        Seq.fold (fun (s:Map<string, ITransport>) (t:ITransport) -> t.Start(actorHost.Serializer, actorHost.CancelToken); s.Add(t.Scheme, t)) Map.empty transports
+
+    let resolveTransport name = 
+        transports.TryFind name
 
     let transportHandler = (fun (address:NetAddress, msg:ActorProtocol, messageId:MessageId) -> 
             try
                 match msg with
                 | Resolve(path) -> 
                     let actorTransport = 
-                        path.Transport |> Option.bind actorHost.ResolveTransport
+                        path.Transport |> Option.bind resolveTransport
                     let resolvedPaths = 
                         match actorTransport with
                         | Some(t) -> 
                             registry.Resolve path
                             |> List.map (fun ref -> ref.Path |> ActorPath.rebase t.BasePath)
                         | None ->
-                            let tcp = actorHost.ResolveTransport "actor.tcp" |> Option.get
+                            let tcp = resolveTransport "actor.tcp" |> Option.get
                             registry.Resolve path
                             |> List.map (fun ref -> ref.Path |> ActorPath.rebase tcp.BasePath)
-                    transport.Post(address,(Resolved resolvedPaths), messageId)
+                    registryTransport.Post(address,(Resolved resolvedPaths), messageId)
                 | Resolved _ as rs -> 
                     match messages.TryGetValue(messageId) with
                     | true, resultCell -> resultCell.Complete(rs)
@@ -78,7 +107,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
             with e -> 
                let msg = sprintf "TCP: Unable to handle message : %s" e.Message
                logger.Error(msg, exn = new InvalidMessageException(msg, e))
-               transport.Post(address, Error(msg,e), messageId)
+               registryTransport.Post(address, Error(msg,e), messageId)
     )
 
     let discoveryHandler = (fun (msg:ActorDiscoveryBeacon) ->
@@ -99,15 +128,16 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                logger.Error("UDP: Unable to handle message", exn = new InvalidMessageException(msg, e))
     )
 
-    let dispose() = 
-        transport.Dispose()
+    let dispose() =
+        transports |> Map.toSeq |> Seq.iter (fun (_,v) -> v.Dispose())
+        registryTransport.Dispose()
         discovery.Dispose()
     
     do
         let cancelToken = actorHost.CancelToken
         cancelToken.Register(fun () -> dispose()) |> ignore
-        transport.Start({ TransportHandler = transportHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
-        discovery.Start({ SystemDetails = (actorHost.Name, transport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
+        registryTransport.Start({ TransportHandler = transportHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
+        discovery.Start({ SystemDetails = (actorHost.Name, registryTransport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
     
     let handledResolveResponse result =
          match result with
@@ -115,7 +145,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
          | Some(Resolved rs) ->                        
              List.choose (fun path -> 
                  path.Transport 
-                 |> Option.bind actorHost.ResolveTransport
+                 |> Option.bind resolveTransport
                  |> Option.map (fun transport -> ActorRef(new RemoteActor(path, transport)))
              ) rs
          | Some(Error(msg, err)) -> raise (new Exception(msg, err))
@@ -132,7 +162,7 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                                          let msgId = Guid.NewGuid()
                                          let resultCell = new AsyncResultCell<ActorProtocol>()
                                          messages.AddOrUpdate(msgId, resultCell, fun _ _ -> resultCell) |> ignore
-                                         do transport.Post(client, Resolve path, msgId)
+                                         do registryTransport.Post(client, Resolve path, msgId)
                                          let! result = resultCell.AwaitResult(?timeout = timeout)
                                          messages.TryRemove(msgId) |> ignore
                                          return handledResolveResponse result
@@ -144,8 +174,9 @@ type RemotableInMemoryActorRegistry(transport:IActorRegistryTransport, discovery
                  
         member x.Resolve(path) =
             let isFromLocalTransport = 
-                actorHost.Transports 
-                |> Seq.exists (fun t -> t.BasePath.Transport = path.Transport || t.BasePath.MachineAddress = path.MachineAddress)
+                transports
+                |> Map.toSeq  
+                |> Seq.exists (fun (_,t) -> t.BasePath.Transport = path.Transport || t.BasePath.MachineAddress = path.MachineAddress)
 
             if isFromLocalTransport
             then registry.Resolve(path)
@@ -164,8 +195,8 @@ module ActorHostRemotingExtensions =
 
     type ActorHost with
         
-        member x.EnableRemoting(transport, udpConfig) = 
+        member x.EnableRemoting(transports, registryTransport, udpConfig) = 
             x.Configure (fun c -> 
-                { c with Registry = (new RemotableInMemoryActorRegistry(transport, udpConfig, x)) }
+                { c with Registry = (new RemotableInMemoryActorRegistry(transports, registryTransport, udpConfig, x)) }
             )
             x

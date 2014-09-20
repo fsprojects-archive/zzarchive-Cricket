@@ -17,6 +17,12 @@ module internal Helpers =
         let stringIsNoneIfBlank (str : string option) = 
             str |> Option.bind (fun sys -> if sys.IsEmpty then None else Some sys)
 
+    module Environment = 
+        
+        let CurrentProcess = Diagnostics.Process.GetCurrentProcess()
+        let ProcessName, ProcessId = CurrentProcess.ProcessName, CurrentProcess.Id
+        let DefaultActorHostName = sprintf "%s_%s_%d" Environment.MachineName ProcessName ProcessId
+
 module internal Net =
 
     let getIPAddress() = 

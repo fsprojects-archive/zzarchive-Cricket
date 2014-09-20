@@ -15,8 +15,7 @@ actors shutdown. The message cascade is started by the Ping actor which sends a 
 which then returns a Pong message back to the Ping actor, which then decrements its count.
 *)
 
-ActorHost.Start()
-         .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) |> ignore
+ActorHost.Start().SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) |> ignore
 
 type PingPong =
     | Ping
@@ -27,11 +26,7 @@ let ping count =
     actor {
         name "ping"
         body (
-                let pong = 
-                    lazy 
-                        let result = !!"pong"
-                        printfn "Resolved pong: %A" result
-                        result
+                let pong = !~"pong"
 
                 let rec loop count = 
                     messageHandler {

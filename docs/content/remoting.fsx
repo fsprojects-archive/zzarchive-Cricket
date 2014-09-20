@@ -37,9 +37,10 @@ Once the actor host has started we need to create a system to hold the actor and
 calling the `EnableRemoting` method. This method takes two parameters. The first parameter defines how actor systems 
 will communicate with each other when looking up actors. The second defines how the actor systems discover each other.
 *)
-let system = ActorHost.Start(fun c -> c.AddTransports([new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))]))
+let system = ActorHost.Start()
                       .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
                       .EnableRemoting(
+                            [new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))],
                             new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12003))),
                             new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
                       )
@@ -52,23 +53,39 @@ stays identical to the in-process implementation.
 let ping count =
     actor {
         name "ping"
-        messageHandler (fun cell ->
-            let pong = !!"pong"
-            printfn "Resolved pong: %A" pong
-            let rec loop count = async {
-                let! msg = cell.Receive()
-                match msg.Message with
-                | Pong when count > 0 -> 
-                      if count % 1000 = 0 then cell.Logger.Info("Ping: pong")
-                      pong <-- Ping
-                      return! loop (count - 1)
-                | Ping -> failwithf "Ping: received a ping message, panic..."
-                | _ -> 
-                    pong <-- Stop
-                    return ()
+        body (
+                let pong = !~"pong"
+                let rec loop count = 
+                    messageHandler {
+                        let! msg = Actor.receive None
+                        match msg with
+                        | Pong when count > 0 ->
+                              if count % 1000 = 0 then printfn "Ping: ping %d" count
+                              pong.Value <-- Ping
+                              return! loop (count - 1)
+                        | Ping -> failwithf "Ping: received a ping message, panic..."
+                        | _ -> pong.Value <-- Stop
+                    }
+                
+                loop count        
+           ) 
+    }
+
+let pong = 
+    actor {
+        name "pong"
+        body (
+            let rec loop count = messageHandler {
+                let! msg = Actor.receive None
+                match msg with
+                | Ping -> 
+                      if count % 1000 = 0 then printfn "Pong: ping %d" count
+                      do! Actor.reply Pong
+                      return! loop (count + 1)
+                | Pong _ -> failwithf "Pong: received a pong message, panic..."
+                | _ -> ()
             }
-            
-            loop count        
+            loop 0        
         ) 
     }
 

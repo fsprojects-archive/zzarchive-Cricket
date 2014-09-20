@@ -1,24 +1,8 @@
 ﻿namespace FSharp.Actor
 
 open System
+open FSharp.Actor.Diagnostics
 
-module Trace = 
-
-    type Span =
-      { Annotations : string[]
-        Timestamp : int64 
-        SpanId : uint64
-        ParentId : uint64 option }
-      static member Empty =
-        { Annotations = [||]; Timestamp = 0L; SpanId = 0UL; ParentId = None }
-      static member Create(annotations, ?parentId, ?spanId) =
-        let new_id = Random.randomLong()
-        { Annotations = annotations; Timestamp = DateTime.UtcNow.Ticks; SpanId = defaultArg spanId new_id; ParentId = parentId }
-
-    type ITracer =
-        abstract Trace : Span -> unit
-        
-    
 
 module Log =
     /// The log levels specify the severity of the message.
@@ -115,7 +99,7 @@ module Log =
         /// the trace id and span id
         /// If using tracing, then this LogLine is an annotation to a
         /// span instead of a 'pure' log entry
-      { trace         : Trace.Span
+      { trace         : TraceHeader
         /// the level that this log line has
       ; level         : LogLevel
         /// the source of the log line, e.g. 'ModuleName.FunctionName'
@@ -204,7 +188,7 @@ module Log =
     type Logger(path:string, logger : ILogger) = 
     
          member x.Write(level, message, ?trace, ?exn) = 
-             write logger level path (defaultArg trace Trace.Span.Empty) exn message
+             write logger level path (defaultArg trace TraceHeader.Empty) exn message
     
          member x.Info(message, ?trace, ?exn) =
              x.Write(Info, message, ?trace = trace, ?exn = exn)

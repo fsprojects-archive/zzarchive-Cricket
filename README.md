@@ -32,7 +32,6 @@ making it very difficult for you to shoot or self in the foot.
 	open FSharp.Actor
 	
 	ActorHost.Start()
-	let system = ActorHost.CreateSystem("greeterSystem")
 	
 	type Say =
 	    | Hello
@@ -42,16 +41,18 @@ making it very difficult for you to shoot or self in the foot.
 	let greeter = 
 	    actor {
 	        name "greeter"
-	        messageHandler (fun actor ->
-	            let rec loop() = async {
-	                let! msg = actor.Receive()
-	                match msg.Message with
-	                | Hello ->  actor.Logger.Debug("Hello")
-	                | HelloWorld -> actor.Logger.Debug("Hello World")
-	                | Name name -> actor.Logger.Debug(sprintf "Hello, %s" name)
+	        body (
+	            let rec loop() = messageHandler {
+	                let! msg = Actor.receive None
+	
+	                match msg with
+	                | Hello ->  printfn "Hello"
+	                | HelloWorld -> printfn "Hello World"
+	                | Name name -> printfn "Hello, %s" name
 	                return! loop()
+	
 	            }
 	            loop())
-	    } |> system.SpawnActor
+	    } |> Actor.spawn
 	
 	greeter <-- Name("from F# Actor") 

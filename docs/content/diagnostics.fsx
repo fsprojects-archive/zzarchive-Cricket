@@ -4,6 +4,8 @@
 #I "../../bin"
 #r "FSharp.Actor.dll"
 open FSharp.Actor
+open FSharp.Actor.Diagnostics
+open System.IO
 open System.Threading
 
 (**
@@ -13,13 +15,7 @@ Metrics
 
 *)
 
-ActorHost.Start(fun c -> 
-    { c with 
-        Metrics = Some {
-            Metrics.Configuration.Default with
-                ReportCreator = Metrics.WriteToFile(5000, @"C:\temp\Metrics.txt", Metrics.Formatters.toString)
-        }
-    })
+ActorHost.Start()
 
 type Say =
     | Hello
@@ -50,13 +46,31 @@ let rec publisher() = async {
     return! publisher()
 }
 
+(**
+Write the metrics out to a file on a background thread
+
+*)
+
+let rec reporter() = 
+    async {
+       do! Async.Sleep(5000)
+       do File.WriteAllText(@"C:\temp\ExampleMetrics.json", sprintf "%s" (Metrics.getReport() |> Metrics.Formatters.toJsonString)) 
+       return! reporter()        
+    }
+
+(**
+Start everything
+*)
+Async.Start(reporter(), cts.Token)  
 Async.Start(publisher(), cts.Token)
+
 cts.Cancel()
 
 greeter <-- Shutdown
 
 (**
 Sample metrics output
+explain exponential weights, and different types of counters.
 
 [{
 		"Key" : "system",

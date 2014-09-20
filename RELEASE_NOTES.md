@@ -26,4 +26,5 @@
 * Re-arranged solution so it is a far more logical order
 * Fixed some issues with event streams not getting passed when an actor is registered.
 * Changed how actor paths are built.
+* Cleaned up APIs' in various places specifically around ActorHost configuration.
 
