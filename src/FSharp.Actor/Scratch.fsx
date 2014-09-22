@@ -1,75 +1,28 @@
 ﻿#I "../../bin"
 #r "FSharp.Actor.dll"
 open FSharp.Actor
-open System.IO
-open System.Threading
-
-(**
-
-Metrics
-=======
-
-*)
 
 ActorHost.Start()
 
 type Say =
     | Hello
-    | HelloWorld
-    | Name of string
 
-type PingPong =
-    | Ping
-    | Pong
-    | Stop
-
-let ping count =
+let greeter = 
     actor {
-        name "ping"
+        name "greeter"
         body (
-                let pong = !~"pong"
-
-                let rec loop count = 
-                    messageHandler {
-                        let! msg = Actor.receive None
-                        match msg with
-                        | Pong when count > 0 ->
-                              if count % 1000 = 0 then printfn "Ping: ping %d" count
-                              do! Async.Sleep(1000)
-                              do! Actor.replyTo pong.Value Ping
-                              return! loop (count - 1)
-                        | Ping -> failwithf "Ping: received a ping message, panic..."
-                        | _ -> 
-                            do! Actor.replyTo pong.Value Stop
-                            ()
-                    }
-                
-                loop count        
-           ) 
-    }
-
-let pong = 
-    actor {
-        name "pong"
-        body (
-            let rec loop count = messageHandler {
-                let! msg = Actor.receive None
+            let rec loop() = messageHandler {
+                printfn "Wating for message"
+                let! msg = Message.receive None
+                printfn "Received Message"
                 match msg with
-                | Ping -> 
-                      if count % 1000 = 0 then printfn "Pong: ping %d" count
-                      do! Async.Sleep(1000)
-                      do! Actor.reply Pong
-                      return! loop (count + 1)
-                | Pong _ -> failwithf "Pong: received a pong message, panic..."
-                | _ -> ()
+                | Hello ->  printfn "Hello"
+                return! loop()
+
             }
-            loop 0        
-        ) 
-    }
+            loop())
+    } |> Actor.spawn
 
-let pingRef = Actor.spawn (ping 1)
-let pongRef = Actor.spawn pong
-
-pingRef <-- Pong
+greeter <-- Hello
 
 

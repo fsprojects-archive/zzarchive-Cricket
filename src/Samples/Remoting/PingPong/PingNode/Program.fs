@@ -21,7 +21,7 @@ let ping count =
                 let pong = !!"pong"
                 printfn "Resolved pong: %A" pong
                 let rec loop count = messageHandler {
-                    let! msg = Actor.receive None
+                    let! msg = Message.receive None
                     match msg with
                     | Pong when count > 0 ->
                           if count % 1000 = 0 then printfn "Ping: ping %d" count

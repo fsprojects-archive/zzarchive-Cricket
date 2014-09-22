@@ -33,7 +33,8 @@ with
 
 type MessageHandler<'a, 'b> = MH of (ActorCell<'a> -> Async<'b>)
 
-module MessageHandler = 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module Message = 
 
     let emptyHandler = 
         (MH (fun _ -> 
@@ -41,13 +42,50 @@ module MessageHandler =
              async { return! loop() }
          loop()))
 
+    let writeTrace (context:ActorCell<_>) eventType =
+        if context.CurrentMessage <> Unchecked.defaultof<_>
+        then Trace.Write (context.Self.Path.ToString()) eventType (Some context.CurrentMessage.Id) (Some context.SpanId)
+
+    let receive timeout = MH (fun ctx -> async {
+        let! msg = ctx.Receive(?timeout = timeout)
+        ctx.CurrentMessage <- msg
+        ctx.SpanId <- Random.randomLong()
+        writeTrace ctx "message_recieved"
+        return msg.Message  
+    })
+
+    let tryReceive timeout = MH (fun ctx -> async {
+        let! msg = ctx.TryReceive(?timeout = timeout)
+        return Option.map (fun msg -> 
+            ctx.CurrentMessage <- msg; 
+            ctx.SpanId <- Random.randomLong()
+            writeTrace ctx "message_recieved" 
+            msg.Message) msg 
+    })
+
+    let scan timeout f = MH (fun ctx -> async {
+        let! msg = ctx.Scan(f, ?timeout = timeout)
+        ctx.CurrentMessage <- msg
+        ctx.SpanId <- Random.randomLong()
+        writeTrace ctx "message_recieved"
+        return msg.Message  
+    })
+
+    let tryScan timeout f = MH (fun ctx -> async {
+        let! msg = ctx.TryScan(f, ?timeout = timeout)
+        return Option.map (fun msg -> 
+            ctx.CurrentMessage <- msg; 
+            ctx.SpanId <- Random.randomLong()
+            writeTrace ctx "message_recieved"
+            msg.Message) msg
+    })
+
     type MessageHandlerBuilder() = 
         member x.Bind(MH handler,f) =
              MH (fun context -> 
                   async {
                      let! comp = handler context
                      let (MH nextComp) = f comp
-                    // Trace.Write (context.Self.Path.ToString()) (Some context.CurrentMessage.Id) (Some context.SpanId)
                      return! nextComp context
                   } 
              ) 
@@ -56,12 +94,11 @@ module MessageHandler =
                 async {
                      let! comp = a
                      let (MH nextComp) = f comp
-                    // Trace.Write (context.Self.Path.ToString()) (Some context.CurrentMessage.Id) (Some context.SpanId)
                      return! nextComp context
                   } 
             )
-        member x.Return(m) = MH(fun ctx -> m)
-        member x.ReturnFrom(m) = m
+        member x.Return(m) = MH(fun ctx -> writeTrace ctx "message_handled"; m)
+        member x.ReturnFrom(MH m) = MH(fun ctx -> writeTrace ctx "message_handled"; m(ctx))
         member x.Zero() = x.Return(async.Zero())
         member x.Delay(f) = x.Bind(x.Zero(), f)
         member x.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
@@ -149,7 +186,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
                 uptimer.Start()
                 firstArrivalGate.Wait(messageHandlerCancel.Token)
                 if not(messageHandlerCancel.IsCancellationRequested)
-                then do! MessageHandler.toAsync defn.Behaviour ctx
+                then do! Message.toAsync defn.Behaviour ctx
                 setStatus ActorStatus.Stopped
                 return! shutdown true
             with e -> 
@@ -250,7 +287,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
 [<AutoOpen>]
 module ActorConfiguration = 
     
-    let messageHandler = new MessageHandler.MessageHandlerBuilder()
+    let messageHandler = new Message.MessageHandlerBuilder()
 
     type ActorConfigurationBuilder internal() = 
         member x.Zero() = { 
@@ -259,7 +296,7 @@ module ActorConfiguration =
             SupervisorStrategy = (fun x -> x.Sender.Post(Shutdown, x.Sender));
             Parent = Null;
             Children = []; 
-            Behaviour = MessageHandler.emptyHandler
+            Behaviour = Message.emptyHandler
             MaxQueueLength = Some 1000000
             Mailbox = None  }
         member x.Yield(()) = x.Zero()
@@ -317,47 +354,13 @@ module Actor =
     
     let context f = MH (fun ctx -> f ctx)
 
-    let receive timeout = MH (fun ctx -> async {
-        let! msg = ctx.Receive(?timeout = timeout)
-        ctx.CurrentMessage <- msg
-        ctx.SpanId <- Random.randomLong()
-        Trace.Write (ctx.Path.ToString()) (Some msg.Id) (Some ctx.SpanId)
-        return msg.Message  
-    })
-
-    let tryReceive timeout = MH (fun ctx -> async {
-        let! msg = ctx.TryReceive(?timeout = timeout)
-        return Option.map (fun msg -> 
-            ctx.CurrentMessage <- msg; 
-            ctx.SpanId <- Random.randomLong()
-            Trace.Write (ctx.Path.ToString()) (Some msg.Id) (Some ctx.SpanId); 
-            msg.Message) msg 
-    })
-
-    let scan timeout f = MH (fun ctx -> async {
-        let! msg = ctx.Scan(f, ?timeout = timeout)
-        ctx.CurrentMessage <- msg
-        ctx.SpanId <- Random.randomLong()
-        Trace.Write (ctx.Path.ToString()) (Some msg.Id) (Some ctx.SpanId)
-        return msg.Message  
-    })
-
-    let tryScan timeout f = MH (fun ctx -> async {
-        let! msg = ctx.TryScan(f, ?timeout = timeout)
-        return Option.map (fun msg -> 
-            ctx.CurrentMessage <- msg; 
-            ctx.SpanId <- Random.randomLong()
-            Trace.Write (ctx.Path.ToString()) (Some msg.Id) (Some ctx.SpanId); 
-            msg.Message) msg
-    })
-
     let internal deadLetter =
         lazy
             actor {
                 name "deadLetter"
                 body (
                     let rec loop() = messageHandler {
-                        let! msg = receive None
+                        let! msg = Message.receive None
                         return! loop()
                     }
 
