@@ -15,7 +15,7 @@ let pong =
                 match msg with
                 | Ping -> 
                       if count % 1000 = 0 then printfn "Pong: ping %d" count
-                      do! Actor.reply Pong
+                      do! Message.reply Pong
                       return! loop (count + 1)
                 | Pong _ -> failwithf "Pong: received a pong message, panic..."
                 | _ -> ()

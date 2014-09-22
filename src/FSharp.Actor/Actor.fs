@@ -17,6 +17,7 @@ type ActorCell<'a> = {
     Children : ActorRef list
     Mailbox : IMailbox<Message<'a>>
     Self : IActor
+    mutable ParentId : uint64
     mutable SpanId : uint64
     mutable CurrentMessage : Message<'a>
 }
@@ -43,12 +44,13 @@ module Message =
          loop()))
 
     let writeTrace (context:ActorCell<_>) eventType =
-        if context.CurrentMessage <> Unchecked.defaultof<_>
-        then Trace.Write (context.Self.Path.ToString()) eventType (Some context.CurrentMessage.Id) (Some context.SpanId)
+        if (box context.CurrentMessage) <> null
+        then Trace.Write (context.Self.Path.ToString()) eventType (Some context.ParentId) (Some context.SpanId)
 
     let receive timeout = MH (fun ctx -> async {
         let! msg = ctx.Receive(?timeout = timeout)
         ctx.CurrentMessage <- msg
+        ctx.ParentId <- msg.Id
         ctx.SpanId <- Random.randomLong()
         writeTrace ctx "message_recieved"
         return msg.Message  
@@ -58,6 +60,7 @@ module Message =
         let! msg = ctx.TryReceive(?timeout = timeout)
         return Option.map (fun msg -> 
             ctx.CurrentMessage <- msg; 
+            ctx.ParentId <- msg.Id
             ctx.SpanId <- Random.randomLong()
             writeTrace ctx "message_recieved" 
             msg.Message) msg 
@@ -66,6 +69,7 @@ module Message =
     let scan timeout f = MH (fun ctx -> async {
         let! msg = ctx.Scan(f, ?timeout = timeout)
         ctx.CurrentMessage <- msg
+        ctx.ParentId <- msg.Id
         ctx.SpanId <- Random.randomLong()
         writeTrace ctx "message_recieved"
         return msg.Message  
@@ -74,11 +78,39 @@ module Message =
     let tryScan timeout f = MH (fun ctx -> async {
         let! msg = ctx.TryScan(f, ?timeout = timeout)
         return Option.map (fun msg -> 
-            ctx.CurrentMessage <- msg; 
+            ctx.CurrentMessage <- msg;
+            ctx.ParentId <- msg.Id
             ctx.SpanId <- Random.randomLong()
             writeTrace ctx "message_recieved"
             msg.Message) msg
     })
+
+    let postMessage (targets:ActorSelection) (msg:Message<obj>) =
+        targets.Refs 
+        |> List.iter (fun target ->
+                        match target with
+                        | ActorRef(target) -> target.Post(msg)
+                        | Null -> ())
+
+    let postWithSender (targets:ActorSelection) (sender:ActorRef) (msg:'a) = 
+        postMessage targets (Message<'a>.Create(msg, sender))
+
+    let post target (msg:'a) = 
+        MH (fun ctx -> async {
+            do postWithSender target (ActorRef ctx.Self) msg
+        })
+
+    let replyTo targets msg =
+        MH (fun ctx -> async {
+                do postMessage targets { Id = ctx.ParentId; Sender = ActorRef ctx.Self; Message = msg }
+            }
+        )
+
+    let reply msg = MH (fun ctx -> async {
+        do postMessage (ActorSelection([ctx.CurrentMessage.Sender])) { Id = ctx.ParentId; Sender = ActorRef ctx.Self; Message = msg }
+    })
+
+    let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
 
     type MessageHandlerBuilder() = 
         member x.Bind(MH handler,f) =
@@ -97,9 +129,9 @@ module Message =
                      return! nextComp context
                   } 
             )
-        member x.Return(m) = MH(fun ctx -> writeTrace ctx "message_handled"; m)
+        member x.Return(m) = MH(fun ctx -> writeTrace ctx "message_handled"; async { return m } )
         member x.ReturnFrom(MH m) = MH(fun ctx -> writeTrace ctx "message_handled"; m(ctx))
-        member x.Zero() = x.Return(async.Zero())
+        member x.Zero() = MH(fun ctx -> async.Zero())
         member x.Delay(f) = x.Bind(x.Zero(), f)
         member x.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
         member x.Combine(c1 : MessageHandler<_,_>, c2) = x.Bind(c1, fun () -> c2)
@@ -115,8 +147,6 @@ module Message =
             else x.Zero()
           loop()
     
-    let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
-
 type ActorConfiguration<'a,'b> = {
     Path : ActorPath
     EventStream : IEventStream option
@@ -146,7 +176,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
     let mutable defn = defn
-    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; SpanId = 0UL; CurrentMessage = Unchecked.defaultof<_> }
+    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = 0UL; SpanId = 0UL; CurrentMessage = Unchecked.defaultof<_> }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 
@@ -223,19 +253,24 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
                 ctx <- { ctx with Children = (List.filter ((<>) ref) ctx.Children) }
                 return! systemMessageHandler()
             | SetParent(ref) ->
-               match ref, defn.Parent with
-               | Null, Null -> ()
-               | ActorRef(a), ActorRef(a') when a' = a -> ()
-               | Null, _ -> 
-                    defn.Parent.Post(Unlink(self.Ref), self.Ref)
-                    defn <- { defn with Parent =  ref }
-               | _, Null -> 
+               match ref with
+               | ActorRef(a) when defn.Parent <> ref -> 
                     defn.Parent.Post(Link(self.Ref), self.Ref)
                     defn <- { defn with Parent =  ref }
-               | ActorRef(a), ActorRef(a') ->
+               | ActorRef(_) -> ()
+               | Null -> 
                     defn.Parent.Post(Unlink(self.Ref), self.Ref)
-                    ref.Post(Link(self.Ref), self.Ref)
                     defn <- { defn with Parent =  ref }
+               return! systemMessageHandler()
+            | RemoveParent(ref) ->
+               match ref with
+               | ActorRef(a) when defn.Parent = ref -> 
+                    defn.Parent.Post(Unlink(self.Ref), self.Ref)
+                    defn <- { defn with Parent =  Null }
+               | ActorRef(_) -> ()
+               | Null -> 
+                    defn.Parent.Post(Unlink(self.Ref), self.Ref)
+                    defn <- { defn with Parent =  Null }
                return! systemMessageHandler()
         }
 
@@ -351,62 +386,28 @@ module Actor =
         }
 
         config |> (start >> register)
-    
-    let context f = MH (fun ctx -> f ctx)
 
-    let internal deadLetter =
-        lazy
-            actor {
-                name "deadLetter"
-                body (
-                    let rec loop() = messageHandler {
-                        let! msg = Message.receive None
-                        return! loop()
-                    }
+    let deadLetter =
+           lazy
+               actor {
+                   name "deadLetter"
+                   body (
+                       let rec loop() = messageHandler {
+                           let! msg = Message.receive None
+                           return! loop()
+                       }
 
-                    loop()
-                )
-            } |> spawn
+                       loop()
+                   )
+               } |> spawn
 
     let postDeadLetter (msg:Message<'a>) = deadLetter.Value.Post(Message.Box(msg)) 
-
-    let internal tryGetSender() = 
-        match CallContext.LogicalGetData("actor") with
-        | :? ActorRef as a -> Some a
-        | _ as a -> None //failwith "Unexpected type representing actorContext expected ActorRef got %A" a
-    
-    let postMessage (targets:ActorSelection) (msg:Message<obj>) =
-        targets.Refs 
-        |> List.iter (fun target ->
-                        match target with
-                        | ActorRef(target) -> target.Post(msg)
-                        | Null -> postDeadLetter msg)
-
-    let postWithSender (targets:ActorSelection) (sender:ActorRef) (msg:'a) = 
-        postMessage targets (Message<'a>.Create(msg, sender))
-
-    let rec post target (msg:'a) = 
-        let sender = 
-            match tryGetSender() with
-            | Some a -> a
-            | None -> deadLetter.Value
-        postWithSender target sender msg
-
-    let replyTo targets msg =
-        MH (fun ctx -> async {
-                do postMessage targets { Id = ctx.SpanId; Sender = ActorRef ctx.Self; Message = msg }
-            }
-        )
-
-    let reply msg = MH (fun ctx -> async {
-        do postMessage (ActorSelection([ctx.CurrentMessage.Sender])) { Id = ctx.SpanId; Sender = ActorRef ctx.Self; Message = msg }
-    })
-
+   
     let link actor (supervisor:ActorRef) = 
-        post actor (SetParent(supervisor))
+        Message.postWithSender actor supervisor (SetParent(supervisor))
 
-    let unlink target = 
-        post target (SetParent(Null))
+    let unlink target (supervisor:ActorRef) = 
+        Message.postWithSender target supervisor (RemoveParent(supervisor))
 
 [<AutoOpen>]
 module ActorOperators =
@@ -417,8 +418,8 @@ module ActorOperators =
     
     let inline (-->) msg t = 
         let a = ActorSelection.op_Implicit t
-        Actor.post a msg
+        Message.postWithSender a Actor.deadLetter.Value msg
     
     let inline (<--) t msg =
         let a = ActorSelection.op_Implicit t
-        Actor.post a msg
+        Message.postWithSender a Actor.deadLetter.Value msg

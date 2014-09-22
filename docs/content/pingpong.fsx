@@ -34,7 +34,7 @@ let ping count =
                         match msg with
                         | Pong when count > 0 ->
                               if count % 1000 = 0 then printfn "Ping: ping %d" count
-                              pong.Value <-- Ping
+                              do! Message.replyTo pong.Value Ping
                               return! loop (count - 1)
                         | Ping -> failwithf "Ping: received a ping message, panic..."
                         | _ -> pong.Value <-- Stop
@@ -53,7 +53,7 @@ let pong =
                 match msg with
                 | Ping -> 
                       if count % 1000 = 0 then printfn "Pong: ping %d" count
-                      do! Actor.reply Pong
+                      do! Message.reply Pong
                       return! loop (count + 1)
                 | Pong _ -> failwithf "Pong: received a pong message, panic..."
                 | _ -> ()

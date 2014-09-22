@@ -19,19 +19,25 @@ type ITraceSink =
     inherit IDisposable
     abstract WriteTrace : string * uint64 option * uint64 option -> unit
     abstract WriteTrace : string  * string * uint64 option * uint64 option -> unit
-        
+
+type InMemoryTraceSink() =
+     let store = new ResizeArray<TraceHeader>()
+
+     member x.GetTraces() = store |> Seq.map id
+
+     interface ITraceSink with 
+        member x.WriteTrace(annotation,parent,span) = (x :> ITraceSink).WriteTrace(annotation, "", parent, span)
+        member x.WriteTrace(annotation, eventType,parent,span) = 
+            //TODO: Implement this properly.. with System.Diagnostics.Tracing. 
+            store.Add (TraceHeader.Create([|annotation; eventType|], ?parentId = parent, ?spanId = span))
+        member x.Dispose() = store.Clear()
+      
 type TracingConfiguration = {
     Tracer : ITraceSink
 }
 with 
     static member Default = {
-        Tracer = { new ITraceSink with 
-            member x.WriteTrace(annotation,parent,span) = x.WriteTrace(annotation, "", parent, span)
-            member x.WriteTrace(annotation, eventType,parent,span) = 
-                //TODO: Implement this properly.. with System.Diagnostics.Tracing. 
-                printfn "%A" (TraceHeader.Create([|annotation; eventType|], ?parentId = parent, ?spanId = span))
-            member x.Dispose() = ()
-         }
+        Tracer = new InMemoryTraceSink()
     }
 
 module Trace = 
@@ -42,6 +48,8 @@ module Trace =
 
     let Start(cfg:TracingConfiguration option) =
         Option.iter (fun cfg -> config <- cfg) cfg
+
+    let getConfig() = config
 
     let Dispose() = 
         config.Tracer.Dispose()

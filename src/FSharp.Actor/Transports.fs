@@ -22,7 +22,7 @@ type TCPTransport(config:TcpConfig, ?logger) as self =
                     try
                         receivedRate(1L)
                         let msg = serializer.Deserialize<RemoteMessage>(payload)
-                        Actor.postMessage (!!msg.Target) { Sender = (new RemoteActor(msg.Sender, self) :> IActor |> ActorRef); Message = msg.Message; Id = msg.Id }
+                        Message.postMessage (!!msg.Target) { Sender = (new RemoteActor(msg.Sender, self) :> IActor |> ActorRef); Message = msg.Message; Id = msg.Id }
                     with e -> 
                         logger.Error("Error handling message: " + e.Message, exn = e)
                  )

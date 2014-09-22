@@ -72,4 +72,5 @@ type SystemMessage =
     | Link of ActorRef
     | Unlink of ActorRef
     | SetParent of ActorRef
+    | RemoveParent of ActorRef
     | Errored of ErrorContext
