@@ -7,7 +7,7 @@ open System.Collections.Concurrent
 
 
 type RemoteMessage = {
-    Id : uint64
+    Id : uint64 option
     Target : ActorPath
     Sender : ActorPath
     Message : obj

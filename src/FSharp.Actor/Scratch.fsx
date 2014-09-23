@@ -1,5 +1,7 @@
 ﻿#I "../../bin"
 #r "FSharp.Actor.dll"
+
+open System
 open FSharp.Actor
 
 ActorHost.Start().SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) |> ignore
@@ -21,11 +23,11 @@ let ping count =
                         match msg with
                         | Pong when count > 0 ->
                               if count % 1000 = 0 then printfn "Ping: ping %d" count
-                              do! Message.replyTo pong.Value Ping
+                              do! Message.post pong.Value Ping
                               return! loop (count - 1)
                         | Ping -> failwithf "Ping: received a ping message, panic..."
                         | _ -> 
-                              do! Message.replyTo pong.Value Stop
+                              do! Message.post pong.Value Stop
                               return ()
                     }
                 
@@ -62,7 +64,19 @@ fsi.AddPrinter(fun (x:System.DateTime) -> x.ToString("dd/MM/yyyy HH:mm:ss.ffffff
 fsi.AddPrintTransformer(fun (x:Diagnostics.TraceHeader) -> (x.Annotation, x.ParentId, x.SpanId, System.DateTime(x.Timestamp)) |> box)
 fsi.AddPrintTransformer(fun (x:(string * seq<Diagnostics.TraceHeader>)) -> (x |> fst, x |> snd |> Seq.toList) |> box)
 
-config.GetTraces()
-|> Seq.groupBy (fun t -> t.ParentId)
-|> Seq.map (fun (p, ts) -> p, ts |> Seq.sortBy(fun x -> x.Timestamp))
-|> Seq.toList
+let annotationsToStr annos = 
+    String.Join("\r\n", annos |> Seq.map (fun (k,v) -> sprintf "%s = %s" k v) |> Seq.toArray)
+
+let timeLine = 
+    config.GetTraces()
+    |> Seq.groupBy (fun t -> t.ParentId, t.SpanId)
+    |> Seq.collect (fun (p, ts) ->
+        ts 
+        |> Seq.collect (fun ts ->
+               [| p |> box;
+                  ts.Annotation |> annotationsToStr |> box
+                  System.DateTime(ts.Timestamp) |> box
+                  System.DateTime(ts.Timestamp) |> box |]
+        )
+    )
+    |> Seq.toList

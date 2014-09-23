@@ -17,7 +17,7 @@ type ActorCell<'a> = {
     Children : ActorRef list
     Mailbox : IMailbox<Message<'a>>
     Self : IActor
-    mutable ParentId : uint64
+    mutable ParentId : uint64 option
     mutable SpanId : uint64
     mutable Sender : ActorRef
 }
@@ -48,14 +48,14 @@ module Message =
                 "actor", (context.Self.Path.ToString())
                 "sender", (context.Sender.Path.ToString())
                 "event", "message_handled"
-             |] (Some context.ParentId) (Some context.SpanId)
+             |] context.ParentId (Some context.SpanId)
 
     let traceReceive (context:ActorCell<_>) =
         Trace.Write [|
                 "actor", (context.Self.Path.ToString())
                 "sender", (context.Sender.Path.ToString())
                 "event", "message_receive"
-             |] (Some context.ParentId) (Some context.SpanId)
+             |] context.ParentId (Some context.SpanId)
     
 
     let traceSend (context:ActorCell<_>) (ActorSelection targets) (sender:ActorRef) =
@@ -63,7 +63,7 @@ module Message =
            "actor", (sender.Path.ToString())
            "targets", String.Join(",", (targets |> List.map (fun x -> x.Path.ToString()) |> List.toArray))
            "event", "message_sent"
-        |] (Some context.ParentId) (Some context.SpanId)
+        |] context.ParentId (Some context.SpanId)
 
     let receive timeout = MH (fun ctx -> async {
         let! msg = ctx.Receive(?timeout = timeout)
@@ -110,29 +110,19 @@ module Message =
                         | ActorRef(target) -> target.Post(msg)
                         | Null -> ())
 
-    let postWithSender (targets:ActorSelection) (sender:ActorRef) (msg:'a) = 
-        postMessage targets (Message<'a>.Create(msg, sender))
-
-    let post target (msg:'a) = 
-        MH (fun ctx -> async {
-            let ref = (ActorRef ctx.Self)
-            do postWithSender target ref msg
-            do traceSend ctx target ref
-        })
-
-    let replyTo targets msg =
+    let post targets msg =
         MH (fun ctx -> async {
                 let ref = (ActorRef ctx.Self)
-                do postMessage targets { Id = ctx.ParentId; Sender = ActorRef ctx.Self; Message = msg }
-                do traceSend ctx targets ref
+                do postMessage targets { Id = Some ctx.SpanId; Sender = ActorRef ctx.Self; Message = msg }
+             //   do traceSend ctx targets ref
             }
         )
 
     let reply msg = MH (fun ctx -> async {
         let ref =  (ActorRef ctx.Self)
         let targets = (ActorSelection([ctx.Sender]))
-        do postMessage targets { Id = ctx.ParentId; Sender = ref; Message = msg }
-        do traceSend ctx targets ref
+        do postMessage targets { Id = Some ctx.SpanId; Sender = ref; Message = msg }
+      //  do traceSend ctx targets ref
     })
 
     let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
@@ -201,7 +191,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
     let mutable defn = defn
-    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = 0UL; SpanId = 0UL; Sender = Null }
+    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = None; SpanId = 0UL; Sender = Null }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 
@@ -412,28 +402,6 @@ module Actor =
 
         config |> (start >> register)
 
-    let deadLetter =
-           lazy
-               actor {
-                   name "deadLetter"
-                   body (
-                       let rec loop() = messageHandler {
-                           let! msg = Message.receive None
-                           return! loop()
-                       }
-
-                       loop()
-                   )
-               } |> spawn
-
-    let postDeadLetter (msg:Message<'a>) = deadLetter.Value.Post(Message.Box(msg)) 
-   
-    let link actor (supervisor:ActorRef) = 
-        Message.postWithSender actor supervisor (SetParent(supervisor))
-
-    let unlink target (supervisor:ActorRef) = 
-        Message.postWithSender target supervisor (RemoveParent(supervisor))
-
 [<AutoOpen>]
 module ActorOperators =
  
@@ -443,8 +411,8 @@ module ActorOperators =
     
     let inline (-->) msg t = 
         let a = ActorSelection.op_Implicit t
-        Message.postWithSender a Actor.deadLetter.Value msg
+        Message.postMessage a { Id = None; Sender = Null; Message = msg }
     
     let inline (<--) t msg =
         let a = ActorSelection.op_Implicit t
-        Message.postWithSender a Actor.deadLetter.Value msg
+        Message.postMessage a { Id = None; Sender = Null; Message = msg }

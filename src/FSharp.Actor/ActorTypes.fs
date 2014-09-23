@@ -26,13 +26,13 @@ type ActorRef =
                 raise(InvalidOperationException("Cannot send a message to a null actor reference"))
 
 and Message<'a> = {
-    Id : uint64
+    Id : uint64 option
     Sender : ActorRef
     Message : 'a
 }
 with
     static member Create(msg, sender, ?id) =
-        { Id = defaultArg id (Random.randomLong()); Message = msg; Sender = sender }
+        { Id = id; Message = msg; Sender = sender }
     static member Unbox<'a>(objM:Message<obj>) = { Id = objM.Id; Sender = objM.Sender; Message = unbox<'a> objM.Message }
     static member Box(objM:Message<'a>) = { Id = objM.Id; Sender = objM.Sender; Message = box objM.Message }
 
