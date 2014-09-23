@@ -19,7 +19,7 @@ type ActorCell<'a> = {
     Self : IActor
     mutable ParentId : uint64
     mutable SpanId : uint64
-    mutable CurrentMessage : Message<'a>
+    mutable Sender : ActorRef
 }
 with 
     member internal x.TryReceive(?timeout) = 
@@ -42,46 +42,64 @@ module Message =
          let rec loop() = 
              async { return! loop() }
          loop()))
+    
+    let traceHandled (context:ActorCell<_>) =
+        Trace.Write [|
+                "actor", (context.Self.Path.ToString())
+                "sender", (context.Sender.Path.ToString())
+                "event", "message_handled"
+             |] (Some context.ParentId) (Some context.SpanId)
 
-    let writeTrace (context:ActorCell<_>) eventType =
-        if (box context.CurrentMessage) <> null
-        then Trace.Write (context.Self.Path.ToString()) eventType (Some context.ParentId) (Some context.SpanId)
+    let traceReceive (context:ActorCell<_>) =
+        Trace.Write [|
+                "actor", (context.Self.Path.ToString())
+                "sender", (context.Sender.Path.ToString())
+                "event", "message_receive"
+             |] (Some context.ParentId) (Some context.SpanId)
+    
+
+    let traceSend (context:ActorCell<_>) (ActorSelection targets) (sender:ActorRef) =
+        Trace.Write [|
+           "actor", (sender.Path.ToString())
+           "targets", String.Join(",", (targets |> List.map (fun x -> x.Path.ToString()) |> List.toArray))
+           "event", "message_sent"
+        |] (Some context.ParentId) (Some context.SpanId)
 
     let receive timeout = MH (fun ctx -> async {
         let! msg = ctx.Receive(?timeout = timeout)
-        ctx.CurrentMessage <- msg
+        ctx.Sender <- msg.Sender
         ctx.ParentId <- msg.Id
         ctx.SpanId <- Random.randomLong()
-        writeTrace ctx "message_recieved"
+        traceReceive ctx
         return msg.Message  
     })
 
     let tryReceive timeout = MH (fun ctx -> async {
         let! msg = ctx.TryReceive(?timeout = timeout)
-        return Option.map (fun msg -> 
-            ctx.CurrentMessage <- msg; 
+        return Option.map (fun (msg:Message<_>)-> 
+            ctx.Sender <- msg.Sender
             ctx.ParentId <- msg.Id
             ctx.SpanId <- Random.randomLong()
-            writeTrace ctx "message_recieved" 
+            traceReceive ctx 
             msg.Message) msg 
     })
 
     let scan timeout f = MH (fun ctx -> async {
-        let! msg = ctx.Scan(f, ?timeout = timeout)
-        ctx.CurrentMessage <- msg
+        let! (msg:Message<_>) = ctx.Scan(f, ?timeout = timeout)
+        ctx.Sender <- msg.Sender
         ctx.ParentId <- msg.Id
         ctx.SpanId <- Random.randomLong()
-        writeTrace ctx "message_recieved"
+        traceReceive ctx
         return msg.Message  
     })
 
     let tryScan timeout f = MH (fun ctx -> async {
         let! msg = ctx.TryScan(f, ?timeout = timeout)
-        return Option.map (fun msg -> 
-            ctx.CurrentMessage <- msg;
+        return Option.map (fun (msg:Message<_>) -> 
+            ctx.Sender <- msg.Sender
             ctx.ParentId <- msg.Id
             ctx.SpanId <- Random.randomLong()
-            writeTrace ctx "message_recieved"
+            traceReceive ctx
             msg.Message) msg
     })
 
@@ -97,17 +115,24 @@ module Message =
 
     let post target (msg:'a) = 
         MH (fun ctx -> async {
-            do postWithSender target (ActorRef ctx.Self) msg
+            let ref = (ActorRef ctx.Self)
+            do postWithSender target ref msg
+            do traceSend ctx target ref
         })
 
     let replyTo targets msg =
         MH (fun ctx -> async {
+                let ref = (ActorRef ctx.Self)
                 do postMessage targets { Id = ctx.ParentId; Sender = ActorRef ctx.Self; Message = msg }
+                do traceSend ctx targets ref
             }
         )
 
     let reply msg = MH (fun ctx -> async {
-        do postMessage (ActorSelection([ctx.CurrentMessage.Sender])) { Id = ctx.ParentId; Sender = ActorRef ctx.Self; Message = msg }
+        let ref =  (ActorRef ctx.Self)
+        let targets = (ActorSelection([ctx.Sender]))
+        do postMessage targets { Id = ctx.ParentId; Sender = ref; Message = msg }
+        do traceSend ctx targets ref
     })
 
     let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
@@ -129,8 +154,8 @@ module Message =
                      return! nextComp context
                   } 
             )
-        member x.Return(m) = MH(fun ctx -> writeTrace ctx "message_handled"; async { return m } )
-        member x.ReturnFrom(MH m) = MH(fun ctx -> writeTrace ctx "message_handled"; m(ctx))
+        member x.Return(m) = MH(fun ctx -> traceHandled ctx; async { return m } )
+        member x.ReturnFrom(MH m) = MH(fun ctx -> traceHandled ctx; m(ctx))
         member x.Zero() = MH(fun ctx -> async.Zero())
         member x.Delay(f) = x.Bind(x.Zero(), f)
         member x.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
@@ -176,7 +201,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
     let mutable defn = defn
-    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = 0UL; SpanId = 0UL; CurrentMessage = Unchecked.defaultof<_> }
+    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = 0UL; SpanId = 0UL; Sender = Null }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 

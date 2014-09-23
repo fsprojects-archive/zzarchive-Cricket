@@ -58,7 +58,11 @@ pingRef <-- Pong
 
 let config = Diagnostics.Trace.getConfig().Tracer :?> (Diagnostics.InMemoryTraceSink)
 
+fsi.AddPrinter(fun (x:System.DateTime) -> x.ToString("dd/MM/yyyy HH:mm:ss.fffffff"))
+fsi.AddPrintTransformer(fun (x:Diagnostics.TraceHeader) -> (x.Annotation, x.ParentId, x.SpanId, System.DateTime(x.Timestamp)) |> box)
+fsi.AddPrintTransformer(fun (x:(string * seq<Diagnostics.TraceHeader>)) -> (x |> fst, x |> snd |> Seq.toList) |> box)
+
 config.GetTraces()
-|> Seq.sortBy (fun x -> x.Timestamp)
-//|> Seq.groupBy (fun t -> t.ParentId)
+|> Seq.groupBy (fun t -> t.ParentId)
+|> Seq.map (fun (p, ts) -> p, ts |> Seq.sortBy(fun x -> x.Timestamp))
 |> Seq.toList
