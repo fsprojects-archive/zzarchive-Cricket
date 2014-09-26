@@ -113,8 +113,7 @@ module Message =
     let post targets msg =
         MH (fun ctx -> async {
                 let ref = (ActorRef ctx.Self)
-                do postMessage targets { Id = Some ctx.SpanId; Sender = ActorRef ctx.Self; Message = msg }
-             //   do traceSend ctx targets ref
+                do postMessage targets { Id = Some ctx.SpanId; Sender = ref; Message = msg }
             }
         )
 
@@ -122,7 +121,6 @@ module Message =
         let ref =  (ActorRef ctx.Self)
         let targets = (ActorSelection([ctx.Sender]))
         do postMessage targets { Id = Some ctx.SpanId; Sender = ref; Message = msg }
-      //  do traceSend ctx targets ref
     })
 
     let toAsync (MH handler) ctx = handler ctx |> Async.Ignore

@@ -53,7 +53,8 @@ type DefaultEventStream(id, logger:Log.ILogger) =
     let publish typ (payload:'a) = 
         if (box payload) <> null 
         then
-            mailbox.Post({PayloadType = typ; Payload = payload })
+            if subscriptions.ContainsKey(typ)
+            then mailbox.Post({PayloadType = typ; Payload = payload })
     do
         Async.Start(worker(), cts.Token)
 
