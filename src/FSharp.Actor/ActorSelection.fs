@@ -21,4 +21,5 @@ type ActorSelection =
                 |> ActorSelection
             | :? ActorRef as ref -> [ref] |> ActorSelection
             | :? ActorSelection as sel -> sel
+            | :? Lazy<ActorSelection> as sel -> sel.Value
             | _ -> failwithf "Cannot convert %A to an ActorSelection" s      

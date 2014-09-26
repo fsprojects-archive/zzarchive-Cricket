@@ -43,28 +43,20 @@ module Message =
              async { return! loop() }
          loop()))
     
-    let traceHandled (context:ActorCell<_>) =
+    let private traceHandled (context:ActorCell<_>) =
         Trace.Write [|
                 "actor", (context.Self.Path.ToString())
                 "sender", (context.Sender.Path.ToString())
                 "event", "message_handled"
              |] context.ParentId (Some context.SpanId)
 
-    let traceReceive (context:ActorCell<_>) =
+    let private traceReceive (context:ActorCell<_>) =
         Trace.Write [|
                 "actor", (context.Self.Path.ToString())
                 "sender", (context.Sender.Path.ToString())
                 "event", "message_receive"
              |] context.ParentId (Some context.SpanId)
     
-
-    let traceSend (context:ActorCell<_>) (ActorSelection targets) (sender:ActorRef) =
-        Trace.Write [|
-           "actor", (sender.Path.ToString())
-           "targets", String.Join(",", (targets |> List.map (fun x -> x.Path.ToString()) |> List.toArray))
-           "event", "message_sent"
-        |] context.ParentId (Some context.SpanId)
-
     let receive timeout = MH (fun ctx -> async {
         let! msg = ctx.Receive(?timeout = timeout)
         ctx.Sender <- msg.Sender
@@ -142,8 +134,14 @@ module Message =
                      return! nextComp context
                   } 
             )
-        member x.Return(m) = MH(fun ctx -> traceHandled ctx; async { return m } )
-        member x.ReturnFrom(MH m) = MH(fun ctx -> traceHandled ctx; m(ctx))
+        member x.Return(m) = 
+            MH(fun ctx -> 
+                traceHandled ctx; 
+                async { return m } )
+        member x.ReturnFrom(MH m) = 
+            MH(fun ctx -> 
+                traceHandled ctx; 
+                m(ctx))
         member x.Zero() = MH(fun ctx -> async.Zero())
         member x.Delay(f) = x.Bind(x.Zero(), f)
         member x.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)

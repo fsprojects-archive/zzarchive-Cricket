@@ -75,15 +75,15 @@
     <Compile Include="Sockets.fs" />
     <Compile Include="Transports.fs" />
     <Compile Include="AssemblyInfo.fs" />
-    <None Include="Scratch.fsx" />
     <None Include="packages.config" />
+    <None Include="Scratch.fsx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
     <Reference Include="FsPickler">
-      <HintPath>..\..\packages\FsPickler.0.9.9\lib\net45\FsPickler.dll</HintPath>
+      <HintPath>..\..\packages\FsPickler.0.9.11\lib\net45\FsPickler.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="mscorlib" />

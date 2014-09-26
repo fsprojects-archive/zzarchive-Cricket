@@ -82,10 +82,11 @@ type ActorHost private (configuration:ActorHostConfiguration) =
      interface IDisposable with
         member x.Dispose() =
            isDisposed <- true
-           Metrics.dispose()
            configuration.Logger.Info("shutting down")
            cts.Cancel()
            cts.Dispose()
            configuration.Registry.Dispose()
            configuration.EventStream.Dispose()
+           Metrics.dispose()
+           Trace.Dispose()
            configuration.Logger.Info("shutdown")

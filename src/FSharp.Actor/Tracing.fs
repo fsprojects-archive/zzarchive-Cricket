@@ -1,8 +1,11 @@
 ﻿namespace FSharp.Actor.Diagnostics
 
 open System
+open System.IO
+open Nessos.FsPickler
 open FSharp.Actor
-open System.Diagnostics.Tracing
+open System.Threading
+
 
 type TraceHeader =
     { Annotation : (string * string)[]
@@ -15,39 +18,96 @@ type TraceHeader =
         let new_id = Random.randomLong()
         { Annotation = annotation; Timestamp = DateTime.UtcNow.Ticks; SpanId = defaultArg spanId new_id; ParentId = parentId }
 
-type ITraceSink =
-    inherit IDisposable
-    abstract WriteTrace : (string  * string)[] * uint64 option * uint64 option -> unit
+type ITraceWriter =
+    inherit IDisposable 
+    abstract Write : TraceHeader -> unit
 
-type InMemoryTraceSink() =
-     let store = new ResizeArray<TraceHeader>()
+type DefaultTraceWriter(?filename, ?flushThreshold, ?token) =
+    let cancelToken = defaultArg token (Async.DefaultCancellationToken)
+    let flushThreshold = defaultArg flushThreshold 1000
+    let fileName = (defaultArg filename (Environment.DefaultActorHostName  + ".actortrace"))
+    let fileStream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read ||| FileShare.Delete)
+    let pickler = FsPickler.CreateBinary()
+    let numberOfEvents = ref 0
+    let totalEvents = ref 0L
 
-     member x.GetTraces() = store |> Seq.map id
+    let rec flusher() = async {
+        do! Async.Sleep(200)
+        if !numberOfEvents > flushThreshold
+        then
+            do! fileStream.FlushAsync(cancelToken)
+            Interlocked.CompareExchange(numberOfEvents, 0, !numberOfEvents) |> ignore
+        return! flusher()
+    }
 
-     interface ITraceSink with
-        member x.WriteTrace(annotation,parent,span) = 
-            //TODO: Implement this properly.. with System.Diagnostics.Tracing. 
-            store.Add (TraceHeader.Create(annotation, ?parentId = parent, ?spanId = span))
-        member x.Dispose() = store.Clear()
-      
+    
+    let writeFileHeader() =
+        let bytes = BitConverter.GetBytes(!totalEvents) 
+        fileStream.Position <- 0L
+        fileStream.Write(bytes, 0, bytes.Length)
+
+    let dispose() =
+        writeFileHeader()
+        fileStream.Flush(true)
+        fileStream.Dispose()
+
+    do
+        cancelToken.Register(fun () -> dispose()) |> ignore
+        writeFileHeader()
+        Async.Start(flusher(), cancelToken)
+
+    interface ITraceWriter with
+        member x.Write(header) = 
+            pickler.Serialize(fileStream, header, leaveOpen = true)
+            Interlocked.Increment(numberOfEvents) |> ignore
+            Interlocked.Increment(totalEvents) |> ignore
+        member x.Dispose() = dispose()
+
 type TracingConfiguration = {
-    Tracer : ITraceSink
+    IsEnabled : bool
+    CancellationToken : CancellationToken
+    Writer : ITraceWriter
 }
 with 
-    static member Default = {
-        Tracer = new InMemoryTraceSink() 
-    }
+    static member Default = 
+        {
+            IsEnabled = true
+            CancellationToken = Async.DefaultCancellationToken
+            Writer = new DefaultTraceWriter()
+        }
 
 module Trace = 
     
     let mutable private config = TracingConfiguration.Default
 
-    let Write annotation parentid spanid = config.Tracer.WriteTrace(annotation, parentid, spanid)
+    let Write annotation parentid spanid =
+        if config.IsEnabled
+        then config.Writer.Write(TraceHeader.Create(annotation, ?parentId = parentid, ?spanId = spanid))
+    
+    let Dispose() =
+        config.Writer.Dispose()
 
     let Start(cfg:TracingConfiguration option) =
         Option.iter (fun cfg -> config <- cfg) cfg
+        config.CancellationToken.Register(fun () -> Dispose())
 
     let getConfig() = config
 
-    let Dispose() = 
-        config.Tracer.Dispose()
+
+    let getEventCount(file) = 
+        use fileStream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite, FileShare.Read ||| FileShare.Delete)
+        let buffer = Array.zeroCreate<byte> sizeof<Int64>
+        fileStream.Read(buffer, 0, sizeof<Int64>) |> ignore
+        BitConverter.ToInt64(buffer, 0)
+
+    let readTraces(file) : seq<TraceHeader> = 
+        seq {
+            let pickler = FsPickler.CreateBinary()
+            use fileStream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite, FileShare.Read ||| FileShare.Delete)
+            let buffer = Array.zeroCreate<byte> sizeof<Int64>
+            fileStream.Read(buffer, 0, sizeof<Int64>) |> ignore
+            let events = BitConverter.ToInt64(buffer, 0)
+            for i in 0L..(events - 2L) do
+                  yield pickler.Deserialize(typeof<TraceHeader>, fileStream, leaveOpen = true) |> unbox
+        }
+

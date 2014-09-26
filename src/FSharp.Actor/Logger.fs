@@ -93,15 +93,9 @@ module Log =
           member x.Equals other =
             x.ToInt() = other.ToInt()
         
-    /// When logging, write a log line like this with the source of your
-    /// log line as well as a message and an optional exception.
     type LogLine =
-        /// the trace id and span id
-        /// If using tracing, then this LogLine is an annotation to a
-        /// span instead of a 'pure' log entry
-      { trace         : TraceHeader
-        /// the level that this log line has
-      ; level         : LogLevel
+      {
+       level         : LogLevel
         /// the source of the log line, e.g. 'ModuleName.FunctionName'
       ; path          : string
         /// the message that the application wants to log
@@ -169,38 +163,37 @@ module Log =
           interface ILogger with
             member x.Log level f_line = if level >= min_level then log (f_line ())
              
-    let internal mk_line level path trace ex message =
+    let internal mk_line level path ex message =
       { message       = message
       ; level         = level
       ; path          = path
       ; ``exception`` = ex
-      ; trace         = trace
       ; ts_utc_ticks  = DateTime.UtcNow.Ticks }
     
-    let write (logger : ILogger) level path trace exn message =
-      logger.Log level (fun _ -> mk_line level path trace exn message)
+    let write (logger : ILogger) level path exn message =
+      logger.Log level (fun _ -> mk_line level path exn message)
     
-    let writef logger level path trace exn f_format =
-      f_format (Printf.kprintf (write logger level path trace exn)) |> ignore
+    let writef logger level path exn f_format =
+      f_format (Printf.kprintf (write logger level path exn)) |> ignore
     
     open Loggers
 
     type Logger(path:string, logger : ILogger) = 
     
-         member x.Write(level, message, ?trace, ?exn) = 
-             write logger level path (defaultArg trace TraceHeader.Empty) exn message
+         member x.Write(level, message, ?exn) = 
+             write logger level path exn message
     
-         member x.Info(message, ?trace, ?exn) =
-             x.Write(Info, message, ?trace = trace, ?exn = exn)
+         member x.Info(message, ?exn) =
+             x.Write(Info, message, ?exn = exn)
     
-         member x.Debug(message, ?trace, ?exn) =
-             x.Write(Debug, message, ?trace = trace, ?exn = exn)
+         member x.Debug(message, ?exn) =
+             x.Write(Debug, message, ?exn = exn)
     
-         member x.Error(message, ?trace, ?exn) =
-             x.Write(Error, message, ?trace = trace, ?exn = exn)
+         member x.Error(message, ?exn) =
+             x.Write(Error, message, ?exn = exn)
     
-         member x.Fatal(message, ?trace, ?exn) =
-             x.Write(Fatal, message, ?trace = trace, ?exn = exn)
+         member x.Fatal(message, ?exn) =
+             x.Write(Fatal, message, ?exn = exn)
 
     let defaultFor level =
        if level >= Warn then

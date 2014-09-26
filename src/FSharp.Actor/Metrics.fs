@@ -190,6 +190,7 @@ module Metrics =
         ctx.Store.GetOrAdd(key, value) |> ignore
 
     let private update (ctx:MetricContext) key (updator : 'a -> 'b * MetricValue) =
+        
         let oldValue = ctx.Store.[key]
         let result, newValue = updator (oldValue.Value<'a>())
         ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
@@ -304,9 +305,17 @@ module Metrics =
             for ((category, metricCat), counters) in systemCounters do 
                 for (counter, label) in counters do
                     createPerformanceCounterGuage(ctx,(metricCat + "/" + label),(category, counter, instanceName))
+    
 
-    let Start(config:MetricsConfiguration option) =
-        let config = defaultArg config (MetricsConfiguration.Default)
+    let dispose() = 
+        disposables |> Seq.iter (fun d -> d.Dispose())
+        disposables.Clear()
+        store.Values |> Seq.iter (fun v -> v.Store.Clear())
+        store.Clear()
+
+    let Start(cfg:MetricsConfiguration option) =
+        Option.iter (fun cfg -> config <- cfg) cfg
+        config.CancellationToken.Register(fun () -> dispose()) |> ignore
         configureSystemMetrics(config.SystemMetrics)
 
 
@@ -323,13 +332,3 @@ module Metrics =
                            }
                        yield key, metrics
            }
-
-    let dispose() = 
-        disposables |> Seq.iter (fun d -> d.Dispose())
-        disposables.Clear()
-        store.Values |> Seq.iter (fun v -> v.Store.Clear())
-        store.Clear()
-            
-
-
-    
