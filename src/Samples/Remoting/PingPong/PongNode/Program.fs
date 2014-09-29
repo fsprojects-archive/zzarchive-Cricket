@@ -47,6 +47,7 @@ let main argv =
 
     ActorHost.Dispose()
 
+    Console.WriteLine("Shutdown")
     Console.ReadLine() |> ignore
 
     0 // return an integer exit code

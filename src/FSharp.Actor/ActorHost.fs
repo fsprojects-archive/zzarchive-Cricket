@@ -70,8 +70,8 @@ type ActorHost private (configuration:ActorHostConfiguration) =
                                                     ?serializer = serializer, ?registry = registry, 
                                                     ?cancellationToken = cancellationToken))
         instance <- new ActorHost(config)
-        Metrics.Start(metrics)
-        Trace.Start(tracing)
+        Metrics.start(metrics)
+        Trace.start(tracing)
         instance      
      
      static member Dispose() = 
@@ -88,5 +88,5 @@ type ActorHost private (configuration:ActorHostConfiguration) =
            configuration.Registry.Dispose()
            configuration.EventStream.Dispose()
            Metrics.dispose()
-           Trace.Dispose()
+           Trace.dispose()
            configuration.Logger.Info("shutdown")

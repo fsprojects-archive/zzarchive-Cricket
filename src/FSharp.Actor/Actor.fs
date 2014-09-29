@@ -44,14 +44,14 @@ module Message =
          loop()))
     
     let private traceHandled (context:ActorCell<_>) =
-        Trace.Write [|
+        Trace.write [|
                 "actor", (context.Self.Path.ToString())
                 "sender", (context.Sender.Path.ToString())
                 "event", "message_handled"
              |] context.ParentId (Some context.SpanId)
 
     let private traceReceive (context:ActorCell<_>) =
-        Trace.Write [|
+        Trace.write [|
                 "actor", (context.Self.Path.ToString())
                 "sender", (context.Sender.Path.ToString())
                 "event", "message_receive"

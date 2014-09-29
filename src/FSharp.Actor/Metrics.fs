@@ -190,7 +190,6 @@ module Metrics =
         ctx.Store.GetOrAdd(key, value) |> ignore
 
     let private update (ctx:MetricContext) key (updator : 'a -> 'b * MetricValue) =
-        
         let oldValue = ctx.Store.[key]
         let result, newValue = updator (oldValue.Value<'a>())
         ctx.Store.TryUpdate(key, newValue, oldValue) |> ignore
@@ -313,7 +312,7 @@ module Metrics =
         store.Values |> Seq.iter (fun v -> v.Store.Clear())
         store.Clear()
 
-    let Start(cfg:MetricsConfiguration option) =
+    let start(cfg:MetricsConfiguration option) =
         Option.iter (fun cfg -> config <- cfg) cfg
         config.CancellationToken.Register(fun () -> dispose()) |> ignore
         configureSystemMetrics(config.SystemMetrics)

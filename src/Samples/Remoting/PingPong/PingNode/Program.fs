@@ -46,4 +46,7 @@ let main argv =
     Console.WriteLine("Press enter to exit")
     Console.ReadLine() |> ignore
     ActorHost.Dispose()
+
+    Console.WriteLine("Shutdown")
+    Console.ReadLine() |> ignore
     0 // return an integer exit code
