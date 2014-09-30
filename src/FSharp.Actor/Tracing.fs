@@ -23,6 +23,19 @@ type ITraceWriter =
     inherit IDisposable 
     abstract Write : TraceHeader -> unit
 
+type InMemoryTraceWriter() =
+    let writeQueue = new BlockingCollection<TraceHeader>()
+
+    let dispose() =
+        writeQueue.Dispose()
+
+    member x.GetTraces() = writeQueue.ToArray()
+
+    interface ITraceWriter with
+        member x.Write(header) = writeQueue.Add(header)
+
+        member x.Dispose() = dispose()
+
 type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
     let cancelToken = defaultArg token (Async.DefaultCancellationToken)
     let flushThreshold = defaultArg flushThreshold 1000
@@ -78,16 +91,16 @@ type TracingConfiguration = {
     Writer : ITraceWriter
 }
 with 
-    static member Default = 
+    static member Create(?writer, ?cancelToken) = 
         {
             IsEnabled = true
             CancellationToken = Async.DefaultCancellationToken
-            Writer = new DefaultTraceWriter()
+            Writer = (defaultArg writer (new DefaultTraceWriter() :> ITraceWriter))
         }
 
 module Trace = 
     
-    let mutable private config = TracingConfiguration.Default
+    let mutable private config = Unchecked.defaultof<_>
 
     let write annotation parentid spanid =
         if config.IsEnabled
@@ -97,7 +110,10 @@ module Trace =
         config.Writer.Dispose()
 
     let start(cfg:TracingConfiguration option) =
-        Option.iter (fun cfg -> config <- cfg) cfg
+        match cfg with
+        | Some(cfg) -> config <- cfg
+        | None -> config <- TracingConfiguration.Create()
+
         config.CancellationToken.Register(fun () -> dispose()) |> ignore
 
     let readTraces(file) = 

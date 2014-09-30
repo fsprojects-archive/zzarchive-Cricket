@@ -20,6 +20,12 @@ type ActorSelection =
                 ActorHost.Instance.ResolveActor path 
                 |> ActorSelection
             | :? ActorRef as ref -> [ref] |> ActorSelection
+            | :? list<ActorRef> as ref -> ref |> ActorSelection
+            | :? array<ActorRef> as ref -> ref |> Array.toList |> ActorSelection
+            | :? seq<ActorRef> as ref -> ref |> Seq.toList |> ActorSelection
             | :? ActorSelection as sel -> sel
             | :? Lazy<ActorSelection> as sel -> sel.Value
+            | :? list<ActorSelection> as ref -> ref |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection
+            | :? array<ActorSelection> as ref -> ref |> Array.toList |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection
+            | :? seq<ActorSelection> as ref -> ref |> Seq.toList |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection 
             | _ -> failwithf "Cannot convert %A to an ActorSelection" s      

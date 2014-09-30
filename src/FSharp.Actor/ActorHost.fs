@@ -14,14 +14,14 @@ type ActorHostConfiguration = {
      Name : string
 }
 with
-    static member Create(?name, ?logger, ?serializer, ?registry, ?cancellationToken ) =
+    static member Create(?name, ?logger, ?serializer, ?registry, ?eventStream, ?cancellationToken) =
         let hostName = defaultArg name Environment.DefaultActorHostName
-        let serializer = defaultArg serializer (new BinarySerializer())
+        let serializer = defaultArg serializer (new BinarySerializer() :> ISerializer)
         let ct = defaultArg cancellationToken Async.DefaultCancellationToken
         {
             Logger = defaultArg logger (Log.Logger(sprintf "ActorHost:[%s]" hostName, Log.defaultFor Log.Debug))
-            Registry = defaultArg registry (new InMemoryActorRegistry())
-            EventStream = new DefaultEventStream("host", Log.defaultFor Log.Debug)
+            Registry = defaultArg registry (new InMemoryActorRegistry() :> ActorRegistry)
+            EventStream = defaultArg eventStream (new DefaultEventStream("host", Log.defaultFor Log.Debug) :> IEventStream)
             Serializer = serializer
             CancellationToken = ct
             Name = hostName

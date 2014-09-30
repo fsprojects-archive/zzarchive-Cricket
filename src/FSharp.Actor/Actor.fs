@@ -65,6 +65,8 @@ module Message =
         traceReceive ctx
         return msg.Message  
     })
+    
+    let sender() = MH (fun ctx -> async { return ActorSelection.op_Implicit ctx.Sender }) 
 
     let tryReceive timeout = MH (fun ctx -> async {
         let! msg = ctx.TryReceive(?timeout = timeout)
@@ -95,8 +97,8 @@ module Message =
             msg.Message) msg
     })
 
-    let postMessage (targets:ActorSelection) (msg:Message<obj>) =
-        targets.Refs 
+    let postMessage (targets:'a) (msg:Message<obj>) =
+        (ActorSelection.op_Implicit targets).Refs 
         |> List.iter (fun target ->
                         match target with
                         | ActorRef(target) -> target.Post(msg)
@@ -112,7 +114,7 @@ module Message =
     let reply msg = MH (fun ctx -> async {
         let ref =  (ActorRef ctx.Self)
         let targets = (ActorSelection([ctx.Sender]))
-        do postMessage targets { Id = Some ctx.SpanId; Sender = ref; Message = msg }
+        do postMessage targets { Id = ctx.ParentId; Sender = ref; Message = msg }
     })
 
     let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
