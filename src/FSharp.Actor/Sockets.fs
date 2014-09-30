@@ -1,10 +1,8 @@
 ﻿namespace FSharp.Actor
 
 open System
-open System.IO
 open System.Net
 open System.Net.Sockets
-open System.Net.NetworkInformation
 open System.Collections.Concurrent
 open System.Threading
 open Microsoft.FSharp.Control

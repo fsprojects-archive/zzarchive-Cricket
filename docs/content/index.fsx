@@ -51,7 +51,7 @@ The API reference is automatically generated from Markdown comments in the libra
 
  * [Tutorial](tutorial.html) contains a further explanation of this sample library.
 
- * [Diagnostics](diagnostics.html) including Metrics and Message Tracing
+ * Diagnostics - including [Metrics](diagnostics_metrics.html) and [Message Tracing](diagnostics_tracing.html)
 
  * [Supervisor Trees and Error Recovery](supervisors_error_recovery.html)
 

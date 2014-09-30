@@ -17,7 +17,7 @@ type ActorRegistry = IRegistry<ActorPath, ActorRef>
 
 type InMemoryActorRegistry() =
     let syncObj = new ReaderWriterLockSlim()
-    let actors : Trie.trie<ActorRef> ref = ref Trie.empty
+    let actors : Trie<ActorRef> ref = ref Trie.empty
     interface ActorRegistry with
         member x.All with get() = !actors |> Trie.values
 

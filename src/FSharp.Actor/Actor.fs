@@ -2,8 +2,6 @@
 
 open System
 open System.Threading
-open System.Collections.Generic
-open Microsoft.FSharp.Reflection
 open System.Runtime.Remoting.Messaging
 open FSharp.Actor
 open FSharp.Actor.Diagnostics
@@ -44,18 +42,18 @@ module Message =
          loop()))
     
     let private traceHandled (context:ActorCell<_>) =
-        Trace.write [|
-                "actor", (context.Self.Path.ToString())
-                "sender", (context.Sender.Path.ToString())
-                "event", "message_handled"
-             |] context.ParentId (Some context.SpanId)
+        Trace.write (TraceEntry.Create(context.Sender.Path, 
+                               context.Sender.Path, 
+                               "message_handled", 
+                               ?parentId = context.ParentId, 
+                               spanId = context.SpanId))
 
     let private traceReceive (context:ActorCell<_>) =
-        Trace.write [|
-                "actor", (context.Self.Path.ToString())
-                "sender", (context.Sender.Path.ToString())
-                "event", "message_receive"
-             |] context.ParentId (Some context.SpanId)
+        Trace.write (TraceEntry.Create(context.Sender.Path, 
+                               context.Sender.Path, 
+                               "message_receive", 
+                               ?parentId = context.ParentId, 
+                               spanId = context.SpanId))
     
     let receive timeout = MH (fun ctx -> async {
         let! msg = ctx.Receive(?timeout = timeout)
@@ -120,7 +118,7 @@ module Message =
     let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
 
     type MessageHandlerBuilder() = 
-        member x.Bind(MH handler,f) =
+        member __.Bind(MH handler,f) =
              MH (fun context -> 
                   async {
                      let! comp = handler context
@@ -128,7 +126,7 @@ module Message =
                      return! nextComp context
                   } 
              ) 
-        member x.Bind(a:Async<_>, f) = 
+        member __.Bind(a:Async<_>, f) = 
             MH (fun context -> 
                 async {
                      let! comp = a
@@ -136,17 +134,17 @@ module Message =
                      return! nextComp context
                   } 
             )
-        member x.Return(m) = 
+        member __.Return(m) = 
             MH(fun ctx -> 
                 traceHandled ctx; 
                 async { return m } )
-        member x.ReturnFrom(MH m) = 
+        member __.ReturnFrom(MH m) = 
             MH(fun ctx -> 
                 traceHandled ctx; 
                 m(ctx))
-        member x.Zero() = MH(fun ctx -> async.Zero())
+        member __.Zero() = MH(fun _ -> async.Zero())
         member x.Delay(f) = x.Bind(x.Zero(), f)
-        member x.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
+        member __.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
         member x.Combine(c1 : MessageHandler<_,_>, c2) = x.Bind(c1, fun () -> c2)
         member x.For(sq:seq<'a>, f:'a -> MessageHandler<'b, 'c>) = 
           let rec loop (en:System.Collections.Generic.IEnumerator<_>) = 
@@ -294,7 +292,6 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
             messageHandlerCancel <- null
         messageHandlerCancel <- new CancellationTokenSource()
         Async.Start(async {
-                        CallContext.LogicalSetData("actor", self.Ref)
                         publishEvent(ActorEvent.ActorStarted(self.Ref))
                         do! messageHandler()
                     }, messageHandlerCancel.Token)
@@ -304,7 +301,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
         ctx.Children |> List.iter (fun t -> t.Post(SetParent(self.Ref), self.Ref))
         start()
    
-    override x.ToString() = defn.Path.ToString()
+    override __.ToString() = defn.Path.ToString()
 
     member x.Ref = ActorRef(x)
 
@@ -338,7 +335,7 @@ module ActorConfiguration =
     let messageHandler = new Message.MessageHandlerBuilder()
 
     type ActorConfigurationBuilder internal() = 
-        member x.Zero() = { 
+        member __.Zero() = { 
             Path = ActorPath.ofString (Guid.NewGuid().ToString()); 
             EventStream = None
             SupervisorStrategy = (fun x -> x.Sender.Post(Shutdown, x.Sender));
@@ -349,33 +346,33 @@ module ActorConfiguration =
             Mailbox = None  }
         member x.Yield(()) = x.Zero()
         [<CustomOperation("inherits", MaintainsVariableSpace = true)>]
-        member x.Inherits(ctx:ActorConfiguration<'a,'b>, b:ActorConfiguration<_,_>) = b
+        member __.Inherits(_:ActorConfiguration<'a,'b>, b:ActorConfiguration<_,_>) = b
         [<CustomOperation("path", MaintainsVariableSpace = true)>]
-        member x.Path(ctx:ActorConfiguration<'a,'b>, name) = 
+        member __.Path(ctx:ActorConfiguration<'a,'b>, name) = 
             {ctx with Path = name }
         [<CustomOperation("name", MaintainsVariableSpace = true)>]
-        member x.Name(ctx:ActorConfiguration<'a,'b>, name) = 
+        member __.Name(ctx:ActorConfiguration<'a,'b>, name) = 
             {ctx with Path = ActorPath.ofString name }
         [<CustomOperation("maxQueueLength", MaintainsVariableSpace = true)>]
-        member x.MaxQueueLength(ctx:ActorConfiguration<'a,'b>, length) = 
+        member __.MaxQueueLength(ctx:ActorConfiguration<'a,'b>, length) = 
             { ctx with MaxQueueLength = Some length }
         [<CustomOperation("mailbox", MaintainsVariableSpace = true)>]
-        member x.Mailbox(ctx:ActorConfiguration<'a,'b>, mailbox) = 
+        member __.Mailbox(ctx:ActorConfiguration<'a,'b>, mailbox) = 
             {ctx with Mailbox = mailbox }
         [<CustomOperation("body", MaintainsVariableSpace = true)>]
-        member x.Body(ctx:ActorConfiguration<'a,'b>, behaviour) = 
+        member __.Body(ctx:ActorConfiguration<'a,'b>, behaviour) = 
             { ctx with Behaviour = behaviour }
         [<CustomOperation("parent", MaintainsVariableSpace = true)>]
-        member x.SupervisedBy(ctx:ActorConfiguration<'a,'b>, sup) = 
+        member __.SupervisedBy(ctx:ActorConfiguration<'a,'b>, sup) = 
             { ctx with Parent = sup }
         [<CustomOperation("children", MaintainsVariableSpace = true)>]
-        member x.Children(ctx:ActorConfiguration<'a,'b>, children) =
+        member __.Children(ctx:ActorConfiguration<'a,'b>, children) =
             { ctx with Children = children }
         [<CustomOperation("supervisorStrategy", MaintainsVariableSpace = true)>]
-        member x.SupervisorStrategy(ctx:ActorConfiguration<'a,'b>, supervisorStrategy) = 
+        member __.SupervisorStrategy(ctx:ActorConfiguration<'a,'b>, supervisorStrategy) = 
             { ctx with SupervisorStrategy = supervisorStrategy }
         [<CustomOperation("raiseEventsOn", MaintainsVariableSpace = true)>]
-        member x.RaiseEventsOn(ctx:ActorConfiguration<'a,'b>, es) = 
+        member __.RaiseEventsOn(ctx:ActorConfiguration<'a,'b>, es) = 
             { ctx with EventStream = Some es }
 
     let actor = new ActorConfigurationBuilder()

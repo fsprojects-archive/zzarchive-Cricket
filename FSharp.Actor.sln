@@ -34,7 +34,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D5255-776D-4B61-85F9-73C37AA1FB9A}"
 	ProjectSection(SolutionItems) = preProject
 		docs\content\actor_lookup.fsx = docs\content\actor_lookup.fsx
-		docs\content\diagnostics.fsx = docs\content\diagnostics.fsx
+		docs\content\diagnostics_metrics.fsx = docs\content\diagnostics_metrics.fsx
+		docs\content\diagnostics_tracing.fsx = docs\content\diagnostics_tracing.fsx
 		docs\content\index.fsx = docs\content\index.fsx
 		docs\content\pingpong.fsx = docs\content\pingpong.fsx
 		docs\content\remoting.fsx = docs\content\remoting.fsx

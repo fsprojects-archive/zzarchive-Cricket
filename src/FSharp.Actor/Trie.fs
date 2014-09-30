@@ -1,12 +1,12 @@
 ﻿namespace FSharp.Actor
 
-module Trie =
-    
-    type key = 
-        | Key of string
-        | Wildcard
+type TrieKey = 
+    | Key of string
+    | Wildcard
 
-    type trie<'v> = Node of 'v option * Map<key, trie<'v>>
+type Trie<'v> = Node of 'v option * Map<TrieKey, Trie<'v>>
+
+module Trie =
 
     let isEmpty = function
         | Node (None, m) -> Map.isEmpty m

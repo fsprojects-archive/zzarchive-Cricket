@@ -100,9 +100,9 @@ module ActorPath =
         | Some(s) -> s :: (path.PathComponents |> Array.toList)
         | None -> "*" :: (path.PathComponents |> Array.toList)
         |> List.choose (function
-            | "*" -> Some Trie.Wildcard
+            | "*" -> Some TrieKey.Wildcard
             | "/" -> None
-            | a -> Some (Trie.Key(a.Trim('/')))
+            | a -> Some (TrieKey.Key(a.Trim('/')))
         )
     
     let deadLetter = ofString ("/deadletter")
@@ -123,9 +123,7 @@ module ActorPath =
                 | Some(ip) -> NetAddress <| new IPEndPoint(ip, port)
                 | None -> failwithf "Unable to find ipV4 address for %s" host
         | a -> failwithf "A host name type of %A is not currently supported" a
-    
 
-        
     let rebase (basePath:ActorPath) (path:ActorPath) =
         if basePath.IsAbsolute
         then

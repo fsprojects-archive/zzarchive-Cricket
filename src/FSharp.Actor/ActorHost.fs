@@ -1,7 +1,6 @@
 ﻿namespace FSharp.Actor
 
 open System
-open System.IO
 open System.Threading
 open FSharp.Actor.Diagnostics
 
@@ -46,18 +45,18 @@ type ActorHost private (configuration:ActorHostConfiguration) =
      let actorsRegisted = Metrics.createCounter(metricContext,"registeredActors")
      let uptime = Metrics.createUptime(metricContext,"uptime", 1000)
 
-     member internal x.Configure(f) = configuration <- (f configuration)
+     member internal __.Configure(f) = configuration <- (f configuration)
      
-     member internal x.Name with get() = configuration.Name
-     member internal x.Serializer with get() = configuration.Serializer
-     member internal x.EventStream with get() = configuration.EventStream
-     member internal x.CancelToken with get() = cts.Token
+     member internal __.Name with get() = configuration.Name
+     member internal __.Serializer with get() = configuration.Serializer
+     member internal __.EventStream with get() = configuration.EventStream
+     member internal __.CancelToken with get() = cts.Token
      
-     member internal x.ResolveActor name = 
+     member internal __.ResolveActor name = 
         resolutionRequests(1L)
         configuration.Registry.Resolve(name)
 
-     member internal x.RegisterActor(ref:ActorRef) = 
+     member internal __.RegisterActor(ref:ActorRef) = 
         configuration.Registry.Register(ref)
         actorsRegisted(1L)
 
@@ -80,7 +79,7 @@ type ActorHost private (configuration:ActorHostConfiguration) =
      static member Instance with get() = instance
      
      interface IDisposable with
-        member x.Dispose() =
+        member __.Dispose() =
            isDisposed <- true
            configuration.Logger.Info("shutting down")
            cts.Cancel()

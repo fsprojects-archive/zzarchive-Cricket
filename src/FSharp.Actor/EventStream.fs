@@ -59,13 +59,13 @@ type DefaultEventStream(id, logger:Log.ILogger) =
         Async.Start(worker(), cts.Token)
 
     interface IEventStream with
-        member x.Publish(typ, payload : 'a) = publish typ payload
-        member x.Publish(payload : 'a) = publish (typeof<'a>.FullName) payload
-        member x.Subscribe(typ, callback) = addSubscription typ callback
-        member x.Subscribe<'a>(callback) = addSubscription (typeof<'a>.FullName) (fun event -> event.Payload |> unbox<'a> |> callback)
-        member x.Unsubscribe(typ) = removeSubscription typ
-        member x.Unsubscribe<'a>() = removeSubscription (typeof<'a>.FullName)
-        member x.Dispose() = 
+        member __.Publish(typ, payload : 'a) = publish typ payload
+        member __.Publish(payload : 'a) = publish (typeof<'a>.FullName) payload
+        member __.Subscribe(typ, callback) = addSubscription typ callback
+        member __.Subscribe<'a>(callback) = addSubscription (typeof<'a>.FullName) (fun event -> event.Payload |> unbox<'a> |> callback)
+        member __.Unsubscribe(typ) = removeSubscription typ
+        member __.Unsubscribe<'a>() = removeSubscription (typeof<'a>.FullName)
+        member __.Dispose() = 
             cts.Cancel()
             if mailbox <> Unchecked.defaultof<_>
             then

@@ -8,26 +8,40 @@ open System.Threading
 open System.Collections.Concurrent
 
 
-type TraceHeader =
+type TraceEntry =
     { Annotation : (string * string)[]
+      Actor : ActorPath
+      Sender : ActorPath
+      Group : string
       Timestamp : int64 //For remoting this is not good enough need a vector or matrix clock. 
       SpanId : uint64
       ParentId : uint64 option }
     static member Empty =
-        { Annotation = [||]; Timestamp = 0L; SpanId = 0UL; ParentId = None }
-    static member Create(annotation, ?parentId, ?spanId) =
+        { Actor = ActorPath.empty; 
+          Sender = ActorPath.empty;
+          Group = String.Empty;
+          Annotation = [||]; 
+          Timestamp = 0L; 
+          SpanId = 0UL; 
+          ParentId = None }
+    static member Create(actor, ?sender, ?group, ?annotation, ?parentId, ?spanId) =
         let new_id = Random.randomLong()
-        { Annotation = annotation; Timestamp = DateTime.UtcNow.Ticks; SpanId = defaultArg spanId new_id; ParentId = parentId }
+        { Actor = actor; 
+          Sender = defaultArg sender ActorPath.empty; 
+          Group = defaultArg group String.Empty;
+          Annotation = defaultArg annotation [||]; 
+          Timestamp = DateTime.UtcNow.Ticks; 
+          SpanId = defaultArg spanId new_id; 
+          ParentId = parentId }
 
 type ITraceWriter =
     inherit IDisposable 
-    abstract Write : TraceHeader -> unit
+    abstract Write : TraceEntry -> unit
 
 type InMemoryTraceWriter() =
-    let writeQueue = new BlockingCollection<TraceHeader>()
+    let writeQueue = new BlockingCollection<TraceEntry>()
 
-    let dispose() =
-        writeQueue.Dispose()
+    let dispose() = writeQueue.Dispose()
 
     member x.GetTraces() = writeQueue.ToArray()
 
@@ -43,7 +57,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
     let fileName = (defaultArg filename (Environment.DefaultActorHostName  + ".actortrace"))
     let fileStream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read ||| FileShare.Delete)
     let pickler = FsPickler.CreateBinary()
-    let writeQueue = new BlockingCollection<TraceHeader>()
+    let writeQueue = new BlockingCollection<TraceEntry>()
     let numberOfEvents = ref 0
     let totalEvents = ref 0L
 
@@ -54,7 +68,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
             for i in 0..(!numberOfEvents - 1) do
                 match writeQueue.TryTake() with
                 | true, header -> 
-                    pickler.Serialize(typeof<TraceHeader>, fileStream, header, leaveOpen = true)
+                    pickler.Serialize(typeof<TraceEntry>, fileStream, header, leaveOpen = true)
                     Interlocked.Increment(totalEvents) |> ignore
                 | false, _ -> ()
             do! fileStream.FlushAsync(cancelToken)
@@ -66,7 +80,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
         try
             //try and write any remaining events to the file. 
             for header in writeQueue.GetConsumingEnumerable() do
-                 pickler.Serialize(typeof<TraceHeader>, fileStream, header, leaveOpen = true)
+                 pickler.Serialize(typeof<TraceEntry>, fileStream, header, leaveOpen = true)
 
             fileStream.Flush(true)
         with e -> ()
@@ -91,10 +105,10 @@ type TracingConfiguration = {
     Writer : ITraceWriter
 }
 with 
-    static member Create(?writer, ?cancelToken) = 
+    static member Create(?enabled, ?writer, ?cancelToken) = 
         {
-            IsEnabled = true
-            CancellationToken = Async.DefaultCancellationToken
+            IsEnabled = defaultArg enabled false
+            CancellationToken = defaultArg cancelToken Async.DefaultCancellationToken
             Writer = (defaultArg writer (new DefaultTraceWriter() :> ITraceWriter))
         }
 
@@ -102,9 +116,9 @@ module Trace =
     
     let mutable private config = Unchecked.defaultof<_>
 
-    let write annotation parentid spanid =
+    let write header =
         if config.IsEnabled
-        then config.Writer.Write(TraceHeader.Create(annotation, ?parentId = parentid, ?spanId = spanid))
+        then config.Writer.Write(header)
     
     let dispose() =
         config.Writer.Dispose()
@@ -121,6 +135,6 @@ module Trace =
             let pickler = FsPickler.CreateBinary()
             use fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read ||| FileShare.Delete)
             while fileStream.Position < fileStream.Length do
-                  yield pickler.Deserialize(typeof<TraceHeader>, fileStream, leaveOpen = true) |> unbox<TraceHeader>
+                  yield pickler.Deserialize(typeof<TraceEntry>, fileStream, leaveOpen = true) |> unbox<TraceEntry>
         }
 

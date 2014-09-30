@@ -21,6 +21,7 @@
 
 #### 0.0.7-alpha - 
 * Added metrics and metric reporting capabilities
+* Added message tracing support.
 * Removed actor System abstraction
 * DefaultMailbox is now capped by default at 1000000 items. This is configurable
 * Re-arranged solution so it is a far more logical order

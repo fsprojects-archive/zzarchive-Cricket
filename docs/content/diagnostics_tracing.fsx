@@ -1,0 +1,123 @@
+#I "../../bin"
+#r "FSharp.Actor.dll"
+
+#I @"D:\Appdev\Foogle.Charts\packages\FSharp.Data.2.0.9\lib\net40"
+#r "FSharp.Data.dll"
+
+#I @"D:\Appdev\Foogle.Charts\bin\"
+#r @"Foogle.Charts.dll"
+#load @"Foogle.Charts.fsx"
+
+open System
+open FSharp.Actor
+open FSharp.Actor.Diagnostics
+open Foogle
+
+let traceWriter = new InMemoryTraceWriter()
+let rnd = new Random()
+
+ActorHost.Start(tracing = TracingConfiguration.Create(writer = traceWriter))
+
+
+type Message =
+    | Request of Guid option * string
+    | Response of Guid option * string 
+
+let middleTier responseString = actor {
+    body (
+        let rec loop() = messageHandler {
+            let! msg = Message.receive None
+            match msg with
+            | Request(Some(id),payload) ->
+                 do! Async.Sleep(rnd.Next(500, 3000))
+                 do! Message.reply (Response(Some id, responseString + payload))
+                 return! loop()
+            | _ -> return! loop()
+        }
+        loop()
+    )
+}
+
+let bRef = 
+    actor { 
+        inherits (middleTier "response_B_")
+        name "B"
+    } |> Actor.spawn
+
+let cRef = 
+    actor { 
+        inherits (middleTier "response_C_")
+        name "C"
+    } |> Actor.spawn
+
+let frontEnd = 
+    actor {
+        name "A"
+        body (
+            let bRef = !~"B"
+            let cRef = !~"C"
+            let rec loop state = messageHandler {
+                let! msg = Message.receive None
+                let! sender = Message.sender()
+                match msg with
+                | Request(Some(id),payload) ->
+                     do! Async.Sleep(rnd.Next(500, 3000))
+                     do! Message.post bRef (Request(Some id, payload))
+                     do! Message.post cRef (Request(Some id, payload))
+                     return! loop (Map.add id (sender,[]) state)
+                | Response(Some id, payload) ->
+                    match state.TryFind(id) with
+                    | Some(s,[]) -> return! loop (Map.add id (s,[payload]) state)
+                    | Some(s,[h]) -> 
+                        do! Message.post s (Response(Some(id), h + "_" + payload))
+                        return! loop (Map.remove id state)
+                    | _ -> return! loop state
+                | _ -> return! loop state
+                return! loop state     
+            }
+           loop Map.empty
+        )
+    } |> Actor.spawn
+
+let client = 
+    actor {
+        name "client"
+        body (
+            let frontend = !~"A"
+            let rec loop() = messageHandler {
+                let! msg = Message.receive None
+                match msg with
+                | Request(_,msg) ->
+                    do! Async.Sleep(rnd.Next(500, 3000)) 
+                    do! Message.post frontend (Request(Some (Guid.NewGuid()), msg))
+                | Response(_,payload) -> 
+                    do! Async.Sleep(rnd.Next(500, 900))
+                    printfn "Received response %s" payload
+                return! loop()
+            }
+            loop()
+        )
+    } |> Actor.spawn
+
+
+client <-- Request(None, "Hello")
+
+let timeLine() = 
+    traceWriter.GetTraces()
+    |> Seq.groupBy (fun t -> t.Actor)
+    |> Seq.collect (fun (p, ts) -> 
+         ts 
+         |> Seq.groupBy (fun x -> x.SpanId) 
+         |> Seq.choose (fun (_,t) -> 
+             match t |> Seq.toList with
+             | [h;t] -> Some(p.Path, "", (DateTime h.Timestamp), (DateTime t.Timestamp))
+             | _ -> None
+         )
+         |> Seq.toArray
+        )
+    |> Seq.toList
+
+let data = timeLine()
+
+Chart.Timeline(data, rowLabels = true, barLabels = false)
+|> Chart.WithTitle("Ping - Pong messages")

@@ -14,13 +14,13 @@ type ``Given a trie``() =
     [<Test>]
     member t.``I can add a value to an empty trie``() =
         let actual = 
-            Trie.empty |> Trie.add [Trie.Key "a"; Trie.Key "b"] "ab"
+            Trie.empty |> Trie.add [TrieKey.Key "a"; TrieKey.Key "b"] "ab"
         let expected = 
             Trie.Node (None,
                         Map [
-                            (Trie.Key "a", Trie.Node (None, 
+                            (TrieKey.Key "a", Trie.Node (None, 
                                                 Map [
-                                                        (Trie.Key  "b", Trie.Node (Some "ab", Map []))
+                                                        (TrieKey.Key  "b", Trie.Node (Some "ab", Map []))
                                                     ]
                                             )
                             )]
@@ -31,15 +31,15 @@ type ``Given a trie``() =
     member t.``I can add different values with the same root``() =
         let actual = 
             Trie.empty 
-            |> Trie.add [Trie.Key "a";Trie.Key "b"] "ab" 
-            |> Trie.add [Trie.Key "a";Trie.Key "c"] "ac"
+            |> Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" 
+            |> Trie.add [TrieKey.Key "a";TrieKey.Key "c"] "ac"
         let expected = 
             Trie.Node (None,
                         Map [
-                            (Trie.Key "a", Trie.Node (None, 
+                            (TrieKey.Key "a", Trie.Node (None, 
                                                 Map [
-                                                        (Trie.Key "b", Trie.Node (Some "ab", Map []))
-                                                        (Trie.Key "c", Trie.Node (Some "ac", Map []))
+                                                        (TrieKey.Key "b", Trie.Node (Some "ab", Map []))
+                                                        (TrieKey.Key "c", Trie.Node (Some "ac", Map []))
                                                     ]
                                             )
                             )]
@@ -50,20 +50,20 @@ type ``Given a trie``() =
     member t.``I can add different values with a different root``() =
         let actual = 
             Trie.empty 
-            |> Trie.add [Trie.Key "a";Trie.Key "b"] "ab" 
-            |> Trie.add [Trie.Key "b";Trie.Key "c"] "bc"
+            |> Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" 
+            |> Trie.add [TrieKey.Key "b";TrieKey.Key "c"] "bc"
         let expected = 
             Trie.Node (None,
                         Map [
-                            (Trie.Key "a", Trie.Node (None, 
+                            (TrieKey.Key "a", Trie.Node (None, 
                                                 Map [
-                                                        (Trie.Key "b", Trie.Node (Some "ab", Map []))
+                                                        (TrieKey.Key "b", Trie.Node (Some "ab", Map []))
                                                     ]
                                             )
                             )
-                            (Trie.Key "b", Trie.Node (None, 
+                            (TrieKey.Key "b", Trie.Node (None, 
                                                 Map [
-                                                        (Trie.Key "c", Trie.Node (Some "bc", Map []))
+                                                        (TrieKey.Key "c", Trie.Node (Some "bc", Map []))
                                                     ]
                                             )
                             )]
@@ -73,9 +73,9 @@ type ``Given a trie``() =
     [<Test>]
     member t.``I can retrieve a node with its children``() =
         let actual = 
-            Trie.add [Trie.Key "a";Trie.Key "b"] "ab" Trie.empty
-            |> Trie.add [Trie.Key "a"; Trie.Key "c"] "ac"
-            |> Trie.subtrie [Trie.Key "a"]
+            Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" Trie.empty
+            |> Trie.add [TrieKey.Key "a"; TrieKey.Key "c"] "ac"
+            |> Trie.subtrie [TrieKey.Key "a"]
             |> Trie.values
         printfn "%A" actual
         let expected = ["ab"; "ac"]
@@ -84,9 +84,9 @@ type ``Given a trie``() =
     [<Test>]
     member t.``I can retrieve from a trie with mutiple roots``() =
         let actual = 
-            Trie.add [Trie.Key "a";Trie.Key "b"] "ab" Trie.empty
-            |> Trie.add [Trie.Key "b"; Trie.Key "c"] "bc"
-            |> Trie.subtrie [Trie.Key "a"]
+            Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" Trie.empty
+            |> Trie.add [TrieKey.Key "b"; TrieKey.Key "c"] "bc"
+            |> Trie.subtrie [TrieKey.Key "a"]
             |> Trie.values
         printfn "%A" actual
         let expected = ["ab"]
@@ -95,9 +95,9 @@ type ``Given a trie``() =
     [<Test>]
     member t.``I can retrieve from a trie with mutiple roots and get the other key``() =
         let actual = 
-            Trie.add [Trie.Key "a";Trie.Key "b"] "ab" Trie.empty
-            |> Trie.add [Trie.Key "b"; Trie.Key "c"] "bc"
-            |> Trie.subtrie [Trie.Key "b"]
+            Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" Trie.empty
+            |> Trie.add [TrieKey.Key "b"; TrieKey.Key "c"] "bc"
+            |> Trie.subtrie [TrieKey.Key "b"]
             |> Trie.values
         printfn "%A" actual
         let expected = ["bc"]
@@ -106,9 +106,9 @@ type ``Given a trie``() =
     [<Test>]
     member t.``I can retrieve a leaf node it should have just its value``() =
         let actual = 
-            Trie.add [Trie.Key "a";Trie.Key "b"] "ab" Trie.empty
-            |> Trie.add [Trie.Key "a"; Trie.Key "c"] "ac"
-            |> Trie.subtrie [Trie.Key "a";Trie.Key "c"]
+            Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" Trie.empty
+            |> Trie.add [TrieKey.Key "a"; TrieKey.Key "c"] "ac"
+            |> Trie.subtrie [TrieKey.Key "a";TrieKey.Key "c"]
             |> Trie.values
         printfn "%A" actual
         let expected = ["ac"]
@@ -117,20 +117,20 @@ type ``Given a trie``() =
     [<Test>]
     member t.``I can remove a value from a trie``() =
         let actual = 
-            Trie.empty |> Trie.add [Trie.Key "a";Trie.Key "b"] "ab" |> Trie.remove [Trie.Key "a";Trie.Key "b"]
-        let expected : Trie.trie<string> = Trie.empty
+            Trie.empty |> Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" |> Trie.remove [TrieKey.Key "a";TrieKey.Key "b"]
+        let expected : Trie<string> = Trie.empty
         actual |> should equal expected
         
     [<Test>]
     member t.``I can add a wildcard into a trie key``() =
            let actual = 
                 Trie.empty 
-                |> Trie.add [Trie.Key "a";Trie.Key "b"] "ab" 
-                |> Trie.add [Trie.Key "a";Trie.Key "c"] "ac"
-                |> Trie.add [Trie.Key "a";Trie.Key "b";Trie.Key "d"] "abd"
-                |> Trie.add [Trie.Key "a";Trie.Key "b";Trie.Key "e"] "abe"
-                |> Trie.add [Trie.Key "a";Trie.Key "c";Trie.Key "e"] "ace"
-                |> Trie.resolve [Trie.Key "a"; Trie.Wildcard; Trie.Key "e"]
+                |> Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" 
+                |> Trie.add [TrieKey.Key "a";TrieKey.Key "c"] "ac"
+                |> Trie.add [TrieKey.Key "a";TrieKey.Key "b";TrieKey.Key "d"] "abd"
+                |> Trie.add [TrieKey.Key "a";TrieKey.Key "b";TrieKey.Key "e"] "abe"
+                |> Trie.add [TrieKey.Key "a";TrieKey.Key "c";TrieKey.Key "e"] "ace"
+                |> Trie.resolve [TrieKey.Key "a"; TrieKey.Wildcard; TrieKey.Key "e"]
            let expected = ["abe"; "ace"]
            actual |> should equal expected
             

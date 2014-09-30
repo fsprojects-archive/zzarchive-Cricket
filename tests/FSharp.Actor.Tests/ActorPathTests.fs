@@ -102,5 +102,5 @@ type ``With Actor Path``() =
     member t.``I should be able to get the components of an actor path``() = 
         let path = ActorPath.ofString "actor.tcp://node1@localMachineAddress:6667/actor/mine"
         let components = ActorPath.components path
-        let expected = [Trie.Key("node1"); Trie.Key("actor"); Trie.Key("mine")]
+        let expected = [TrieKey.Key("node1"); TrieKey.Key("actor"); TrieKey.Key("mine")]
         components |> should equal expected

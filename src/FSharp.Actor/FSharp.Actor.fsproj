@@ -60,12 +60,12 @@
     <Compile Include="Serialization.fs" />
     <Compile Include="Trie.fs" />
     <Compile Include="Async.fs" />
+    <Compile Include="ActorPath.fs" />
     <Compile Include="Metrics.fs" />
     <Compile Include="Tracing.fs" />
     <Compile Include="Logger.fs" />
     <Compile Include="Mailbox.fs" />
     <Compile Include="EventStream.fs" />
-    <Compile Include="ActorPath.fs" />
     <Compile Include="ActorTypes.fs" />
     <Compile Include="ActorRegistry.fs" />
     <Compile Include="ActorHost.fs" />

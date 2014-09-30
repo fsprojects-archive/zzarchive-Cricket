@@ -19,16 +19,15 @@ let ping count =
         name "ping"
         body (
                 let pong = !~"pong"
-                printfn "Resolved pong: %A" pong
                 let rec loop count = messageHandler {
                     let! msg = Message.receive None
                     match msg with
                     | Pong when count > 0 ->
                           if count % 1000 = 0 then printfn "Ping: ping %d" count
-                          do! Message.post pong.Value Ping
+                          do! Message.post pong Ping
                           return! loop (count - 1)
                     | Ping -> failwithf "Ping: received a ping message, panic..."
-                    | _ -> pong <-- Stop
+                    | _ -> do! Message.post pong Stop
                 }
                 
                 loop count        
