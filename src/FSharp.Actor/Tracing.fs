@@ -101,13 +101,15 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
 
 type TracingConfiguration = {
     IsEnabled : bool
+    EnableSystemActorTracing : bool
     CancellationToken : CancellationToken
     Writer : ITraceWriter
 }
 with 
-    static member Create(?enabled, ?writer, ?cancelToken) = 
+    static member Create(?enabled, ?systemActorTrace, ?writer, ?cancelToken) = 
         {
             IsEnabled = defaultArg enabled false
+            EnableSystemActorTracing = defaultArg systemActorTrace false
             CancellationToken = defaultArg cancelToken Async.DefaultCancellationToken
             Writer = (defaultArg writer (new DefaultTraceWriter() :> ITraceWriter))
         }
@@ -118,7 +120,10 @@ module Trace =
 
     let write header =
         if config.IsEnabled
-        then config.Writer.Write(header)
+        then 
+            if (not config.EnableSystemActorTracing) && header.Actor.Path.StartsWith("system")
+            then ()
+            else config.Writer.Write(header)
     
     let dispose() =
         config.Writer.Dispose()

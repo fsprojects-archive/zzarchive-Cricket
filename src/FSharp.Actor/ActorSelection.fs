@@ -28,4 +28,4 @@ type ActorSelection =
             | :? list<ActorSelection> as ref -> ref |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection
             | :? array<ActorSelection> as ref -> ref |> Array.toList |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection
             | :? seq<ActorSelection> as ref -> ref |> Seq.toList |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection 
-            | _ -> failwithf "Cannot convert %A to an ActorSelection" s      
+            | _ -> failwithf "Cannot convert %A to an ActorSelection" s     

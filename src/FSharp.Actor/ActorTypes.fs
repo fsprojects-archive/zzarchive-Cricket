@@ -2,6 +2,12 @@
 
 open System
 open System.Threading
+open FSharp.Actor.Diagnostics
+
+#if INTERACTIVE
+open FSharp.Actor
+open FSharp.Actor.Diagnostics
+#endif
 
 type ActorRef = 
     | ActorRef of IActor
@@ -74,3 +80,22 @@ type SystemMessage =
     | SetParent of ActorRef
     | RemoveParent of ActorRef
     | Errored of ErrorContext
+
+type ActorCell<'a> = {
+    Children : ActorRef list
+    Mailbox : IMailbox<Message<'a>>
+    Self : IActor
+    mutable ParentId : uint64 option
+    mutable SpanId : uint64
+    mutable Sender : ActorRef
+}
+with 
+    member internal x.TryReceive(?timeout) = 
+        async { return! x.Mailbox.TryReceive(defaultArg timeout Timeout.Infinite) }
+    member internal x.Receive(?timeout) = 
+        async { return! x.Mailbox.Receive(defaultArg timeout Timeout.Infinite) }
+    member internal x.TryScan(f, ?timeout) = 
+        async { return! x.Mailbox.TryScan(defaultArg timeout Timeout.Infinite, f) }
+    member internal x.Scan(f, ?timeout) = 
+        async { return! x.Mailbox.Scan(defaultArg timeout Timeout.Infinite, f) }
+    member internal x.Path = x.Self.Path

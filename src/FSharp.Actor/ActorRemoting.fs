@@ -5,7 +5,6 @@ open System.Threading
 open System.Net.Sockets
 open System.Collections.Concurrent
 
-
 type RemoteMessage = {
     Id : uint64 option
     Target : ActorPath
@@ -29,10 +28,7 @@ type RemoteActor(path:ActorPath, transport:ITransport) =
             transport.Post(path, { Id = msg.Id; Target = path; Sender = ActorPath.rebase transport.BasePath msg.Sender.Path; Message = msg.Message })
         member x.Dispose() = ()
 
-type InvalidMessageException(payload:obj, innerEx:Exception) =
-    inherit Exception("Unable to handle msg", innerEx)
 
-    member val Buffer = payload with get
 
 type RemotingEvents =
     | NewActorHost of string * NetAddress

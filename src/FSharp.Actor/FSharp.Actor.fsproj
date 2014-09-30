@@ -70,7 +70,9 @@
     <Compile Include="ActorRegistry.fs" />
     <Compile Include="ActorHost.fs" />
     <Compile Include="ActorSelection.fs" />
+    <Compile Include="Message.fs" />
     <Compile Include="Actor.fs" />
+    <Compile Include="Routing.fs" />
     <Compile Include="ActorRemoting.fs" />
     <Compile Include="Sockets.fs" />
     <Compile Include="Transports.fs" />
