@@ -14,7 +14,7 @@ type InvalidMessageException(payload:obj, innerEx:Exception) =
     inherit Exception("Unable to handle msg", innerEx)
     member val Buffer = payload with get
 
-type MessageHandler<'a, 'b> = MH of (ActorCell<'a> -> Async<'b>)
+type MessageHandler<'a, 'b> = MH of ('a -> Async<'b>)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Message = 
@@ -39,7 +39,7 @@ module Message =
                                ?parentId = context.ParentId, 
                                spanId = context.SpanId))
     
-    let receive timeout = MH (fun ctx -> async {
+    let receive timeout = MH (fun (ctx:ActorCell<_>) -> async {
         let! msg = ctx.Receive(?timeout = timeout)
         ctx.Sender <- msg.Sender
         ctx.ParentId <- msg.Id
@@ -48,9 +48,11 @@ module Message =
         return msg.Message  
     })
     
-    let sender() = MH (fun ctx -> async { return ActorSelection.op_Implicit ctx.Sender }) 
+    let sender() = MH (fun (ctx:ActorCell<_>) -> async { return ActorSelection.op_Implicit ctx.Sender }) 
 
-    let tryReceive timeout = MH (fun ctx -> async {
+    let context() = MH (fun (ctx:ActorCell<_>) -> async { return ctx }) 
+
+    let tryReceive timeout = MH (fun (ctx:ActorCell<_>) -> async {
         let! msg = ctx.TryReceive(?timeout = timeout)
         return Option.map (fun (msg:Message<_>)-> 
             ctx.Sender <- msg.Sender
@@ -60,7 +62,7 @@ module Message =
             msg.Message) msg 
     })
 
-    let scan timeout f = MH (fun ctx -> async {
+    let scan timeout f = MH (fun (ctx:ActorCell<_>) -> async {
         let! (msg:Message<_>) = ctx.Scan(f, ?timeout = timeout)
         ctx.Sender <- msg.Sender
         ctx.ParentId <- msg.Id
@@ -69,7 +71,7 @@ module Message =
         return msg.Message  
     })
 
-    let tryScan timeout f = MH (fun ctx -> async {
+    let tryScan timeout f = MH (fun (ctx:ActorCell<_>) -> async {
         let! msg = ctx.TryScan(f, ?timeout = timeout)
         return Option.map (fun (msg:Message<_>) -> 
             ctx.Sender <- msg.Sender
@@ -87,16 +89,14 @@ module Message =
                         | Null -> ())
 
     let post targets msg =
-        MH (fun ctx -> async {
-                let ref = (ActorRef ctx.Self)
-                do postMessage targets { Id = Some ctx.SpanId; Sender = ref; Message = msg }
+        MH (fun (ctx:ActorCell<_>) -> async {
+                do postMessage targets { Id = Some ctx.SpanId; Sender = ctx.Self; Message = msg }
             }
         )
 
-    let reply msg = MH (fun ctx -> async {
-        let ref =  (ActorRef ctx.Self)
+    let reply msg = MH (fun (ctx:ActorCell<_>) -> async {
         let targets = (ActorSelection([ctx.Sender]))
-        do postMessage targets { Id = ctx.ParentId; Sender = ref; Message = msg }
+        do postMessage targets { Id = ctx.ParentId; Sender = ctx.Self; Message = msg }
     })
 
     let toAsync (MH handler) ctx = handler ctx |> Async.Ignore

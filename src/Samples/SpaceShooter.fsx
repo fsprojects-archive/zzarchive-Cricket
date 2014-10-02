@@ -3,10 +3,7 @@
 open System
 open FSharp.Actor
 
-ActorHost.Start()
-
-let system = ActorHost.CreateSystem("universe")
-                      .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) 
+ActorHost.Start().SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) 
 
 type Weapon = 
     | Cannon
@@ -66,33 +63,33 @@ with
 let universe = 
     actor { 
         name "universe"
-        messageHandler (fun actor -> 
-            let rec loop (state:UniverseState) = async {
-                let! msg = actor.Receive()
+        body (
+            let rec loop (state:UniverseState) = messageHandler {
+                let! msg = Message.receive None
                 let state =
-                    match msg.Message with
+                    match msg with
                     | ItemUpdate(id, x) ->
                         match Map.tryFind id state.Items with
                         | Some(v) ->  v := x; state
                         | None -> { state with Items = Map.add id (ref x) state.Items}
                     | ItemDestroyed(id) -> 
                         { state with Items = Map.remove id state.Items }    
-                actor.Logger.Debug(sprintf "%A" state.Items)
+                printfn "%A" state.Items
                 return! loop state
             }
             loop UniverseState.Empty
         )
-    } |> system.SpawnActor
+    } |> Actor.spawn
 
 let spaceship = 
     actor {
         name "spaceship"
-        messageHandler (fun actor ->
-            let universe = !!"universe"
-            let rec loop (state:Spaceship) = async {
-                let! msg = actor.Receive()
+        body (
+            let universe = !~"universe"
+            let rec loop (state:Spaceship) = messageHandler {
+                let! msg = Message.receive None
                 let state =
-                    match msg.Message with
+                    match msg with
                     | MoveLeft -> { state with Position = { state.Position with X = (max 0 (state.Position.X - 1)) }}
                     | MoveRight -> { state with Position = { state.Position with X = (max 0 (state.Position.X + 1)) }}
                     | MoveUp -> { state with Position = { state.Position with Y = (max 0 (state.Position.Y + 1)) }}
@@ -108,11 +105,11 @@ let spaceship =
                   
                 if state.IsDestroyed
                 then failwithf "Ship destroyed"
-                else universe <-- ItemUpdate(state.Id, (Ship, state.Position))
+                else do! Message.post universe (ItemUpdate(state.Id, (Ship, state.Position)))
                 return! loop state
             }
             loop Spaceship.Empty)
-    } |> system.SpawnActor
+    } |> Actor.spawn
 
 let rnd = new System.Random()
 let cts = new System.Threading.CancellationTokenSource()

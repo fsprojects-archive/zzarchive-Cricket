@@ -26,4 +26,15 @@ type ActorSelection =
             | :? ActorSelection as sel -> sel
             | :? Lazy<ActorSelection> as sel -> sel.Value
             | :? seq<ActorSelection> as ref -> ref |> Seq.toList |> List.collect (fun (ActorSelection d) -> d) |> ActorSelection 
-            | _ -> failwithf "Cannot convert %A to an ActorSelection" s     
+            | _ -> failwithf "Cannot convert %A to an ActorSelection" s
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module ActorSelection = 
+    
+    let empty = ActorSelection([])
+
+    let map f (ActorSelection ss) = ActorSelection(List.map f ss)
+
+    let cons ref (ActorSelection ss) = ActorSelection(ref :: ss)
+
+    let filter f (ActorSelection ss) = ActorSelection(List.filter f ss)

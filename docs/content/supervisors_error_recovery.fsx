@@ -7,8 +7,32 @@ open FSharp.Actor
 
 (**
 
-Actor Lookup
-============
+Supervisors and Error Recovery
+=============================
 
 TODO...
 *)
+
+ActorHost.Start().SubscribeEvents(fun (e:ActorEvent) -> printfn "%A" e)
+
+let naughtyActor = 
+    actor { 
+        name "naughtyActor"
+        body (
+            let rec loop() = messageHandler {
+                let! msg = Message.receive None
+                failwithf "Lets, go bang again %s" msg
+                return! loop()
+            }
+            loop()
+        )
+    } |> Actor.spawn
+
+let supervisor = 
+    supervisor {
+        name "supervisor"
+        link naughtyActor
+        strategy Supervisor.oneForOne
+    } |> Supervisor.spawn
+
+naughtyActor <-- "Bang!"

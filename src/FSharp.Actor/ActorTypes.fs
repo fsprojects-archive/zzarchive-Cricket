@@ -37,10 +37,10 @@ and Message<'a> = {
     Message : 'a
 }
 with
-    static member Create(msg, sender, ?id) =
+    static member internal Create(msg, sender, ?id) =
         { Id = id; Message = msg; Sender = sender }
-    static member Unbox<'a>(objM:Message<obj>) = { Id = objM.Id; Sender = objM.Sender; Message = unbox<'a> objM.Message }
-    static member Box(objM:Message<'a>) = { Id = objM.Id; Sender = objM.Sender; Message = box objM.Message }
+    static member internal Unbox<'a>(objM:Message<obj>) = { Id = objM.Id; Sender = objM.Sender; Message = unbox<'a> objM.Message }
+    static member internal Box(objM:Message<'a>) = { Id = objM.Id; Sender = objM.Sender; Message = box objM.Message }
 
 and IActor = 
     inherit IDisposable
@@ -57,8 +57,6 @@ type ActorEvent =
     | ActorShutdown of ActorRef
     | ActorRestart of ActorRef
     | ActorErrored of ActorRef * exn
-    | ActorAddedChild of ActorRef * ActorRef
-    | ActorRemovedChild of ActorRef * ActorRef
 
 type ActorStatus = 
     | Running 
@@ -68,23 +66,21 @@ type ActorStatus =
 type ErrorContext = {
     Error : exn
     Sender : ActorRef
-    Children : ActorRef list
 } 
 
 type SystemMessage =
     | Shutdown
-    | RestartTree
     | Restart
     | Link of ActorRef
-    | Unlink of ActorRef
-    | SetParent of ActorRef
-    | RemoveParent of ActorRef
-    | Errored of ErrorContext
+    | UnLink
+
+type SupervisorMessage = 
+    | Error of exn
+    | ChildShutdown of ActorRef
 
 type ActorCell<'a> = {
-    Children : ActorRef list
     Mailbox : IMailbox<Message<'a>>
-    Self : IActor
+    Self : ActorRef
     mutable ParentId : uint64 option
     mutable SpanId : uint64
     mutable Sender : ActorRef

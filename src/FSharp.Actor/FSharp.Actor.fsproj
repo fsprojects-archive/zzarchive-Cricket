@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="Math.fs" />
+    <Compile Include="Operators.fs" />
     <Compile Include="Serialization.fs" />
     <Compile Include="Trie.fs" />
     <Compile Include="Async.fs" />
