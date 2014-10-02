@@ -78,9 +78,9 @@ type SystemMessage =
 
 type SupervisorMessage = 
     | Error of exn
-    | ChildLink of ActorRef
-    | ChildUnLink of ActorRef
-    | ChildShutdown of ActorRef
+    | ChildLink
+    | ChildUnLink
+    | ChildShutdown
 
 type ActorCell<'a> = {
     Mailbox : IMailbox<Message<'a>>

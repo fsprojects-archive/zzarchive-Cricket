@@ -15,24 +15,31 @@ TODO...
 
 ActorHost.Start().SubscribeEvents(fun (e:ActorEvent) -> printfn "%A" e)
 
-let naughtyActor = 
+let failingActor id = 
     actor { 
-        name "naughtyActor"
+        name id
         body (
             let rec loop() = messageHandler {
                 let! msg = Message.receive None
-                failwithf "Lets, go bang again %s" msg
+                failwithf "Lets, go bang - %s" msg
                 return! loop()
             }
             loop()
         )
-    } |> Actor.spawn
+    }
+ 
+let actor1 = failingActor "actor1" |> Actor.spawn  
+let actor2 = failingActor "actor2" |> Actor.spawn
 
 let supervisor = 
     supervisor {
         name "supervisor"
-        link (!~"naughtyActor")
-        strategy Supervisor.oneForOne
+        link (!~"actor1")
+        strategy Supervisor.oneForAll
     } |> Supervisor.spawn
 
-naughtyActor <-- "Bang!"
+actor1 <-- "Bang!"
+
+Supervisor.link actor2 supervisor
+
+actor2 <-- "Bang!"

@@ -38,3 +38,9 @@ module ActorSelection =
     let cons ref (ActorSelection ss) = ActorSelection(ref :: ss)
 
     let filter f (ActorSelection ss) = ActorSelection(List.filter f ss)
+
+    let exclude (ActorSelection ss) r = 
+        filter (fun s -> List.exists (fun s' -> s <> s') ss) r
+
+    let combine (ActorSelection ss) (ActorSelection rr) =
+        ActorSelection (ss @ rr)

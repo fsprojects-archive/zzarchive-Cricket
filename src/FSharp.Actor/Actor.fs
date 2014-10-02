@@ -62,7 +62,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
 
     let mutable onError = defaultArg defn.OnError (fun ctx -> async { return! shutdown() })
 
-
     let handleError (err:exn) =
         async {
             try
@@ -107,7 +106,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             | Restart -> return! restart()
             | Link -> 
                 onError <- (fun err -> Message.toAsync (Message.post sysMsg.Sender (Error(err))) ctx)
-                onShutdown <- (fun () -> Message.toAsync (Message.post sysMsg.Sender (ChildShutdown(ctx.Self))) ctx)
+                onShutdown <- (fun () -> Message.toAsync (Message.post sysMsg.Sender ChildShutdown) ctx)
                 publishEvent(ActorLinked(sysMsg.Sender, ctx.Self))
                 return! systemMessageHandler()
             | UnLink -> 
@@ -238,17 +237,16 @@ module Supervisor =
                         let! sender = Message.sender()
                         match msg with
                         | Error(err) ->
-                            printfn "Received error"
-                            do! config.Behaviour (err, sender, config.Children)
+                            do! config.Behaviour (err, sender, children)
                             return! loop children
-                        | ChildShutdown(ref) ->
-                            return! loop (ActorSelection.filter ((<>) ref) children)
-                        | ChildLink(ref) ->
-                            do! Message.post ref Link
-                            return! loop (ActorSelection.cons ref children)
-                        | ChildUnLink(ref) ->
-                            do! Message.post ref UnLink
-                            return! loop (ActorSelection.filter ((<>) ref) children)   
+                        | ChildShutdown ->
+                            return! loop (ActorSelection.exclude sender children)
+                        | ChildLink ->
+                            do! Message.post sender Link
+                            return! loop (ActorSelection.combine sender children)
+                        | ChildUnLink ->
+                            do! Message.post sender UnLink
+                            return! loop (ActorSelection.exclude sender children)   
                     }
                 messageHandler {
                     do! Message.post config.Children Link
@@ -264,10 +262,10 @@ module Supervisor =
         toActor config |> Actor.spawn
 
     let link ref supervisor = 
-        Message.postMessage supervisor (Message.Create(ChildLink(ref), Null))
+        Message.postMessage supervisor (Message.Create(ChildLink, ref))
 
     let unlink ref supervisor =
-        Message.postMessage supervisor (Message.Create(ChildUnLink(ref), Null))
+        Message.postMessage supervisor (Message.Create(ChildUnLink, ref))
 
 
 [<AutoOpen>]
