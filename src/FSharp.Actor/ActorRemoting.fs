@@ -28,8 +28,6 @@ type RemoteActor(path:ActorPath, transport:ITransport) =
             transport.Post(path, { Id = msg.Id; Target = path; Sender = ActorPath.rebase transport.BasePath msg.Sender.Path; Message = msg.Message })
         member x.Dispose() = ()
 
-
-
 type RemotingEvents =
     | NewActorHost of string * NetAddress
     | ShutdownActorHost of string * NetAddress
@@ -147,36 +145,42 @@ type RemotableInMemoryActorRegistry(transports : seq<ITransport>, registryTransp
          | Some(Error(msg, err)) -> raise (new Exception(msg, err))
          | None -> failwith "Resolving Path %A timed out"
 
+    let queryClient timeout path address = 
+        async { 
+                let msgId = Guid.NewGuid()
+                let resultCell = new AsyncResultCell<ActorProtocol>()
+                messages.AddOrUpdate(msgId, resultCell, fun _ _ -> resultCell) |> ignore
+                do registryTransport.Post(address, Resolve path, msgId)
+                let! result = resultCell.AwaitResult(?timeout = timeout)
+                messages.TryRemove(msgId) |> ignore
+                return handledResolveResponse result
+        }
+
     interface IRegistry<ActorPath, ActorRef> with
         member x.All with get() = registry.All
         
         member x.ResolveAsync(path, timeout) =
              async {
-                    let! remotePaths =
-                         clients.Values
-                         |> Seq.map (fun client -> async { 
-                                         let msgId = Guid.NewGuid()
-                                         let resultCell = new AsyncResultCell<ActorProtocol>()
-                                         messages.AddOrUpdate(msgId, resultCell, fun _ _ -> resultCell) |> ignore
-                                         do registryTransport.Post(client, Resolve path, msgId)
-                                         let! result = resultCell.AwaitResult(?timeout = timeout)
-                                         messages.TryRemove(msgId) |> ignore
-                                         return handledResolveResponse result
-                                      })
-                         |> Async.Parallel
-                    let paths = remotePaths |> Array.toList |> List.concat
-                    return paths @ registry.Resolve(path)     
+                    match path.Host with
+                    | None ->
+                        let! remotePaths =
+                             clients.Values
+                             |> Seq.map (queryClient timeout path)
+                             |> Async.Parallel
+                        let paths = remotePaths |> Array.toList |> List.concat
+                        return paths @ registry.Resolve(path)
+                    | Some(host) when host <> actorHost.Name ->
+                        match clients.TryGetValue host with
+                        | true, address -> 
+                            let! resolved = queryClient timeout path address
+                            return resolved
+                        | false, _ -> return []
+                    | _ -> 
+                        return registry.Resolve(path)
              }
                  
         member x.Resolve(path) =
-            let isFromLocalTransport = 
-                transports
-                |> Map.toSeq  
-                |> Seq.exists (fun (_,t) -> t.BasePath.Transport = path.Transport || t.BasePath.MachineAddress = path.MachineAddress)
-
-            if isFromLocalTransport
-            then registry.Resolve(path)
-            else (x :> ActorRegistry).ResolveAsync(path, None) |> Async.RunSynchronously                   
+            (x :> ActorRegistry).ResolveAsync(path, None) |> Async.RunSynchronously                   
         
         member x.Register(actor) = registry.Register actor
         
