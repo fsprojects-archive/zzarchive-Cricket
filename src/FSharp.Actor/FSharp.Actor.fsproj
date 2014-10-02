@@ -57,7 +57,6 @@
   <ItemGroup>
     <Compile Include="Helpers.fs" />
     <Compile Include="Math.fs" />
-    <Compile Include="Operators.fs" />
     <Compile Include="Serialization.fs" />
     <Compile Include="Trie.fs" />
     <Compile Include="Async.fs" />
@@ -74,6 +73,7 @@
     <Compile Include="Message.fs" />
     <Compile Include="Actor.fs" />
     <Compile Include="Routing.fs" />
+    <Compile Include="Operators.fs" />
     <Compile Include="ActorRemoting.fs" />
     <Compile Include="Sockets.fs" />
     <Compile Include="Transports.fs" />
