@@ -280,6 +280,7 @@ module Metrics =
                 return! worker()
             }
             Async.Start(worker(), cts.Token)
+            addDisposer (fun () -> cts.Cancel()) |> ignore
             (fun v -> update<MeterValues, unit> ctx key (fun oldValue -> (), Meter(oldValue.Mark(v))))
         else (fun _ -> ())
     

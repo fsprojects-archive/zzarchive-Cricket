@@ -78,6 +78,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
 
     let dispose() =
         try
+            writeQueue.CompleteAdding()
             //try and write any remaining events to the file. 
             for header in writeQueue.GetConsumingEnumerable() do
                  pickler.Serialize(typeof<TraceEntry>, fileStream, header, leaveOpen = true)
