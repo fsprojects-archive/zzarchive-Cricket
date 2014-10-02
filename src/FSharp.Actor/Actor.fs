@@ -29,7 +29,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let uptimer = Metrics.createUptime(metricContext,"uptime", 1000)
 
     let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox", ?boundingCapacity = defn.MaxQueueLength) :> IMailbox<_>)
-    let systemMailbox = new DefaultMailbox<SystemMessage>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
+    let systemMailbox = new DefaultMailbox<Message<SystemMessage>>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
 
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
@@ -102,16 +102,18 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     and systemMessageHandler() = 
         async {
             let! sysMsg = systemMailbox.Receive(Timeout.Infinite)
-            match sysMsg with
+            match sysMsg.Message with
             | Shutdown -> return! shutdown()
             | Restart -> return! restart()
-            | Link (ref) -> 
-                onError <- (fun err -> Message.toAsync (Message.post ref (Error(err))) ctx)
-                onShutdown <- (fun () -> Message.toAsync (Message.post ref (ChildShutdown(ctx.Self))) ctx)
+            | Link -> 
+                onError <- (fun err -> Message.toAsync (Message.post sysMsg.Sender (Error(err))) ctx)
+                onShutdown <- (fun () -> Message.toAsync (Message.post sysMsg.Sender (ChildShutdown(ctx.Self))) ctx)
+                publishEvent(ActorLinked(sysMsg.Sender, ctx.Self))
                 return! systemMessageHandler()
             | UnLink -> 
                 onError <- (defaultArg defn.OnError (fun ctx -> async { return! shutdown() }))
                 onShutdown <- (fun () -> async.Zero())
+                publishEvent(ActorUnLinked(sysMsg.Sender, ctx.Self))
                 return! systemMessageHandler()
         }
 
@@ -133,9 +135,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     override __.ToString() = defn.Path.ToString()
 
     member x.Ref = ActorRef(x)
-    
-    member x.SetErrorHandler(f) = 
-        onError <- f
 
     interface IActor with
         member x.Path with get() = defn.Path
@@ -143,7 +142,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             if status <> ActorStatus.Stopped
             then
                match msg.Message with
-               | :? SystemMessage as msg -> systemMailbox.Post(msg)
+               | :? SystemMessage -> systemMailbox.Post(Message<SystemMessage>.Unbox msg)
                | _ -> (x :> IActor<'a>).Post(Message<'a>.Unbox(msg))
 
     interface IActor<'a> with
@@ -237,7 +236,6 @@ module Supervisor =
                     messageHandler {
                         let! msg = Message.receive None
                         let! sender = Message.sender()
-                        let! ctx = Message.context()
                         match msg with
                         | Error(err) ->
                             printfn "Received error"
@@ -246,15 +244,14 @@ module Supervisor =
                         | ChildShutdown(ref) ->
                             return! loop (ActorSelection.filter ((<>) ref) children)
                         | ChildLink(ref) ->
-                            do! Message.post ref (Link(ctx.Self))
+                            do! Message.post ref Link
                             return! loop (ActorSelection.cons ref children)
                         | ChildUnLink(ref) ->
                             do! Message.post ref UnLink
                             return! loop (ActorSelection.filter ((<>) ref) children)   
                     }
                 messageHandler {
-                    let! ctx = Message.context()
-                    do! Message.post config.Children (Link(ctx.Self))
+                    do! Message.post config.Children Link
                     return! loop config.Children
                 }    
             )

@@ -57,6 +57,8 @@ type ActorEvent =
     | ActorShutdown of ActorRef
     | ActorRestart of ActorRef
     | ActorErrored of ActorRef * exn
+    | ActorLinked of ActorRef * ActorRef
+    | ActorUnLinked of ActorRef * ActorRef
 
 type ActorStatus = 
     | Running 
@@ -71,7 +73,7 @@ type ErrorContext = {
 type SystemMessage =
     | Shutdown
     | Restart
-    | Link of ActorRef
+    | Link
     | UnLink
 
 type SupervisorMessage = 
