@@ -76,6 +76,8 @@ type SystemMessage =
 
 type SupervisorMessage = 
     | Error of exn
+    | ChildLink of ActorRef
+    | ChildUnLink of ActorRef
     | ChildShutdown of ActorRef
 
 type ActorCell<'a> = {

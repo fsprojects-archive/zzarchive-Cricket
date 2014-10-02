@@ -103,10 +103,9 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         async {
             let! sysMsg = systemMailbox.Receive(Timeout.Infinite)
             match sysMsg with
-            | SystemMessage.Shutdown -> return! shutdown()
+            | Shutdown -> return! shutdown()
             | Restart -> return! restart()
             | Link (ref) -> 
-                printfn "Linking %A" ref
                 onError <- (fun err -> Message.toAsync (Message.post ref (Error(err))) ctx)
                 onShutdown <- (fun () -> Message.toAsync (Message.post ref (ChildShutdown(ctx.Self))) ctx)
                 return! systemMessageHandler()
@@ -238,6 +237,7 @@ module Supervisor =
                     messageHandler {
                         let! msg = Message.receive None
                         let! sender = Message.sender()
+                        let! ctx = Message.context()
                         match msg with
                         | Error(err) ->
                             printfn "Received error"
@@ -245,6 +245,12 @@ module Supervisor =
                             return! loop children
                         | ChildShutdown(ref) ->
                             return! loop (ActorSelection.filter ((<>) ref) children)
+                        | ChildLink(ref) ->
+                            do! Message.post ref (Link(ctx.Self))
+                            return! loop (ActorSelection.cons ref children)
+                        | ChildUnLink(ref) ->
+                            do! Message.post ref UnLink
+                            return! loop (ActorSelection.filter ((<>) ref) children)   
                     }
                 messageHandler {
                     let! ctx = Message.context()
@@ -259,6 +265,13 @@ module Supervisor =
 
     let spawn (config : SupervisorConfiguration) =
         toActor config |> Actor.spawn
+
+    let link ref supervisor = 
+        Message.postMessage supervisor (Message.Create(ChildLink(ref), Null))
+
+    let unlink ref supervisor =
+        Message.postMessage supervisor (Message.Create(ChildUnLink(ref), Null))
+
 
 [<AutoOpen>]
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

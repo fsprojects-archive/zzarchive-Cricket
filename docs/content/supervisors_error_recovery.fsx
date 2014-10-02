@@ -31,7 +31,7 @@ let naughtyActor =
 let supervisor = 
     supervisor {
         name "supervisor"
-        link naughtyActor
+        link (!~"naughtyActor")
         strategy Supervisor.oneForOne
     } |> Supervisor.spawn
 
