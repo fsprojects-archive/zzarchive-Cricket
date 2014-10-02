@@ -26,16 +26,16 @@ module Message =
          loop()))
     
     let private traceHandled (context:ActorCell<_>) =
-        Trace.write (TraceEntry.Create(context.Sender.Path, 
+        Trace.write (TraceEntry.Create(context.Self.Path, 
                                context.Sender.Path, 
-                               "message_handled", 
+                               "message_handled",
                                ?parentId = context.ParentId, 
                                spanId = context.SpanId))
 
     let private traceReceive (context:ActorCell<_>) =
-        Trace.write (TraceEntry.Create(context.Sender.Path, 
+        Trace.write (TraceEntry.Create(context.Self.Path, 
                                context.Sender.Path, 
-                               "message_receive", 
+                               "message_receive",
                                ?parentId = context.ParentId, 
                                spanId = context.SpanId))
     

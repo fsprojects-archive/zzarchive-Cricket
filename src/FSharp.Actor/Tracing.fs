@@ -9,7 +9,7 @@ open System.Collections.Concurrent
 
 
 type TraceEntry =
-    { Annotation : (string * string)[]
+    { Annotation : (string * obj)[]
       Actor : ActorPath
       Sender : ActorPath
       Group : string

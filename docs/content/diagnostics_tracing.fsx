@@ -16,7 +16,7 @@ open Foogle
 let traceWriter = new InMemoryTraceWriter()
 let rnd = new Random()
 
-ActorHost.Start(tracing = TracingConfiguration.Create(writer = traceWriter))
+ActorHost.Start(tracing = TracingConfiguration.Create(enabled = true, writer = traceWriter))
 
 
 type Message =
@@ -54,16 +54,14 @@ let frontEnd =
     actor {
         name "A"
         body (
-            let bRef = !~"B"
-            let cRef = !~"C"
+            let middleTier = !~["B"; "C"]
             let rec loop state = messageHandler {
                 let! msg = Message.receive None
                 let! sender = Message.sender()
                 match msg with
                 | Request(Some(id),payload) ->
                      do! Async.Sleep(rnd.Next(500, 3000))
-                     do! Message.post bRef (Request(Some id, payload))
-                     do! Message.post cRef (Request(Some id, payload))
+                     do! Message.post middleTier (Request(Some id, payload))
                      return! loop (Map.add id (sender,[]) state)
                 | Response(Some id, payload) ->
                     match state.TryFind(id) with
@@ -90,10 +88,11 @@ let client =
                 | Request(_,msg) ->
                     do! Async.Sleep(rnd.Next(500, 3000)) 
                     do! Message.post frontend (Request(Some (Guid.NewGuid()), msg))
+                    return! loop()
                 | Response(_,payload) -> 
                     do! Async.Sleep(rnd.Next(500, 900))
                     printfn "Received response %s" payload
-                return! loop()
+                    return! loop()
             }
             loop()
         )
@@ -102,16 +101,25 @@ let client =
 
 client <-- Request(None, "Hello")
 
+fsi.AddPrinter(fun (x:ActorPath) -> x.Path)
+
+let rawTraces = traceWriter.GetTraces()
+
+rawTraces
+|> Seq.groupBy (fun t -> t.SpanId)
+|> Seq.choose (fun (t, ss) -> if Seq.length ss > 2 then Some (t,ss |> Seq.sortBy (fun x -> x.Timestamp)) else None)
+
 let timeLine() = 
-    traceWriter.GetTraces()
-    |> Seq.groupBy (fun t -> t.Actor)
-    |> Seq.collect (fun (p, ts) -> 
+    rawTraces
+    |> Seq.groupBy (fun t -> t.SpanId)
+    |> Seq.collect (fun (_, ts) -> 
          ts 
          |> Seq.groupBy (fun x -> x.SpanId) 
          |> Seq.choose (fun (_,t) -> 
-             match t |> Seq.toList with
-             | [h;t] -> Some(p.Path, "", (DateTime h.Timestamp), (DateTime t.Timestamp))
-             | _ -> None
+             let t = t |> Seq.sortBy (fun x -> x.Timestamp) |> Seq.toList
+             match t with
+             | [h;t] -> Some(t.Actor.Path, t.Sender.Path, (DateTime h.Timestamp), (DateTime t.Timestamp))
+             | _ -> failwithf "Unexpected paring %A" t
          )
          |> Seq.toArray
         )
@@ -121,3 +129,5 @@ let data = timeLine()
 
 Chart.Timeline(data, rowLabels = true, barLabels = false)
 |> Chart.WithTitle("Ping - Pong messages")
+
+rawTraces.Length

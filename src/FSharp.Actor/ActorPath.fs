@@ -27,9 +27,9 @@ with
     override x.ToString() =
         match x.Port with
         | Some(port) when port > -1 -> 
-            sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "*") (defaultArg x.Host "*") (defaultArg x.MachineAddress "*") port  (String.Join("/", x.PathComponents))
+            sprintf "%s://%s@%s:%d/%s" (defaultArg x.Transport "actor") (defaultArg x.Host "*") (defaultArg x.MachineAddress "*") port  (String.Join("/", x.PathComponents))
         | _ -> 
-            sprintf "%s://%s@%s/%s" (defaultArg x.Transport "*") (defaultArg x.Host "*") (defaultArg x.MachineAddress "*") (String.Join("/", x.PathComponents))
+            sprintf "%s://%s@%s/%s" (defaultArg x.Transport "actor") (defaultArg x.Host "*") (defaultArg x.MachineAddress "*") (String.Join("/", x.PathComponents))
     
     member x.IsAbsolute
             with get() =  

@@ -16,12 +16,12 @@ type ``With Actor Path``() =
     [<Test>]
     member t.``I can build an actor path from a realtive uri``() = 
         let result = ActorPath.ofString "/actor/mine"
-        result.ToString() |> should equal "*://*@*/actor/mine"
+        result.ToString() |> should equal "actor://*@*/actor/mine"
 
     [<Test>]
     member t.``I can build an actor path from a realtive uri with a Host``() = 
         let result = ActorPath.ofString "/node1@/actor/mine"
-        result.ToString() |> should equal "*://node1@*/actor/mine"
+        result.ToString() |> should equal "actor://node1@*/actor/mine"
 
     [<Test>]
     member t.``I can build an actor path with wildcards on everything but path component``() = 

@@ -37,7 +37,7 @@ type Actor<'a, 'b>(defn:ActorConfiguration<'a, 'b>) as self =
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
     let mutable defn = defn
-    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = None; SpanId = 0UL; Sender = Null }
+    let mutable ctx = { Self = self; Mailbox = mailbox; Children = defn.Children; ParentId = None; SpanId = 0UL; Sender = Null; CurrentMessage = null }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 
@@ -255,9 +255,7 @@ module ActorOperators =
     let inline (!~) a = lazy !!a  
     
     let inline (-->) msg t = 
-        let a = ActorSelection.op_Implicit t
-        Message.postMessage a { Id = None; Sender = Null; Message = msg }
+        Message.postMessage t { Id = Some (Random.randomLong()); Sender = Null; Message = msg }
     
     let inline (<--) t msg =
-        let a = ActorSelection.op_Implicit t
-        Message.postMessage a { Id = None; Sender = Null; Message = msg }
+        Message.postMessage t { Id = Some (Random.randomLong()); Sender = Null; Message = msg }
