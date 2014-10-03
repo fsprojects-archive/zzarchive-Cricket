@@ -9,8 +9,8 @@
 
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
     <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
@@ -66,11 +66,11 @@
             fail (arg1, sender, arg3)
           </code>
           <div class="tip" id="52">
-            <strong>Signature:</strong> (&#39;?61321 * sender:&#39;?61322 * &#39;?61323) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?61324&gt;,unit&gt;<br />
-                          <strong>Type parameters:</strong> '?61321, '?61322, '?61323, '?61324          </div>
+            <strong>Signature:</strong> (&#39;?63970 * sender:&#39;?63971 * &#39;?63972) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?63973&gt;,unit&gt;<br />
+                          <strong>Type parameters:</strong> '?63970, '?63971, '?63972, '?63973          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L234-234" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L235-235" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -81,14 +81,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '53', 53)" onmouseover="showTip(event, '53', 53)">
-            link ref supervisor
+            failAll (arg1, arg2, children)
           </code>
           <div class="tip" id="53">
-            <strong>Signature:</strong> ref:ActorRef -&gt; supervisor:&#39;?61339 -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?61339          </div>
+            <strong>Signature:</strong> (&#39;?63975 * &#39;?63976 * children:&#39;?63977) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?63978&gt;,unit&gt;<br />
+                          <strong>Type parameters:</strong> '?63975, '?63976, '?63977, '?63978          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L275-275" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L237-237" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -99,14 +99,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
-            oneForAll (arg1, arg2, children)
+            link ref supervisor
           </code>
           <div class="tip" id="54">
-            <strong>Signature:</strong> (&#39;?61331 * &#39;?61332 * children:&#39;?61333) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?61334&gt;,unit&gt;<br />
-                          <strong>Type parameters:</strong> '?61331, '?61332, '?61333, '?61334          </div>
+            <strong>Signature:</strong> ref:ActorRef -&gt; supervisor:&#39;?63993 -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?63993          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L238-238" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L280-280" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -117,14 +117,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
-            oneForOne (arg1, sender, arg3)
+            oneForAll (arg1, arg2, children)
           </code>
           <div class="tip" id="55">
-            <strong>Signature:</strong> (&#39;?61326 * sender:&#39;?61327 * &#39;?61328) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?61329&gt;,unit&gt;<br />
-                          <strong>Type parameters:</strong> '?61326, '?61327, '?61328, '?61329          </div>
+            <strong>Signature:</strong> (&#39;?63985 * &#39;?63986 * children:&#39;?63987) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?63988&gt;,unit&gt;<br />
+                          <strong>Type parameters:</strong> '?63985, '?63986, '?63987, '?63988          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L236-236" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L241-241" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -135,14 +135,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
-            spawn config
+            oneForOne (arg1, sender, arg3)
           </code>
           <div class="tip" id="56">
-            <strong>Signature:</strong> config:SupervisorConfiguration -&gt; ActorRef<br />
-                      </div>
+            <strong>Signature:</strong> (&#39;?63980 * sender:&#39;?63981 * &#39;?63982) -&gt; MessageHandler&lt;ActorCell&lt;&#39;?63983&gt;,unit&gt;<br />
+                          <strong>Type parameters:</strong> '?63980, '?63981, '?63982, '?63983          </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L272-272" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L239-239" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -153,14 +153,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '57', 57)" onmouseover="showTip(event, '57', 57)">
-            start config
+            spawn config
           </code>
           <div class="tip" id="57">
             <strong>Signature:</strong> config:SupervisorConfiguration -&gt; ActorRef<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L269-269" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L277-277" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -171,14 +171,14 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '58', 58)" onmouseover="showTip(event, '58', 58)">
-            toActor config
+            start config
           </code>
           <div class="tip" id="58">
-            <strong>Signature:</strong> config:SupervisorConfiguration -&gt; ActorConfiguration&lt;SupervisorMessage&gt;<br />
+            <strong>Signature:</strong> config:SupervisorConfiguration -&gt; ActorRef<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L240-240" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L274-274" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -189,14 +189,32 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '59', 59)" onmouseover="showTip(event, '59', 59)">
-            unlink ref supervisor
+            toActor config
           </code>
           <div class="tip" id="59">
-            <strong>Signature:</strong> ref:ActorRef -&gt; supervisor:&#39;?61341 -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?61341          </div>
+            <strong>Signature:</strong> config:SupervisorConfiguration -&gt; ActorConfiguration&lt;SupervisorMessage&gt;<br />
+                      </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L278-278" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L243-243" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '60', 60)" onmouseover="showTip(event, '60', 60)">
+            unlink ref supervisor
+          </code>
+          <div class="tip" id="60">
+            <strong>Signature:</strong> ref:ActorRef -&gt; supervisor:&#39;?63995 -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?63995          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L283-283" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>

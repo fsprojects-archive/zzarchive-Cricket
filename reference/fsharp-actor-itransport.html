@@ -9,8 +9,8 @@
 
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
     <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
@@ -59,25 +59,6 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '304', 304)" onmouseover="showTip(event, '304', 304)">
-            BasePath
-          </code>
-          <div class="tip" id="304">
-            <strong>Signature:</strong> ActorPath<br />
-              <strong>Modifiers:</strong> abstract<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRemoting.fs#L18-18" class="github-link">
-              <img src="../content/img/github.png" class="normal" />
-              <img src="../content/img/github-blue.png" class="hover" />
-            </a>
-          
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
           <code onmouseout="hideTip(event, '305', 305)" onmouseover="showTip(event, '305', 305)">
             BasePath
           </code>
@@ -98,15 +79,15 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '306', 306)" onmouseover="showTip(event, '306', 306)">
-            Post(arg1, arg2)
+            BasePath
           </code>
           <div class="tip" id="306">
-            <strong>Signature:</strong> (ActorPath * RemoteMessage) -&gt; unit<br />
+            <strong>Signature:</strong> ActorPath<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRemoting.fs#L19-19" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRemoting.fs#L18-18" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -117,15 +98,15 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '307', 307)" onmouseover="showTip(event, '307', 307)">
-            Scheme
+            Post(arg1, arg2)
           </code>
           <div class="tip" id="307">
-            <strong>Signature:</strong> string<br />
+            <strong>Signature:</strong> (ActorPath * RemoteMessage) -&gt; unit<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
         </td>
         <td class="xmldoc">
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRemoting.fs#L17-17" class="github-link">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRemoting.fs#L19-19" class="github-link">
               <img src="../content/img/github.png" class="normal" />
               <img src="../content/img/github-blue.png" class="hover" />
             </a>
@@ -155,9 +136,28 @@
         <td class="member-name">
 
           <code onmouseout="hideTip(event, '309', 309)" onmouseover="showTip(event, '309', 309)">
-            Start(arg1, arg2)
+            Scheme
           </code>
           <div class="tip" id="309">
+            <strong>Signature:</strong> string<br />
+              <strong>Modifiers:</strong> abstract<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRemoting.fs#L17-17" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '310', 310)" onmouseover="showTip(event, '310', 310)">
+            Start(arg1, arg2)
+          </code>
+          <div class="tip" id="310">
             <strong>Signature:</strong> (ISerializer * CancellationToken) -&gt; unit<br />
               <strong>Modifiers:</strong> abstract<br />
                       </div>
