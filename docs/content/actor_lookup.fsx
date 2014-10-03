@@ -8,7 +8,8 @@ open FSharp.Actor
 (**
 
 Actor Lookup
-============
+------------
 
-TODO...
+An important property of any actor system is the ability to send a message to an actor without having a tight coupling to that actor.
+FSharp.Actor allows this by providing a simple abstract called `ActorSelection` an actor selection is simply a list of `ActorRef`.
 *)
