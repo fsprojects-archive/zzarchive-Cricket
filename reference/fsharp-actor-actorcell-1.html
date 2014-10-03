@@ -59,129 +59,79 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
-            Children
-          </code>
-          <div class="tip" id="134">
-            <strong>Signature:</strong> actorRef list<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L56-56" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
-            Logger
-          </code>
-          <div class="tip" id="135">
-            <strong>Signature:</strong> ActorLogger<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L55-55" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
+          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
             Mailbox
           </code>
-          <div class="tip" id="136">
+          <div class="tip" id="140">
             <strong>Signature:</strong> IMailbox&lt;Message&lt;&#39;a&gt;&gt;<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L57-57" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L86-86" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
+          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+            ParentId
+          </code>
+          <div class="tip" id="141">
+            <strong>Signature:</strong> uint64 option<br />
+              <strong>Modifiers:</strong> mutable<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L88-88" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '147', 147)" onmouseover="showTip(event, '147', 147)">
             Self
           </code>
-          <div class="tip" id="137">
-            <strong>Signature:</strong> actorRef<br />
+          <div class="tip" id="147">
+            <strong>Signature:</strong> ActorRef<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L58-58" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L87-87" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
-    </tbody>
-  </table>
-  <h3>Instance members</h3>
-  <table class="table table-bordered member-list">
-    <thead>
-      <tr><td>Instance member</td><td>Description</td></tr>
-    </thead>
-    <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '185', 185)" onmouseover="showTip(event, '185', 185)">
-            Receive(?timeout)
+          <code onmouseout="hideTip(event, '148', 148)" onmouseover="showTip(event, '148', 148)">
+            Sender
           </code>
-          <div class="tip" id="185">
-            <strong>Signature:</strong> (timeout:int option) -&gt; Async&lt;Message&lt;&#39;a&gt;&gt;<br />
+          <div class="tip" id="148">
+            <strong>Signature:</strong> ActorRef<br />
+              <strong>Modifiers:</strong> mutable<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L63-63" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L90-90" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '186', 186)" onmouseover="showTip(event, '186', 186)">
-            Scan(f, ?timeout)
+          <code onmouseout="hideTip(event, '149', 149)" onmouseover="showTip(event, '149', 149)">
+            SpanId
           </code>
-          <div class="tip" id="186">
-            <strong>Signature:</strong> (f:(Message&lt;&#39;a&gt; -&gt; Async&lt;&#39;?30128&gt; option) * timeout:int option) -&gt; Async&lt;&#39;?30128&gt;<br />
-                          <strong>Type parameters:</strong> '?30128          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L67-67" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '187', 187)" onmouseover="showTip(event, '187', 187)">
-            TryReceive(?timeout)
-          </code>
-          <div class="tip" id="187">
-            <strong>Signature:</strong> (timeout:int option) -&gt; Async&lt;Option&lt;Message&lt;&#39;a&gt;&gt;&gt;<br />
+          <div class="tip" id="149">
+            <strong>Signature:</strong> uint64<br />
+              <strong>Modifiers:</strong> mutable<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L61-61" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '188', 188)" onmouseover="showTip(event, '188', 188)">
-            TryScan(f, ?timeout)
-          </code>
-          <div class="tip" id="188">
-            <strong>Signature:</strong> (f:(Message&lt;&#39;a&gt; -&gt; Async&lt;&#39;?30125&gt; option) * timeout:int option) -&gt; Async&lt;Option&lt;&#39;?30125&gt;&gt;<br />
-                          <strong>Type parameters:</strong> '?30125          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Actor.fs#L65-65" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L89-89" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

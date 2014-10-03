@@ -50,25 +50,25 @@
 <h1>ActorHost</h1>
 <div class="xmldoc">
 </div>
-  <h3>Constructors</h3>
+  <h3>Instance members</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Constructor</td><td>Description</td></tr>
+      <tr><td>Instance member</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '171', 171)" onmouseover="showTip(event, '171', 171)">
-            new()
+          <code onmouseout="hideTip(event, '237', 237)" onmouseover="showTip(event, '237', 237)">
+            SubscribeEvents(eventF)
           </code>
-          <div class="tip" id="171">
-            <strong>Signature:</strong> unit -&gt; ActorHost<br />
-                      </div>
+          <div class="tip" id="237">
+            <strong>Signature:</strong> (eventF:(&#39;?60874 -&gt; unit)) -&gt; ActorHost<br />
+                          <strong>Type parameters:</strong> '?60874          </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L83-83" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L63-63" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -82,106 +82,46 @@
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '192', 192)" onmouseover="showTip(event, '192', 192)">
-            Configure(configurator)
+          <code onmouseout="hideTip(event, '250', 250)" onmouseover="showTip(event, '250', 250)">
+            Dispose()
           </code>
-          <div class="tip" id="192">
-            <strong>Signature:</strong> (configurator:(ActorHostConfiguration -&gt; unit)) -&gt; unit<br />
+          <div class="tip" id="250">
+            <strong>Signature:</strong> unit -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L104-104" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L76-76" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '193', 193)" onmouseover="showTip(event, '193', 193)">
-            CreateSystem(name, ?configurator)
+          <code onmouseout="hideTip(event, '251', 251)" onmouseover="showTip(event, '251', 251)">
+            Instance
           </code>
-          <div class="tip" id="193">
-            <strong>Signature:</strong> (name:string * configurator:(ActorSystemConfiguration -&gt; unit) option) -&gt; ActorSystem<br />
+          <div class="tip" id="251">
+            <strong>Signature:</strong> ActorHost<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L119-119" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L79-79" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '194', 194)" onmouseover="showTip(event, '194', 194)">
-            ResolveTransport(transport)
+          <code onmouseout="hideTip(event, '252', 252)" onmouseover="showTip(event, '252', 252)">
+            Start(...)
           </code>
-          <div class="tip" id="194">
-            <strong>Signature:</strong> transport:string -&gt; ITransport option<br />
+          <div class="tip" id="252">
+            <strong>Signature:</strong> (name:string option * logger:Logger option * serializer:ISerializer option * registry:ActorRegistry option * metrics:MetricsConfiguration option * tracing:TracingConfiguration option * cancellationToken:CancellationToken option) -&gt; ActorHost<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L114-114" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '195', 195)" onmouseover="showTip(event, '195', 195)">
-            Start(?transports)
-          </code>
-          <div class="tip" id="195">
-            <strong>Signature:</strong> (transports:&#39;?30014 list option) -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?30014          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L139-139" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '196', 196)" onmouseover="showTip(event, '196', 196)">
-            Systems
-          </code>
-          <div class="tip" id="196">
-            <strong>Signature:</strong> ActorSystem list<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L131-131" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '197', 197)" onmouseover="showTip(event, '197', 197)">
-            Transports
-          </code>
-          <div class="tip" id="197">
-            <strong>Signature:</strong> seq&lt;ITransport&gt;<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L117-117" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '198', 198)" onmouseover="showTip(event, '198', 198)">
-            TryResolveSystem(name)
-          </code>
-          <div class="tip" id="198">
-            <strong>Signature:</strong> name:string -&gt; ActorSystem option<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L133-133" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L67-67" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

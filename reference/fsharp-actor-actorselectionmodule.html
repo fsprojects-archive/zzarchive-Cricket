@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>ActorSystem - FSharp.Actor</title>
+    <title>ActorSelection - FSharp.Actor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Colin Bull">
@@ -47,133 +47,106 @@
 
 
 
-<h1>ActorSystem</h1>
+<h1>ActorSelection</h1>
 <div class="xmldoc">
 </div>
-  <h3>Instance members</h3>
+
+<!-- Render nested types and modules, if there are any -->
+
+  <h3>Functions and values</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Instance member</td><td>Description</td></tr>
+      <tr><td>Function or value</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '176', 176)" onmouseover="showTip(event, '176', 176)">
-            CancelToken
+          <code onmouseout="hideTip(event, '5', 5)" onmouseover="showTip(event, '5', 5)">
+            combine arg1 arg2
           </code>
-          <div class="tip" id="176">
-            <strong>Signature:</strong> CancellationToken<br />
+          <div class="tip" id="5">
+            <strong>Signature:</strong> ActorSelection -&gt; ActorSelection -&gt; ActorSelection<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L46-46" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorSelection.fs#L45-45" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '177', 177)" onmouseover="showTip(event, '177', 177)">
-            EventStream
+          <code onmouseout="hideTip(event, '9', 9)" onmouseover="showTip(event, '9', 9)">
+            cons ref arg2
           </code>
-          <div class="tip" id="177">
-            <strong>Signature:</strong> IEventStream<br />
+          <div class="tip" id="9">
+            <strong>Signature:</strong> ref:ActorRef -&gt; ActorSelection -&gt; ActorSelection<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L45-45" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorSelection.fs#L38-38" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '178', 178)" onmouseover="showTip(event, '178', 178)">
-            Name
+          <code onmouseout="hideTip(event, '10', 10)" onmouseover="showTip(event, '10', 10)">
+            empty 
           </code>
-          <div class="tip" id="178">
-            <strong>Signature:</strong> string<br />
+          <div class="tip" id="10">
+            <strong>Signature:</strong> ActorSelection<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L44-44" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorSelection.fs#L34-34" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '179', 179)" onmouseover="showTip(event, '179', 179)">
-            ResolveActor(path)
+          <code onmouseout="hideTip(event, '11', 11)" onmouseover="showTip(event, '11', 11)">
+            exclude arg1 r
           </code>
-          <div class="tip" id="179">
-            <strong>Signature:</strong> path:actorPath -&gt; actorRef list<br />
+          <div class="tip" id="11">
+            <strong>Signature:</strong> ActorSelection -&gt; r:ActorSelection -&gt; ActorSelection<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L58-58" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorSelection.fs#L42-42" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '180', 180)" onmouseover="showTip(event, '180', 180)">
-            Serializer
+          <code onmouseout="hideTip(event, '12', 12)" onmouseover="showTip(event, '12', 12)">
+            filter f arg2
           </code>
-          <div class="tip" id="180">
-            <strong>Signature:</strong> ISerializer<br />
+          <div class="tip" id="12">
+            <strong>Signature:</strong> f:(ActorRef -&gt; bool) -&gt; ActorSelection -&gt; ActorSelection<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L47-47" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorSelection.fs#L40-40" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '181', 181)" onmouseover="showTip(event, '181', 181)">
-            SpawnActor(config)
+          <code onmouseout="hideTip(event, '13', 13)" onmouseover="showTip(event, '13', 13)">
+            map f arg2
           </code>
-          <div class="tip" id="181">
-            <strong>Signature:</strong> config:ActorConfiguration&lt;&#39;a&gt; -&gt; actorRef<br />
-                          <strong>Type parameters:</strong> 'a          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L51-51" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '182', 182)" onmouseover="showTip(event, '182', 182)">
-            Start()
-          </code>
-          <div class="tip" id="182">
-            <strong>Signature:</strong> unit -&gt; ActorSystem<br />
+          <div class="tip" id="13">
+            <strong>Signature:</strong> f:(ActorRef -&gt; ActorRef) -&gt; ActorSelection -&gt; ActorSelection<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L65-65" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '183', 183)" onmouseover="showTip(event, '183', 183)">
-            SubscribeEvents(eventF)
-          </code>
-          <div class="tip" id="183">
-            <strong>Signature:</strong> (eventF:(&#39;?29994 -&gt; unit)) -&gt; ActorSystem<br />
-                          <strong>Type parameters:</strong> '?29994          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorHost.fs#L61-61" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorSelection.fs#L36-36" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

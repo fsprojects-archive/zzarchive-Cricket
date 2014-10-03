@@ -77,25 +77,13 @@
           <td class="type-name">
             <a href="fsharp-actor-log-logline.html">LogLine</a>
           </td>
-          <td class="xmldoc"><p>When logging, write a log line like this with the source of your
-log line as well as a message and an optional exception.</p>
-</td>
+          <td class="xmldoc"></td>
         </tr>
         <tr>
           <td class="type-name">
             <a href="fsharp-actor-log-logger.html">Logger</a>
           </td>
           <td class="xmldoc"></td>
-        </tr>
-        <tr>
-          <td class="type-name">
-            <a href="fsharp-actor-log-traceheader.html">TraceHeader</a>
-          </td>
-          <td class="xmldoc"><p>A record that keeps track of what request this is.
-In an uint64 there are 18 446 744 073 709 551 616 number
-of possible values, so you can be fairly certain a given request
-id is unique, given a good random number generator.</p>
-</td>
         </tr>
     </tbody>
   </table>
@@ -124,46 +112,46 @@ id is unique, given a good random number generator.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '34', 34)" onmouseover="showTip(event, '34', 34)">
+          <code onmouseout="hideTip(event, '28', 28)" onmouseover="showTip(event, '28', 28)">
             defaultFor level
           </code>
-          <div class="tip" id="34">
+          <div class="tip" id="28">
             <strong>Signature:</strong> level:LogLevel -&gt; ILogger<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L239-239" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L198-198" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '35', 35)" onmouseover="showTip(event, '35', 35)">
-            write (...)
+          <code onmouseout="hideTip(event, '29', 29)" onmouseover="showTip(event, '29', 29)">
+            write logger level path exn message
           </code>
-          <div class="tip" id="35">
-            <strong>Signature:</strong> logger:ILogger -&gt; level:LogLevel -&gt; path:string -&gt; trace:TraceHeader -&gt; exn:exn option -&gt; message:string -&gt; unit<br />
+          <div class="tip" id="29">
+            <strong>Signature:</strong> logger:ILogger -&gt; level:LogLevel -&gt; path:string -&gt; exn:exn option -&gt; message:string -&gt; unit<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L214-214" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L173-173" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '36', 36)" onmouseover="showTip(event, '36', 36)">
-            writef (...)
+          <code onmouseout="hideTip(event, '30', 30)" onmouseover="showTip(event, '30', 30)">
+            writef logger level path exn f_format
           </code>
-          <div class="tip" id="36">
-            <strong>Signature:</strong> logger:ILogger -&gt; level:LogLevel -&gt; path:string -&gt; trace:TraceHeader -&gt; exn:exn option -&gt; f_format:((&#39;?30540 -&gt; &#39;?30541) -&gt; &#39;?30542) -&gt; unit<br />
-                          <strong>Type parameters:</strong> '?30540, '?30541, '?30542          </div>
+          <div class="tip" id="30">
+            <strong>Signature:</strong> logger:ILogger -&gt; level:LogLevel -&gt; path:string -&gt; exn:exn option -&gt; f_format:((&#39;?61538 -&gt; &#39;?61539) -&gt; &#39;?61540) -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?61538, '?61539, '?61540          </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L217-217" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L176-176" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

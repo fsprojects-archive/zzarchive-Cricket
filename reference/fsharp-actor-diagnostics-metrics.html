@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Metrics - FSharp.Actor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Colin Bull">
+
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
+    <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
+    <style>
+        body {
+            font-family: Gudea, serif;
+            font-size: 15px;
+        }
+        table.pre, pre.fssnip, pre {
+            white-space: pre-wrap;
+        }
+        /*table.pre td.lines {
+            display: none;
+        }*/
+    </style>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsprojects/FSharp.Actor">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/FSharp.Actor/index.html">FSharp.Actor</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>Metrics</h1>
+<div class="xmldoc">
+</div>
+
+<!-- Render nested types and modules, if there are any -->
+  <h2>Nested types and modules</h2>
+  <div>
+      <table class="table table-bordered module-list">
+    <thead>
+      <tr><td>Module</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td class="module-name">
+            <a href="fsharp-actor-diagnostics-metrics-formatters.html">Formatters</a>
+          </td>
+          <td class="xmldoc"></td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+  <h3>Functions and values</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Function or value</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
+            configureSystemMetrics (...)
+          </code>
+          <div class="tip" id="86">
+            <strong>Signature:</strong> (enabled:bool * systemCounters:seq&lt;(string * string) * &#39;?61736&gt;) -&gt; unit<br />
+                          <strong>Type parameters:</strong> '?61736          </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L299-299" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '87', 87)" onmouseover="showTip(event, '87', 87)">
+            createContext s
+          </code>
+          <div class="tip" id="87">
+            <strong>Signature:</strong> s:string -&gt; MetricContext<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L216-216" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '88', 88)" onmouseover="showTip(event, '88', 88)">
+            createCounter (ctx, key)
+          </code>
+          <div class="tip" id="88">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string) -&gt; CounterMetric<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L232-232" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '89', 89)" onmouseover="showTip(event, '89', 89)">
+            createDelegatedGuage (ctx, key, action)
+          </code>
+          <div class="tip" id="89">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string * action:(unit -&gt; int64)) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L229-229" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '90', 90)" onmouseover="showTip(event, '90', 90)">
+            createGuage (ctx, key)
+          </code>
+          <div class="tip" id="90">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string) -&gt; GuageMetric<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L220-220" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '91', 91)" onmouseover="showTip(event, '91', 91)">
+            createMeter (ctx, key)
+          </code>
+          <div class="tip" id="91">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string) -&gt; MeterMetric<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L272-272" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '92', 92)" onmouseover="showTip(event, '92', 92)">
+            createPerformanceCounterGuage (...)
+          </code>
+          <div class="tip" id="92">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string * perfCounter:(string * string * string)) -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L287-287" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '93', 93)" onmouseover="showTip(event, '93', 93)">
+            createTimer (ctx, key)
+          </code>
+          <div class="tip" id="93">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string) -&gt; TimerMetric&lt;&#39;a&gt;<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L240-240" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '94', 94)" onmouseover="showTip(event, '94', 94)">
+            createUptime (ctx, key, interval)
+          </code>
+          <div class="tip" id="94">
+            <strong>Signature:</strong> (ctx:MetricContext * key:string * interval:&#39;?61732) -&gt; UptimeMetric<br />
+                          <strong>Type parameters:</strong> '?61732          </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L255-255" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '95', 95)" onmouseover="showTip(event, '95', 95)">
+            dispose ()
+          </code>
+          <div class="tip" id="95">
+            <strong>Signature:</strong> unit -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L310-310" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '96', 96)" onmouseover="showTip(event, '96', 96)">
+            getReport ()
+          </code>
+          <div class="tip" id="96">
+            <strong>Signature:</strong> unit -&gt; seq&lt;string * seq&lt;string * MetricValue&gt;&gt;<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L322-322" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '97', 97)" onmouseover="showTip(event, '97', 97)">
+            start cfg
+          </code>
+          <div class="tip" id="97">
+            <strong>Signature:</strong> cfg:MetricsConfiguration option -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L316-316" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/FSharp.Actor/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">FSharp.Actor</li>
+            <li><a href="/FSharp.Actor/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.com/packages/FSharp.Actor">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/FSharp.Actor">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/FSharp.Actor/tutorial.html">Sample tutorial</a></li>
+
+            <li class="nav-header">Documentation</li>
+            <li><a href="/FSharp.Actor/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsprojects/FSharp.Actor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+  </html>

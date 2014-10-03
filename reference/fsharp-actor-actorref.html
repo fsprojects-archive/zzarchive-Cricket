@@ -50,73 +50,93 @@
 <h1>ActorRef</h1>
 <div class="xmldoc">
 </div>
-
-<!-- Render nested types and modules, if there are any -->
-
-  <h3>Functions and values</h3>
+  <h3>Union Cases</h3>
   <table class="table table-bordered member-list">
     <thead>
-      <tr><td>Function or value</td><td>Description</td></tr>
+      <tr><td>Union Case</td><td>Description</td></tr>
     </thead>
     <tbody>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '16', 16)" onmouseover="showTip(event, '16', 16)">
-            path _arg1
+          <code onmouseout="hideTip(event, '110', 110)" onmouseover="showTip(event, '110', 110)">
+            ActorRef(IActor)
           </code>
-          <div class="tip" id="16">
-            <strong>Signature:</strong> _arg1:actorRef -&gt; actorPath<br />
+          <div class="tip" id="110">
+            <strong>Signature:</strong> IActor<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRef.fs#L29-29" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L13-13" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '17', 17)" onmouseover="showTip(event, '17', 17)">
-            post target msg
+          <code onmouseout="hideTip(event, '115', 115)" onmouseover="showTip(event, '115', 115)">
+            Null
           </code>
-          <div class="tip" id="17">
-            <strong>Signature:</strong> target:actorRef -&gt; msg:&#39;a -&gt; unit<br />
-                          <strong>Type parameters:</strong> 'a          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRef.fs#L44-44" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '18', 18)" onmouseover="showTip(event, '18', 18)">
-            postWithSender target sender msg
-          </code>
-          <div class="tip" id="18">
-            <strong>Signature:</strong> target:actorRef -&gt; sender:actorRef -&gt; msg:&#39;a -&gt; unit<br />
-                          <strong>Type parameters:</strong> 'a          </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRef.fs#L51-51" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '19', 19)" onmouseover="showTip(event, '19', 19)">
-            sender ()
-          </code>
-          <div class="tip" id="19">
-            <strong>Signature:</strong> unit -&gt; actorRef<br />
+          <div class="tip" id="115">
+            <strong>Signature:</strong> <br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorRef.fs#L39-39" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L14-14" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '221', 221)" onmouseover="showTip(event, '221', 221)">
+            Path
+          </code>
+          <div class="tip" id="221">
+            <strong>Signature:</strong> ActorPath<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L21-21" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '222', 222)" onmouseover="showTip(event, '222', 222)">
+            Post(msg)
+          </code>
+          <div class="tip" id="222">
+            <strong>Signature:</strong> msg:Message&lt;obj&gt; -&gt; unit<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L27-27" class="github-link">Go to GitHub source</a>
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '223', 223)" onmouseover="showTip(event, '223', 223)">
+            Post(msg, sender, ?id)
+          </code>
+          <div class="tip" id="223">
+            <strong>Signature:</strong> (msg:&#39;a * sender:ActorRef * id:uint64 option) -&gt; unit<br />
+                          <strong>Type parameters:</strong> 'a          </div>
+        </td>
+        <td class="xmldoc">
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/ActorTypes.fs#L25-25" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>

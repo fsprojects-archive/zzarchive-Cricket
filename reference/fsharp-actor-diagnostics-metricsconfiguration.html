@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>TraceHeader - FSharp.Actor</title>
+    <title>MetricsConfiguration - FSharp.Actor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="Colin Bull">
@@ -47,12 +47,8 @@
 
 
 
-<h1>TraceHeader</h1>
+<h1>MetricsConfiguration</h1>
 <div class="xmldoc">
-<p>A record that keeps track of what request this is.
-In an uint64 there are 18 446 744 073 709 551 616 number
-of possible values, so you can be fairly certain a given request
-id is unique, given a good random number generator.</p>
 </div>
   <h3>Record Fields</h3>
   <table class="table table-bordered member-list">
@@ -63,54 +59,46 @@ id is unique, given a good random number generator.</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '54', 54)" onmouseover="showTip(event, '54', 54)">
-            req_id
+          <code onmouseout="hideTip(event, '370', 370)" onmouseover="showTip(event, '370', 370)">
+            CancellationToken
           </code>
-          <div class="tip" id="54">
-            <strong>Signature:</strong> uint64<br />
+          <div class="tip" id="370">
+            <strong>Signature:</strong> CancellationToken<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>the request id assigned when suave received the http request
-In ZipKin/Dapper-speak, this is the span id</p>
-
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L116-116" class="github-link">Go to GitHub source</a>
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L113-113" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '55', 55)" onmouseover="showTip(event, '55', 55)">
-            req_parent_id
+          <code onmouseout="hideTip(event, '371', 371)" onmouseover="showTip(event, '371', 371)">
+            IsEnabled
           </code>
-          <div class="tip" id="55">
-            <strong>Signature:</strong> uint64 option<br />
+          <div class="tip" id="371">
+            <strong>Signature:</strong> bool<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>possibly a parent
-In ZipKin/Dapper-speak, this is the span parent id</p>
-
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L119-119" class="github-link">Go to GitHub source</a>
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L112-112" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '56', 56)" onmouseover="showTip(event, '56', 56)">
-            trace_id
+          <code onmouseout="hideTip(event, '372', 372)" onmouseover="showTip(event, '372', 372)">
+            SystemMetrics
           </code>
-          <div class="tip" id="56">
-            <strong>Signature:</strong> uint64<br />
+          <div class="tip" id="372">
+            <strong>Signature:</strong> bool * (PerformanceCounterGroup * PerformanceCounterInstance list) list<br />
                       </div>
         </td>
         <td class="xmldoc">
-        <p>if this is the 'first' traced request, then trace<em>id equals
-req</em>id. If it's the second, then trace<em>id = req</em>parent<em>id
-or otherwise third or later then trace</em>id, req<em>id and req</em>parent_id
-are all disjunct</p>
-
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L113-113" class="github-link">Go to GitHub source</a>
+        
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L114-114" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
@@ -124,31 +112,16 @@ are all disjunct</p>
       <tr>
         <td class="member-name">
 
-          <code onmouseout="hideTip(event, '86', 86)" onmouseover="showTip(event, '86', 86)">
-            Create(?trace_id, ?span_parent_id)
+          <code onmouseout="hideTip(event, '410', 410)" onmouseover="showTip(event, '410', 410)">
+            Default
           </code>
-          <div class="tip" id="86">
-            <strong>Signature:</strong> (trace_id:uint64 option * span_parent_id:uint64 option) -&gt; TraceHeader<br />
+          <div class="tip" id="410">
+            <strong>Signature:</strong> MetricsConfiguration<br />
                       </div>
         </td>
         <td class="xmldoc">
         
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L124-124" class="github-link">Go to GitHub source</a>
-        </td>
-      </tr>
-      <tr>
-        <td class="member-name">
-
-          <code onmouseout="hideTip(event, '87', 87)" onmouseover="showTip(event, '87', 87)">
-            Empty
-          </code>
-          <div class="tip" id="87">
-            <strong>Signature:</strong> TraceHeader<br />
-                      </div>
-        </td>
-        <td class="xmldoc">
-        
-            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Logger.fs#L120-120" class="github-link">Go to GitHub source</a>
+            <a href="https://github.com/fsprojects/FSharp.Actor/tree/master/src/FSharp.Actor/Metrics.fs#L117-117" class="github-link">Go to GitHub source</a>
         </td>
       </tr>
     </tbody>
