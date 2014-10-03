@@ -162,19 +162,19 @@ Supervisor Strategies
 
 Supervisor Stratgies define the way in which the supervisor handles errors from its children. By default FSharp.Actor defines the following.
 
-##Fail
+###Fail
 
 This strategy simply just shutsdown the actor that errored. Not really any different to the actor failing on its own.
 
-##Fail All
+###Fail All
 
 When any actor in the supervisors tree fails, the supervisor will shutdown all other actors in the tree.
 
-##OneForOne
+###OneForOne
 
 This is the default. When an actor in the supervisor tree errors that actor is simply restarted. No messages are sent to any other actors in the tree.
 
-##OneForAll
+###OneForAll
 
 When any actor in the tree encounters an error the supervisor will restart all of the other actors. 
 *)
