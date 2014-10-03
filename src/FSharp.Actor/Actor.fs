@@ -17,6 +17,7 @@ type ActorConfiguration<'a> = {
     Mailbox : IMailbox<Message<'a>> option
     OnError : (exn -> Async<unit>) option
     MaxQueueLength : int option
+    AwaitFirstMessage : bool
 }
 with
     override x.ToString() = "Config: " + x.Path.ToString()
@@ -28,11 +29,13 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let restartCounter = Metrics.createCounter(metricContext,"restartCount")
     let uptimer = Metrics.createUptime(metricContext,"uptime", 1000)
 
+    let firstArrivalGate = new ManualResetEventSlim(not defn.AwaitFirstMessage)
     let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox", ?boundingCapacity = defn.MaxQueueLength) :> IMailbox<_>)
     let systemMailbox = new DefaultMailbox<Message<SystemMessage>>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
 
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
+    
     let mutable defn = defn
     let mutable ctx = { Self = ActorRef self; Mailbox = mailbox; ParentId = None; SpanId = 0UL; Sender = Null; }
     let mutable status = ActorStatus.Stopped
@@ -79,6 +82,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         async {
             try
                 uptimer.Start()
+                firstArrivalGate.Wait(messageHandlerCancel.Token)
                 if not(messageHandlerCancel.IsCancellationRequested)
                 then do! Message.toAsync defn.Behaviour ctx
                 setStatus ActorStatus.Stopped
@@ -149,6 +153,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         member x.Post(msg) =
             if status <> ActorStatus.Stopped
             then
+                if not(firstArrivalGate.IsSet) then firstArrivalGate.Set()
                 mailbox.Post(msg) 
 
     interface IDisposable with  
@@ -168,7 +173,9 @@ module ActorConfiguration =
             Behaviour = Message.emptyHandler
             OnError = None
             MaxQueueLength = Some 1000000
-            Mailbox = None  }
+            Mailbox = None
+            AwaitFirstMessage = true
+        }
         member x.Yield(()) = x.Zero()
         [<CustomOperation("inherits", MaintainsVariableSpace = true)>]
         member __.Inherits(_, b:ActorConfiguration<'a>) = b
@@ -190,6 +197,9 @@ module ActorConfiguration =
         [<CustomOperation("raiseEventsOn", MaintainsVariableSpace = true)>]
         member __.RaiseEventsOn(ctx:ActorConfiguration<'a>, es) = 
             { ctx with EventStream = Some es }
+        [<CustomOperation("waitFirstMessage", MaintainsVariableSpace = true)>]
+        member __.WaitFirstMessage(ctx:ActorConfiguration<'a>, es) = 
+            { ctx with AwaitFirstMessage = es }
 
     let actor = new ActorConfigurationBuilder()
 
@@ -230,6 +240,7 @@ module Supervisor =
     let toActor (config : SupervisorConfiguration) =
         actor {
             path config.Path
+            waitFirstMessage false
             body (
                 let rec loop children = 
                     messageHandler {

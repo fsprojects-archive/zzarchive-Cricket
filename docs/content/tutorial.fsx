@@ -53,6 +53,7 @@ let greeter =
                 | Hello ->  printfn "Hello" //Handle Hello leg
                 | HelloWorld -> printfn "Hello World" //Handle HelloWorld leg
                 | Name name -> printfn "Hello, %s" name //Handle Name leg
+
                 return! loop() //Recursively loop
 
             }
@@ -96,8 +97,10 @@ add an extra leg to our message type `Stop` for example that would cause the mes
 will be desirable. But it is worth noting that the F# Actor Framework, provides a set of [System Messages](reference/fsharp-actor-systemmessage.html) that allow you to control
 certain framework level items to do with your actor, like shutting down, restarting or several other tasks to do with supervisors. 
 
-Here we will just focus on shutting down the actor, since this is built into the framework all we have to do is send it the `Shutdown` message
+Here we will just focus on shutting down the actor, since this is built into the framework all we have to do is send it the `Shutdown` or `Restart` message
 *)
+
+greeter <-- Restart
 
 greeter <-- Shutdown
 

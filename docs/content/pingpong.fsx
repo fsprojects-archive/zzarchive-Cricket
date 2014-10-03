@@ -37,7 +37,7 @@ let ping count =
                               do! Message.post pong.Value Ping
                               return! loop (count - 1)
                         | Ping -> failwithf "Ping: received a ping message, panic..."
-                        | _ -> pong.Value <-- Stop
+                        | _ -> do! Message.post pong.Value Stop
                     }
                 
                 loop count        

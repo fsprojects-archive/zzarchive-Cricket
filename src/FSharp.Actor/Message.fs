@@ -118,18 +118,36 @@ module Message =
                      return! nextComp context
                   } 
             )
+
         member __.Return(m) = 
             MH(fun ctx -> 
                 traceHandled ctx; 
                 async { return m } )
+
         member __.ReturnFrom(MH m) = 
             MH(fun ctx -> 
                 traceHandled ctx; 
                 m(ctx))
+
         member __.Zero() = MH(fun _ -> async.Zero())
         member x.Delay(f) = x.Bind(x.Zero(), f)
-        member __.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
+        
         member x.Combine(c1 : MessageHandler<_,_>, c2) = x.Bind(c1, fun () -> c2)
+
+        member __.Using(r,f) = MH(fun ctx -> use rr = r in let (MH g) = f rr in g ctx)
+
+        member x.TryFinally(MH body, comp) = 
+            MH(fun ctx -> async.TryFinally(body ctx, comp))
+
+        member x.TryWith(MH body, comp) =
+            MH(fun ctx -> 
+                let comp' = 
+                    (fun err -> 
+                        let (MH comp) = comp err
+                        comp ctx
+                    )
+                async.TryWith(body ctx, comp')) 
+
         member x.For(sq:seq<'a>, f:'a -> MessageHandler<'b, 'c>) = 
           let rec loop (en:System.Collections.Generic.IEnumerator<_>) = 
             if en.MoveNext() then x.Bind(f en.Current, fun _ -> loop en)
@@ -142,3 +160,6 @@ module Message =
             else x.Zero()
           loop()
 
+
+
+                
