@@ -1,3 +1,6 @@
+(*** hide ***)
+// This block of code is omitted in the generated HTML documentation. Use 
+// it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
 #r "FSharp.Actor.dll"
 
@@ -12,6 +15,11 @@ open System
 open FSharp.Actor
 open FSharp.Actor.Diagnostics
 open Foogle
+
+(**
+Tracing
+-------
+*)
 
 let traceWriter = new InMemoryTraceWriter()
 let rnd = new Random()
@@ -101,13 +109,7 @@ let client =
 
 client <-- Request(None, "Hello")
 
-fsi.AddPrinter(fun (x:ActorPath) -> x.Path)
-
 let rawTraces = traceWriter.GetTraces()
-
-rawTraces
-|> Seq.groupBy (fun t -> t.SpanId)
-|> Seq.choose (fun (t, ss) -> if Seq.length ss > 2 then Some (t,ss |> Seq.sortBy (fun x -> x.Timestamp)) else None)
 
 let timeLine() = 
     rawTraces
@@ -127,7 +129,6 @@ let timeLine() =
 
 let data = timeLine()
 
+
 Chart.Timeline(data, rowLabels = true, barLabels = false)
 |> Chart.WithTitle("Ping - Pong messages")
-
-rawTraces.Length
