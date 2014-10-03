@@ -106,3 +106,14 @@ type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) =
         member x.Dispose() = 
             udpChannel.Publish(settings.Serializer.Serialize(ActorShutdownBeacon(settings.SystemDetails))) |> ignore
             (udpChannel :> System.IDisposable).Dispose()
+
+type StaticRegistryDiscovery(endpoints) =
+    let mutable settings : ActorRegistryDiscoverySettings = Unchecked.defaultof<_>
+
+    interface IActorRegistryDiscovery with
+        member x.Start(setts) =
+            settings <- setts
+            endpoints |> Seq.iter (fun (name,add) -> settings.DiscoveryHandler(ActorDiscoveryBeacon(name,add)))
+
+        member x.Dispose() = ()
+ 
