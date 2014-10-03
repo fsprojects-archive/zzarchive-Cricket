@@ -47,6 +47,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         status <- stats
     
     let mutable onShutdown = (fun () -> async.Zero())
+    let mutable onRestart = (fun () -> async.Zero())
 
     let shutdown() = 
         async {
@@ -233,6 +234,8 @@ module Supervisor =
     
     let fail (_,sender,_) = Message.post sender SystemMessage.Shutdown
 
+    let failAll (_,_,children) = Message.post children SystemMessage.Shutdown
+
     let oneForOne (_,sender,_) = Message.post sender SystemMessage.Restart
 
     let oneForAll (_,_,children) = Message.post children SystemMessage.Restart
@@ -252,6 +255,8 @@ module Supervisor =
                             return! loop children
                         | ChildShutdown ->
                             return! loop (ActorSelection.exclude sender children)
+                        | ChildRestart -> 
+                            return! loop children
                         | ChildLink ->
                             do! Message.post sender Link
                             return! loop (ActorSelection.combine sender children)
@@ -284,10 +289,11 @@ module Supervisor =
 module SupervisorConfiguration = 
 
     type SupervisorConfigurationBuilder internal() = 
-        member __.Zero() = { 
-            Path = ActorPath.ofString (Guid.NewGuid().ToString())
-            Children = ActorSelection.empty
-            Behaviour = Supervisor.fail
+        member __.Zero() = 
+            { 
+                Path = ActorPath.ofString (Guid.NewGuid().ToString())
+                Children = ActorSelection.empty
+                Behaviour = Supervisor.oneForOne
             }
         member x.Yield(()) = x.Zero()
         [<CustomOperation("path", MaintainsVariableSpace = true)>]

@@ -81,6 +81,7 @@ type SupervisorMessage =
     | ChildLink
     | ChildUnLink
     | ChildShutdown
+    | ChildRestart
 
 type ActorCell<'a> = {
     Mailbox : IMailbox<Message<'a>>
