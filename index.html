@@ -2,16 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>F# Actor
-</title>
+    <title>index</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="An actor framework for F#">
     <meta name="author" content="Colin Bull">
 
     <script src="//code.jquery.com/jquery-1.10.2.js"></script>
     <script src="//code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 
     <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
     <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
@@ -45,22 +44,7 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h1>F# Actor</h1>
-
-<p>Documentation</p>
-
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      The F# Actor library can be <a href="https://nuget.org/packages/FSharp.Actor">installed from NuGet</a>:
-      <pre>PM> Install-Package FSharp.Actor</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div>
-
-<h1>Introducing F# Actor</h1>
+<h2>Introducing F# Actor</h2>
 
 <p>F# Actor is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
 The actor can then respond to the reciept of the message by executing one or more of the following actions (possibly concurrently),</p>
@@ -81,6 +65,19 @@ The actor can then respond to the reciept of the message by executing one or mor
 
 <p>F# Actor in no way aims to be a clone of either of these however it does draw on the ideas in all of the above frameworks as well as Erlang and OTP. Instead F# actor aims to be as simple and safe to use as possible hopefully
 making it difficult for you to shoot or self in the foot.</p>
+
+<h2>Installing</h2>
+
+<div class="row">
+  <div class="span1"></div>
+  <div class="span6">
+    <div class="well well-small" id="nuget">
+      The F# Actor library can be <a href="https://nuget.org/packages/FSharp.Actor">installed from NuGet</a>:
+      <pre>PM> Install-Package FSharp.Actor</pre>
+    </div>
+  </div>
+  <div class="span1"></div>
+</div>
 
 <h2>Samples &amp; documentation</h2>
 
