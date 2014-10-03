@@ -5,24 +5,8 @@
 open System
 
 (**
-F# Actor
-===================
-
-Documentation
-
-<div class="row">
-  <div class="span1"></div>
-  <div class="span6">
-    <div class="well well-small" id="nuget">
-      The F# Actor library can be <a href="https://nuget.org/packages/FSharp.Actor">installed from NuGet</a>:
-      <pre>PM> Install-Package FSharp.Actor</pre>
-    </div>
-  </div>
-  <div class="span1"></div>
-</div>
-
 Introducing F# Actor
-========================
+--------------------
 
 F# Actor is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
 The actor can then respond to the reciept of the message by executing one or more of the following actions (possibly concurrently),
@@ -40,6 +24,19 @@ Currently there are a couple of actor libraries on the .NET platform
 F# Actor in no way aims to be a clone of either of these however it does draw on the ideas in all of the above frameworks as well as Erlang and OTP. Instead F# actor aims to be as simple and safe to use as possible hopefully
 making it difficult for you to shoot or self in the foot.
 
+Installing
+----------
+
+<div class="row">
+  <div class="span1"></div>
+  <div class="span6">
+    <div class="well well-small" id="nuget">
+      The F# Actor library can be <a href="https://nuget.org/packages/FSharp.Actor">installed from NuGet</a>:
+      <pre>PM> Install-Package FSharp.Actor</pre>
+    </div>
+  </div>
+  <div class="span1"></div>
+</div>
 
 Samples & documentation
 -----------------------
