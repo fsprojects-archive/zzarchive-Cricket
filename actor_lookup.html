@@ -32,23 +32,189 @@
       <div class="row">
         <div class="span9" id="main">
           
-<h2>Actor Lookup</h2>
+<h2><a name="Actor-Lookup" class="anchor" href="#Actor-Lookup">Actor Lookup</a></h2>
 
-<h2>ActorPaths</h2>
+<h2><a name="ActorPaths" class="anchor" href="#ActorPaths">ActorPaths</a></h2>
 
-<p>Actor Paths are a simply a string that identifies an acotr or a group of actors. They work much in the same way</p>
+<p>Actor Paths are a simply a string that identifies an actor or a group of actors. They look and work much like a web address. An example of an actor path
+might be something like the following</p>
 
-<h2>Actor References</h2>
+<pre class="fssnip">
+<span class="i">actor</span><span class="o">.</span><span class="i">tcp</span><span class="o">:</span><span class="c">//actorHost1@192.168.1.90:8080/models/stats/average</span></pre>
 
-<p>Actor References</p>
 
-<h2>Actor Selection</h2>
+<p>This path is broken down into the following components.</p>
 
-<p>An important property of any actor system is the ability to send a message to an actor without having a tight coupling to that actor.
-FSharp.Actor allows this by providing a simple abstract called <code>ActorSelection</code> an actor selection is simply a list of <code>ActorRef</code>.</p>
+<pre class="fssnip">
+{<span class="i">protocol</span>}<span class="o">:</span><span class="c">//{host name}@{protocol address}/{local path}</span></pre>
+
+
+<ul>
+<li><p><strong>Protocol</strong> - This defines which protocol actors should use to talk to each other. Local actors will simply use the <code>actor</code> protocol. When the actor
+is a remote actor then this portion will be replaced with the scheme of the message that the transport was recieved on. For example if the message was received on
+the <code>TcpActorProtocol</code> then this portion of the path will be set to <code>actor.tcp</code></p></li>
+<li><p><strong>Host Name</strong> - This identifies the host that the actor was created in. The host name can be set when calling <a href="http://fsprojects.github.io/FSharp.Actor/reference/fsharp-actor-actorhost.html"><code>ActorHost.Start(..)</code></a></p></li>
+<li><p><strong>Protocol Address</strong> - Typically you will simply let the framework resolve this for you. As the exact structure of this will depend on the underlying transport. In the example above 
+we are using the <code>actor.tcp</code> transport so the IP address an port are required for this transport; However another example maybe a message queue based protocol in which case this may define the topic or queue name.</p></li>
+<li><p><strong>Local Path</strong> - This is the name that was given to the actor when it was defined.</p></li>
+</ul>
+
+<p>At first look Actor paths can seem quite verbose, but in truth it is a rare occasion when we need to specify a fully qualified path like the one above. Typically we can just get away with specifying the 
+local path portion, for example</p>
+
+<pre class="fssnip">
+<span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">average</span></pre>
+
+
+<p>This path is a pointer to <strong>ALL</strong> actors on <strong>ALL</strong> nodes with that name. For example if there where 5 nodes all with an actor registered <code>/models/stats/average</code> then resolving this will lead to 5 fully qualified
+actor paths</p>
+
+<pre class="fssnip">
+[
+    <span class="i">actor</span><span class="o">.</span><span class="i">tcp</span><span class="o">:</span><span class="c">//actorhost1@192.168.1.90:8080/models/stats/average</span>
+    <span class="i">actor</span><span class="o">.</span><span class="i">tcp</span><span class="o">:</span><span class="c">//actorhost2@192.168.1.90:8081/models/stats/average</span>
+    <span class="i">actor</span><span class="o">.</span><span class="i">tcp</span><span class="o">:</span><span class="c">//actorhost3@192.168.1.90:8082/models/stats/average</span>
+    <span class="i">actor</span><span class="o">.</span><span class="i">tcp</span><span class="o">:</span><span class="c">//actorhost4@192.168.1.90:8083/models/stats/average</span>
+    <span class="i">actor</span><span class="o">.</span><span class="i">tcp</span><span class="o">:</span><span class="c">//actorhost5@192.168.1.90:8084/models/stats/average</span>
+]</pre>
+
+
+<p>This is all fine, but what if there are several actors all under a different name, is it possible to reference them all with a single path? Answer: Yes, but the local path needs some structure. When the 
+local path of the actor is defined, it is defined like any path. This path is used to build a tree.</p>
+
+<table class="pre"><tr><td><pre lang="text">models
+   |
+   |--- stats
+          |
+          |--- average</pre></td></tr></table>
+
+<p>so to be able to match different types of actors we need a common root. Given,</p>
+
+<pre class="fssnip">
+[
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">mean</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">stddev</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">agg</span><span class="o">/</span><span class="i">total</span><span class="o">/</span><span class="i">month</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">agg</span><span class="o">/</span><span class="i">total</span><span class="o">/</span><span class="i">year</span>
+]</pre>
+
+
+<p>This will build the following tree</p>
+
+<table class="pre"><tr><td><pre lang="text">models
+   |
+   |--- stats
+   |     |
+   |     |--- mean
+   |     |--- stdev
+   |
+   |--- agg
+         |
+         |--- total
+                |
+                |--- month
+                |--- year</pre></td></tr></table>
+
+<p>Now to access all of the actors in sub trees we can use wildcards.</p>
+
+<p>Using <code>/models/*</code> will return</p>
+
+<pre class="fssnip">
+[
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">mean</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">stddev</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">agg</span><span class="o">/</span><span class="i">total</span><span class="o">/</span><span class="i">month</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">agg</span><span class="o">/</span><span class="i">total</span><span class="o">/</span><span class="i">year</span>
+]</pre>
+
+
+<p>Using <code>/models/stats/*</code> will return</p>
+
+<pre class="fssnip">
+[
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">mean</span>
+    <span class="o">/</span><span class="i">models</span><span class="o">/</span><span class="i">stats</span><span class="o">/</span><span class="i">stddev</span>
+]</pre>
+
+
+<h2><a name="Actor-References-and-Actor-Selections" class="anchor" href="#Actor-References-and-Actor-Selections">Actor References and Actor Selections</a></h2>
+
+<p>Actor References relate to an actor path. When a actor path is resolved, the resolution process returns one or more ActorRef's. Rarely will you interact directly with an
+<code>ActorRef</code>. When an <code>ActorPath</code> is resolved we get and <code>ActorSelection</code> which is an abstraction over a collection of ActorRefs.</p>
+
+<h2><a name="Resolving-Actor-Paths" class="anchor" href="#Resolving-Actor-Paths">Resolving Actor Paths</a></h2>
+
+<p>To resolve an actor path, we have several operators at our disposal <code>!!</code>, <code>!~</code> or the named equivalents <code>resolve</code>, <code>resolveLazy</code>. These operators are able to resolve many types to an <code>ActorSelection</code>
+a few examples are:</p>
+
+<pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">selection1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">resolve</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span></pre>
+
+
+<p>which gives us</p>
+
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9132@*/models/stats/mean]
+</code></pre></td></tr></table>
+
+<pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 18)" onmouseover="showTip(event, 'fs16', 18)" class="i">selection2</span> <span class="o">=</span> <span class="o">!!</span><span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span></pre>
+
+
+<p>which gives us</p>
+
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9132@*/models/stats/mean]
+</code></pre></td></tr></table>
+
+<pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 19)" onmouseover="showTip(event, 'fs17', 19)" class="i">selection3</span> <span class="o">=</span> <span class="o">!!</span>[<span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">agg</span><span class="s">/</span><span class="s">total</span><span class="s">/</span><span class="s">*</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span>]</pre>
+
+
+<p>which gives us</p>
+
+<table class="pre"><tr><td><pre><code>ActorSelection
+  [ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/year;
+   ActorRef actor://HP20024950_Fsi_9132@*/models/stats/mean]
+</code></pre></td></tr></table>
+
+<p>for a complete list see <a href="https://github.com/fsprojects/FSharp.Actor/blob/master/src/FSharp.Actor/ActorSelection.fs#L12">here</a>.</p>
+
+<h3><a name="Actor-Selection-combinators" class="anchor" href="#Actor-Selection-combinators">Actor Selection combinators</a></h3>
+
+<p>The library also provides a set of functions over <code>ActorSelection</code> see <a href="http://fsprojects.github.io/FSharp.Actor/reference/fsharp-actor-actorselectionmodule.html">here</a>. These 
+all you to take an <code>ActorSelection</code> create a new actor selection. For example if I wanted to exclude <code>selection2</code> from <code>selection3</code> I could do the following</p>
+
+<pre class="fssnip">
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 20)" onmouseover="showTip(event, 'fs18', 20)" class="i">selection4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 21)" onmouseover="showTip(event, 'fs19', 21)" class="i">ActorSelection</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 22)" onmouseover="showTip(event, 'fs20', 22)" class="i">exclude</span> <span onmouseout="hideTip(event, 'fs16', 23)" onmouseover="showTip(event, 'fs16', 23)" class="i">selection2</span> <span onmouseout="hideTip(event, 'fs17', 24)" onmouseover="showTip(event, 'fs17', 24)" class="i">selection3</span></pre>
+
+
+<p>which gives us</p>
+
+<table class="pre"><tr><td><pre><code>ActorSelection
+  [ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/year]
+</code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace FSharp</div>
 <div class="tip" id="fs2">namespace FSharp.Actor</div>
+<div class="tip" id="fs3">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;member private Serializer : ISerializer<br />&#160;&#160;...<br /><br />Full name: FSharp.Actor.ActorHost</div>
+<div class="tip" id="fs4">static member ActorHost.Start : ?name:string * ?logger:Log.Logger * ?serializer:ISerializer * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs5">val createActor : localName:string -&gt; ActorRef<br /><br />Full name: Actor_lookup.createActor</div>
+<div class="tip" id="fs6">val localName : string</div>
+<div class="tip" id="fs7">val actor : ActorConfigurationBuilder<br /><br />Full name: FSharp.Actor.ActorConfiguration.actor</div>
+<div class="tip" id="fs8">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
+<div class="tip" id="fs9">Multiple items<br />module Actor<br /><br />from FSharp.Actor<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: FSharp.Actor.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs10">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.Actor.spawn</div>
+<div class="tip" id="fs11">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of Head: &#39;T * Tail: &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
+<div class="tip" id="fs12">val iter : action:(&#39;T -&gt; unit) -&gt; list:&#39;T list -&gt; unit<br /><br />Full name: Microsoft.FSharp.Collections.List.iter</div>
+<div class="tip" id="fs13">val ignore : value:&#39;T -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Operators.ignore</div>
+<div class="tip" id="fs14">val selection1 : ActorSelection<br /><br />Full name: Actor_lookup.selection1</div>
+<div class="tip" id="fs15">val resolve : a:&#39;a -&gt; ActorSelection<br /><br />Full name: FSharp.Actor.ActorOperators.resolve</div>
+<div class="tip" id="fs16">val selection2 : ActorSelection<br /><br />Full name: Actor_lookup.selection2</div>
+<div class="tip" id="fs17">val selection3 : ActorSelection<br /><br />Full name: Actor_lookup.selection3</div>
+<div class="tip" id="fs18">val selection4 : ActorSelection<br /><br />Full name: Actor_lookup.selection4</div>
+<div class="tip" id="fs19">Multiple items<br />union case ActorSelection.ActorSelection: ActorRef list -&gt; ActorSelection<br /><br />--------------------<br />module ActorSelection<br /><br />from FSharp.Actor<br /><br />--------------------<br />type ActorSelection =<br />&#160;&#160;| ActorSelection of ActorRef list<br />&#160;&#160;member private Refs : ActorRef list<br />&#160;&#160;static member op_Implicit : s:&#39;a -&gt; ActorSelection<br /><br />Full name: FSharp.Actor.ActorSelection</div>
+<div class="tip" id="fs20">val exclude : ActorSelection -&gt; r:ActorSelection -&gt; ActorSelection<br /><br />Full name: FSharp.Actor.ActorSelection.exclude</div>
 
         </div>
         <div class="span3">
