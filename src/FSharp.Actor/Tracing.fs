@@ -57,7 +57,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
     let flushThreshold = defaultArg flushThreshold 1000
     let maxFlushTime = defaultArg maxFlushTime 1000
     let fileName = (defaultArg filename (Environment.DefaultActorHostName  + ".actortrace"))
-    let fileStream = new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read ||| FileShare.Delete)
+    let mutable fileStream = Unchecked.defaultof<FileStream>
     let pickler = FsPickler.CreateBinary()
     let writeQueue = new BlockingCollection<TraceEntry>()
     let numberOfEvents = ref 0
@@ -94,7 +94,8 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
 
 
     interface ITraceWriter with
-        member x.Start() = 
+        member x.Start() =
+            fileStream <- new FileStream(fileName, FileMode.Create, FileAccess.ReadWrite, FileShare.Read ||| FileShare.Delete) 
             cancelToken.Register(fun () -> dispose()) |> ignore
             Async.Start(flusher(), cancelToken)
         member x.Write(header) = 

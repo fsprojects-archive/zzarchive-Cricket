@@ -2,11 +2,13 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
+#r "FsPickler.dll"
 #r "FSharp.Actor.dll"
 open FSharp.Actor
 open FSharp.Actor.Diagnostics
 open System.IO
 open System.Threading
+open Nessos.FsPickler
 
 (**
 
@@ -52,9 +54,10 @@ Write the metrics out to a file on a background thread
 *)
 
 let rec reporter() = 
+    let pickler = FsPickler.CreateXml()
     async {
        do! Async.Sleep(5000)
-       do File.WriteAllText(@"C:\temp\ExampleMetrics.json", sprintf "%s" (Metrics.getReport() |> Metrics.Formatters.toJsonString)) 
+       do File.WriteAllBytes(@"C:\temp\Example.metrics", Metrics.getReport() |> pickler.Pickle) 
        return! reporter()        
     }
 

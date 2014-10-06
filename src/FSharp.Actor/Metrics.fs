@@ -161,26 +161,6 @@ with
         }
 
 module Metrics =
-
-    module Formatters = 
-    
-        let toString (metrics:seq<string * seq<string * MetricValue>>) =
-            let createMetricValue (name,v:MetricValue) =
-                sprintf "%s\r\n\t\t%s" name (String.Join(Environment.NewLine + "\t\t", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "%s = %A" n v)))
-    
-            let createMetricType (name, vs) = 
-                 sprintf "%s\r\n\t%s" name (String.Join(Environment.NewLine + "\t", Seq.map createMetricValue vs |> Seq.toArray))
-    
-            String.Join(Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray)
-    
-        let toJsonString (metrics:seq<string * seq<string * MetricValue>>) = 
-            let createMetricValue (name,v:MetricValue) =
-                sprintf "{ \"Key\": %A,\"Properties\": [%s] }" name (String.Join(", ", v.AsArray() |> Seq.map (fun (n,v) -> sprintf "{ \"Name\": %A, \"Value\": %s }" n v)))
-    
-            let createMetricType (name, vs) = 
-                 sprintf "{ \"Key\": %A, \"Values\": [%s] }" name (String.Join(", ", Seq.map createMetricValue vs |> Seq.toArray))
-    
-            "[" + String.Join(", " + Environment.NewLine, metrics |> Seq.map createMetricType |> Seq.toArray) + "]"
     
     let private disposables = new ResizeArray<IDisposable>()
     let mutable private config = MetricsConfiguration.Default 
