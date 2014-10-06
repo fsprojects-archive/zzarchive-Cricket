@@ -355,13 +355,10 @@ type UDP(config:UdpConfig) =
             let client = new UdpClient()
             client.ExclusiveAddressUse <- false
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true) 
+            client.Client.Bind(new IPEndPoint(IPAddress.Any, config.Port))
             match config.ConnectMethod with
-            | Multicast(grp) ->  
-                client.Client.Bind(new IPEndPoint(IPAddress.Any, config.Port))
-                client.JoinMulticastGroup(grp)
-            | Broadcast _ -> 
-                client.Client.Bind(new IPEndPoint(IPAddress.Broadcast, config.Port))
-                client.EnableBroadcast <- true
+            | Multicast(grp) ->  client.JoinMulticastGroup(grp)
+            | Broadcast _ -> client.EnableBroadcast <- true
             | Direct _ -> ()
             client
 
