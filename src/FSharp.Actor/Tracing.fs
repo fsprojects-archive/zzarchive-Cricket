@@ -89,8 +89,10 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
         with e -> ()
 
         writeQueue.Dispose()
-        fileStream.Flush(true)
-        fileStream.Dispose()
+        if fileStream <> null
+        then
+            fileStream.Flush(true)
+            fileStream.Dispose()
 
 
     interface ITraceWriter with
