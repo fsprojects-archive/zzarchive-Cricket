@@ -6,14 +6,19 @@ open FSharp.Actor
 
 [<AutoOpen>]
 module ActorOperators =
- 
-    let inline (!!) a = ActorSelection.op_Implicit a
     
-    let inline (!~) a = lazy !!a  
+    let inline resolve a = ActorSelection.op_Implicit a
+
+    let inline resolveLazy a = lazy (resolve a)
     
-    let inline (-->) msg t = 
-        Message.postMessage t { Id = Some (Random.randomLong()); Sender = Null; Message = msg }
+    let inline post target msg =
+        Message.postMessage target { Id = Some (Random.randomLong()); Sender = Null; Message = msg }
+
+    let inline (!!) a = resolve a
     
-    let inline (<--) t msg =
-        Message.postMessage t { Id = Some (Random.randomLong()); Sender = Null; Message = msg }
+    let inline (!~) a = resolveLazy a 
+    
+    let inline (-->) msg t = post t msg
+
+    let inline (<--) t msg = post t msg
 

@@ -35,7 +35,8 @@ type TraceEntry =
           ParentId = parentId }
 
 type ITraceWriter =
-    inherit IDisposable 
+    inherit IDisposable
+    abstract Start : unit -> unit 
     abstract Write : TraceEntry -> unit
 
 type InMemoryTraceWriter() =
@@ -46,6 +47,7 @@ type InMemoryTraceWriter() =
     member x.GetTraces() = writeQueue.ToArray()
 
     interface ITraceWriter with
+        member x.Start() = ()
         member x.Write(header) = writeQueue.Add(header)
 
         member x.Dispose() = dispose()
@@ -90,11 +92,11 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
         fileStream.Flush(true)
         fileStream.Dispose()
 
-    do
-        cancelToken.Register(fun () -> dispose()) |> ignore
-        Async.Start(flusher(), cancelToken)
 
     interface ITraceWriter with
+        member x.Start() = 
+            cancelToken.Register(fun () -> dispose()) |> ignore
+            Async.Start(flusher(), cancelToken)
         member x.Write(header) = 
             writeQueue.Add(header)
             Interlocked.Increment(numberOfEvents) |> ignore
@@ -133,6 +135,9 @@ module Trace =
         match cfg with
         | Some(cfg) -> config <- cfg
         | None -> config <- TracingConfiguration.Create()
+
+        if config.IsEnabled
+        then config.Writer.Start()
 
         config.CancellationToken.Register(fun () -> dispose()) |> ignore
 

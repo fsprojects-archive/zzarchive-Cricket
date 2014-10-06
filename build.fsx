@@ -156,12 +156,20 @@ Target "Release" DoNothing
 
 Target "All" DoNothing
 
+
+Target "BuildDocs" DoNothing
+
 "Clean"
   ==> "RestorePackages"
   ==> "AssemblyInfo"
   ==> "Build"
   ==> "RunTests"
   ==> "All"
+
+"All"
+  ==> "CleanDocs"
+  ==> "GenerateDocs"
+  ==> "BuildDocs"
 
 "All" 
   ==> "CleanDocs"
