@@ -153,7 +153,7 @@ a few examples are:</p>
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9132@*/models/stats/mean]
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_5968@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <pre class="fssnip">
@@ -162,7 +162,7 @@ a few examples are:</p>
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9132@*/models/stats/mean]
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_5968@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <pre class="fssnip">
@@ -172,9 +172,9 @@ a few examples are:</p>
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/month;
-   ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/year;
-   ActorRef actor://HP20024950_Fsi_9132@*/models/stats/mean]
+  [ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/year;
+   ActorRef actor://HP20024950_Fsi_5968@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <p>for a complete list see <a href="https://github.com/fsprojects/FSharp.Actor/blob/master/src/FSharp.Actor/ActorSelection.fs#L12">here</a>.</p>
@@ -191,8 +191,8 @@ all you to take an <code>ActorSelection</code> create a new actor selection. For
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/month;
-   ActorRef actor://HP20024950_Fsi_9132@*/models/agg/total/year]
+  [ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/year]
 </code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace FSharp</div>
@@ -229,9 +229,13 @@ all you to take an <code>ActorSelection</code> create a new actor selection. For
             <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="/FSharp.Actor/tutorial.html">Sample tutorial</a></li>
-
+            <li><a href="/FSharp.Actor/tutorial.html">Tutorial</a></li>
             <li class="nav-header">Documentation</li>
+			<li><a href="/FSharp.Actor/remoting.html">Remoting</a></li>
+			<li><a href="/FSharp.Actor/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/FSharp.Actor/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/FSharp.Actor/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/FSharp.Actor/diagnostics_metrics.html">Metrics</a></li>
             <li><a href="/FSharp.Actor/reference/index.html">API Reference</a></li>
           </ul>
         </div>
