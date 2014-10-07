@@ -13,7 +13,7 @@
     <Name>Actor.Node2</Name>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
+    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>PingNode</Name>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\..\..\</SolutionDir>
   </PropertyGroup>
