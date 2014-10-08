@@ -19,15 +19,18 @@
 * Fixed NuGet packaging.
 * Merged pull request from @endeavour - adding TryScan and TryReceive functions.
 
-#### 0.0.7-alpha - 
+#### 0.0.7-alpha - September 4th 2014
+* Fixed some issues with event streams not getting passed when an actor is registered.
+* Changed how actor paths are built.
+* Cleaned up APIs' in various places specifically around ActorHost configuration.
+
+#### 0.0.8-alpha - 
 * Added metrics and metric reporting capabilities
 * Added message tracing support.
 * Removed actor System abstraction
 * DefaultMailbox is now capped by default at 1000000 items. This is configurable
 * Re-arranged solution so it is a far more logical order
-* Fixed some issues with event streams not getting passed when an actor is registered.
-* Changed how actor paths are built.
-* Cleaned up APIs' in various places specifically around ActorHost configuration.
 * Added supervisors.
-* Added simple routing primitive - more to come, shortestQueue etc.  
+* Added simple routing primitive - more to come, shortestQueue etc. 
+* Fixed UDP malformed packet and multicast constrianed to single router hop problem (#28)  
 
