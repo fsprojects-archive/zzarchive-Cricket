@@ -307,8 +307,8 @@ module Socket =
             send' 0
 
 type UdpConnectMethod = 
-    | Multicast of group:IPAddress * ttl:int
-    | Broadcast of ip:IPAddress
+    | Multicast of group:IPAddress
+    | Broadcast
     | Direct of ip:IPAddress
 
 type UdpConfig = {
@@ -320,19 +320,19 @@ with
     static member Default(?id, ?port, ?connectMethod) = 
         {
             Id = defaultArg id (Guid.NewGuid())
-            Port = defaultArg port 15000
-            ConnectMethod = defaultArg connectMethod (Multicast(IPAddress.Parse("239.192.0.0"), 2))
+            Port = defaultArg port 2222
+            ConnectMethod = defaultArg connectMethod Broadcast
         }
     static member Multicast(?id, ?port, ?group) =
-        UdpConfig.Default(?id = id, ?port = port, connectMethod = Multicast(defaultArg group (IPAddress.Parse("239.192.0.0")), 2))
-    static member Broadcast(?id, ?port, ?address) =
-        UdpConfig.Default(?id = id, ?port = port, connectMethod = Broadcast(defaultArg address IPAddress.Broadcast))
+        UdpConfig.Default(?id = id, ?port = port, connectMethod = Multicast(defaultArg group (IPAddress.Parse("239.0.0.222"))))
+    static member Broadcast(?id, ?port) =
+        UdpConfig.Default(?id = id, ?port = port, connectMethod = Broadcast)
     static member Direct(address, ?id, ?port) =
         UdpConfig.Default(?id = id, ?port = port, connectMethod = Direct(address))
     member x.RemoteEndpoint = 
         match x.ConnectMethod with
-        | Multicast(group, _) -> new IPEndPoint(group, x.Port)
-        | Broadcast(broadcastAddress) -> new IPEndPoint(broadcastAddress, x.Port)
+        | Multicast(group) -> new IPEndPoint(group, x.Port)
+        | Broadcast -> new IPEndPoint(IPAddress.Broadcast, x.Port)
         | Direct(address) -> new IPEndPoint(address, x.Port)
 
 
@@ -345,11 +345,8 @@ type UDP(config:UdpConfig) =
         lazy
             let client = new UdpClient()
             match config.ConnectMethod with
-            | Multicast(grp, ttl) ->  
-                client.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(grp, IPAddress.Any))
-                client.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl)
-            | Broadcast _ -> 
-                client.EnableBroadcast <- true
+            | Multicast(grp) ->  client.JoinMulticastGroup(grp)
+            | Broadcast _ -> client.EnableBroadcast <- true
             | Direct _ -> ()
             client
 
@@ -360,10 +357,8 @@ type UDP(config:UdpConfig) =
             client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true) 
             client.Client.Bind(new IPEndPoint(IPAddress.Any, config.Port))
             match config.ConnectMethod with
-            | Multicast(grp, _) -> 
-                client.Client.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(grp, IPAddress.Any))
-            | Broadcast _ -> 
-                client.EnableBroadcast <- true
+            | Multicast(grp) ->  client.JoinMulticastGroup(grp)
+            | Broadcast _ -> client.EnableBroadcast <- true
             | Direct _ -> ()
             client
 
