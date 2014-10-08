@@ -109,7 +109,7 @@ open System
    /// Calls to this method must be thread-safe and not change any state
    abstract member Log : LogLevel -> (unit -> LogLine) -> unit
 
-module internal Helpers = 
+module internal LogHelpers = 
 
     module Formatter =
         /// let the ISO8601 love flow
@@ -144,7 +144,7 @@ type CombiningLogWriter(other_Loggers : ILogWriter list) =
 type ConsoleWindowLogWriter(min_level, ?formatter, ?colourise, ?original_color, ?console_semaphore) =
     let sem            = defaultArg console_semaphore (obj())
     let original_color = defaultArg original_color Console.ForegroundColor
-    let formatter      = defaultArg formatter Helpers.Formatter.ISO8601
+    let formatter      = defaultArg formatter LogHelpers.Formatter.ISO8601
     let colourise      = defaultArg colourise true
     let write          = System.Console.WriteLine : string -> unit
     
@@ -170,7 +170,7 @@ type ConsoleWindowLogWriter(min_level, ?formatter, ?colourise, ?original_color, 
       member x.Log level f = if level >= min_level then log (to_color level) (f ())
     
 type OutputWindowLogWriter(min_level, ?formatter) =
-    let formatter = defaultArg formatter Helpers.Formatter.ISO8601
+    let formatter = defaultArg formatter LogHelpers.Formatter.ISO8601
     let log line = System.Diagnostics.Debug.WriteLine(formatter line)
     interface ILogWriter with
         member x.Log level f_line = if level >= min_level then log (f_line ())
@@ -180,7 +180,7 @@ type Logger(path:string, writers:ILogWriter list) =
      let writer = CombiningLogWriter(writers)
 
      member x.Write(level, message, ?exn) = 
-         Helpers.write writer level path exn message 
+         LogHelpers.write writer level path exn message 
 
      member x.Info(message, ?exn) =
          x.Write(Info, message, ?exn = exn)
