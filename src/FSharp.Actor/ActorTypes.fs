@@ -39,8 +39,6 @@ and Message<'a> = {
 with
     static member internal Create(msg, sender, ?id) =
         { Id = id; Message = msg; Sender = sender }
-    static member internal Unbox<'a>(objM:Message<obj>) = { Id = objM.Id; Sender = objM.Sender; Message = unbox<'a> objM.Message }
-    static member internal Box(objM:Message<'a>) = { Id = objM.Id; Sender = objM.Sender; Message = box objM.Message }
 
 and IActor = 
     inherit IDisposable
@@ -90,5 +88,3 @@ type ActorCell<'a> = {
     mutable SpanId : uint64
     mutable Sender : ActorRef
 }
-with 
-    member internal x.Path = x.Self.Path

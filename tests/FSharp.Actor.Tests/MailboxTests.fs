@@ -31,8 +31,10 @@ type ``Given a mailbox``() =
             }
         
         Async.Start(receiver)
-        resultGate.Wait(1000) |> ignore
-        !result |> should equal None
+
+        if resultGate.Wait(1000)
+        then !result |> should equal None
+        else Assert.Fail() 
 
     [<Test>]
     member __.``I can receive None when timing out scanning for a messsage``() = 
@@ -62,8 +64,9 @@ type ``Given a mailbox``() =
 
         Async.Start(producer)
 
-        resultGate.Wait(1000) |> ignore
-        !result |> should equal None
+        if resultGate.Wait(1000)
+        then !result |> should equal None
+        else Assert.Fail() 
 
     [<Test>]
     member __.``I can scan for a messsage``() = 
@@ -92,5 +95,7 @@ type ``Given a mailbox``() =
 
         Async.Start(producer)
 
-        resultGate.Wait(1000) |> ignore
-        !result |> should equal 10
+        if resultGate.Wait(1000)
+        then !result |> should equal 10
+        else Assert.Fail() 
+        

@@ -191,12 +191,10 @@ type RemotableInMemoryActorRegistry(transports : seq<ITransport>, registryTransp
 [<AutoOpen>]
 module ActorHostRemotingExtensions = 
     
-    open Actor
-
     type ActorHost with
         
-        member x.EnableRemoting(transports, registryTransport, udpConfig) = 
+        member x.EnableRemoting(transports, registryTransport, discovery) = 
             x.Configure (fun c -> 
-                { c with Registry = (new RemotableInMemoryActorRegistry(transports, registryTransport, udpConfig, x)) }
+                { c with Registry = (new RemotableInMemoryActorRegistry(transports, registryTransport, discovery, x)) }
             )
             x

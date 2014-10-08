@@ -146,8 +146,8 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             if status <> ActorStatus.Stopped
             then
                match msg.Message with
-               | :? SystemMessage -> systemMailbox.Post(Message<SystemMessage>.Unbox msg)
-               | _ -> (x :> IActor<'a>).Post(Message<'a>.Unbox(msg))
+               | :? SystemMessage -> systemMailbox.Post(Message.map unbox msg)
+               | _ -> (x :> IActor<'a>).Post(Message.map unbox msg)
 
     interface IActor<'a> with
         member x.Path with get() = defn.Path

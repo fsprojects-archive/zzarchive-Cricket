@@ -38,6 +38,13 @@ module Message =
                                "message_receive",
                                ?parentId = context.ParentId, 
                                spanId = context.SpanId))
+
+    let map f (msg:Message<'a>) : Message<'b> = 
+        {
+          Id = msg.Id
+          Sender = msg.Sender
+          Message = (f msg.Message)
+        }
     
     let receive() = MH (fun (ctx:ActorCell<_>) -> async {
         let! msg = ctx.Mailbox.Receive()
