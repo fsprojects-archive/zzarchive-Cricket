@@ -23,7 +23,7 @@ let ping count =
                     let! msg = Message.receive None
                     match msg with
                     | Pong when count > 0 ->
-                          if count % 1000 = 0 then printfn "Ping: ping %d" count
+                          if count % 1000 = 0 then printfn "Ping: pong %d" count
                           do! Message.post pong Ping
                           return! loop (count - 1)
                     | Ping -> failwithf "Ping: received a ping message, panic..."
