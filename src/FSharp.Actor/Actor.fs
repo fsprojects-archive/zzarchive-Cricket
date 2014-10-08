@@ -105,7 +105,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
 
     and systemMessageHandler() = 
         async {
-            let! sysMsg = systemMailbox.Receive(Timeout.Infinite)
+            let! sysMsg = systemMailbox.Receive()
             match sysMsg.Message with
             | Shutdown -> return! shutdown()
             | Restart -> return! restart()
@@ -247,7 +247,7 @@ module Supervisor =
             body (
                 let rec loop children = 
                     messageHandler {
-                        let! msg = Message.receive None
+                        let! msg = Message.receive()
                         let! sender = Message.sender()
                         match msg with
                         | Error(err) ->

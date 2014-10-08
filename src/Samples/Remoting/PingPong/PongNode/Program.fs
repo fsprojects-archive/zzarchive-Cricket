@@ -11,7 +11,7 @@ let pong =
         name "pong"
         body (
             let rec loop count = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive()
                 match msg with
                 | Ping -> 
                       if count % 1000 = 0 then printfn "Pong: ping %d" count

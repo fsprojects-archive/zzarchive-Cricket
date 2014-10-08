@@ -18,7 +18,7 @@ module Routing =
             name "system/router/roundrobin"
             body (
                 let rec loop (q:Queue<_>) = messageHandler {
-                    let! msg = Message.receive None
+                    let! msg = Message.receive()
                     let target = q.Dequeue()
                     do! Message.post target msg
                     do q.Enqueue(target)

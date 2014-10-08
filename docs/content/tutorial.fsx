@@ -47,7 +47,7 @@ let greeter =
         name "greeter"
         body (
             let rec loop() = messageHandler {
-                let! msg = Message.receive None //Wait for a message
+                let! msg = Message.receive() //Wait for a message
 
                 match msg with
                 | Hello ->  printfn "Hello" //Handle Hello leg

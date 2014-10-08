@@ -5,11 +5,10 @@ open System.Threading
 open FSharp.Actor
 open FSharp.Actor.Diagnostics
 
-type TCPTransport(config:TcpConfig, ?logger) as self = 
+type TCPTransport(config:TcpConfig) as self = 
     let scheme = "actor.tcp"
     let basePath = ActorPath.ofString (sprintf "%s://%s/" scheme (config.ListenerEndpoint.ToString()))
-    let log = defaultArg logger (Log.defaultFor Log.Debug)
-    let logger = new Log.Logger(sprintf "actor.tcp://%A" config.ListenerEndpoint, log)
+    let logger = Logger.create(sprintf "actor.tcp://%A" config.ListenerEndpoint)
     let metricContext = Metrics.createContext (sprintf "transports/%s" scheme)
     let receivedRate = Metrics.createMeter(metricContext,"msgs_received")
     let publishRate = Metrics.createMeter(metricContext,"msgs_published")
@@ -48,7 +47,7 @@ type TCPTransport(config:TcpConfig, ?logger) as self =
 
 type TcpActorRegistryTransport(config:TcpConfig) = 
     let tcpChannel = new TCP(config)
-    let logger = Log.Logger("TcpActorRegistryTransport", Log.defaultFor Log.Debug)
+    let logger = Logger.create("TcpActorRegistryTransport")
     let mutable settings : ActorRegistryTransportSettings = Unchecked.defaultof<_>
     let metricContext = Metrics.createContext("transports/TcpActorRegistryTransport")
     let receivedRate = Metrics.createMeter(metricContext,"msgs_received")
@@ -79,7 +78,7 @@ type TcpActorRegistryTransport(config:TcpConfig) =
 
 type UdpActorRegistryDiscovery(udpConfig:UdpConfig, ?broadcastInterval) = 
     let udpChannel = new UDP(udpConfig)
-    let logger = Log.Logger("UdpActorRegistryDiscovery", Log.defaultFor Log.Debug)
+    let logger = Logger.create("UdpActorRegistryDiscovery")
     let broadcastInterval = defaultArg broadcastInterval 1000
     let mutable settings : ActorRegistryDiscoverySettings = Unchecked.defaultof<_>
     let metricContext = Metrics.createContext("transports/UdpRegistryDiscovery")

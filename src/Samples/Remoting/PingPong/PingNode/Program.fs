@@ -20,7 +20,7 @@ let ping count =
         body (
                 let pong = !~"pong"
                 let rec loop count = messageHandler {
-                    let! msg = Message.receive None
+                    let! msg = Message.receive()
                     match msg with
                     | Pong when count > 0 ->
                           if count % 1000 = 0 then printfn "Ping: pong %d" count

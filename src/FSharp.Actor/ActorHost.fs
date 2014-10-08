@@ -7,20 +7,27 @@ open FSharp.Actor.Diagnostics
 type ActorHostConfiguration = {
      Registry : ActorRegistry
      EventStream : IEventStream
-     Logger : Log.Logger
+     LogWriters : seq<ILogWriter>
      Serializer : ISerializer
      CancellationToken : CancellationToken
      Name : string
 }
 with
-    static member Create(?name, ?logger, ?serializer, ?registry, ?eventStream, ?cancellationToken) =
+    static member Create(?name, ?loggers, ?serializer, ?registry, ?eventStream, ?cancellationToken) =
         let hostName = defaultArg name Environment.DefaultActorHostName
         let serializer = defaultArg serializer (new BinarySerializer() :> ISerializer)
         let ct = defaultArg cancellationToken Async.DefaultCancellationToken
+
+        let getDefaultLogWriters() = 
+            [ ConsoleWindowLogWriter(LogLevel.Debug) :> ILogWriter
+              OutputWindowLogWriter(LogLevel.Debug)  :> ILogWriter ]
+
+        let logWriters = (defaultArg loggers (getDefaultLogWriters()) |> Seq.toList)
+        Logger.setLogWriters logWriters
         {
-            Logger = defaultArg logger (Log.Logger(sprintf "ActorHost:[%s]" hostName, Log.defaultFor Log.Debug))
+            LogWriters = logWriters
             Registry = defaultArg registry (new InMemoryActorRegistry() :> ActorRegistry)
-            EventStream = defaultArg eventStream (new DefaultEventStream("host", Log.defaultFor Log.Debug) :> IEventStream)
+            EventStream = defaultArg eventStream (new DefaultEventStream("host") :> IEventStream)
             Serializer = serializer
             CancellationToken = ct
             Name = hostName
@@ -29,6 +36,7 @@ with
 
 type ActorHost private (configuration:ActorHostConfiguration) = 
      
+     let logger = Logger.create configuration.Name
      static let mutable instance : ActorHost = Unchecked.defaultof<_>
      static let mutable isDisposed = false
      static let mutable isStarted = false
@@ -38,7 +46,7 @@ type ActorHost private (configuration:ActorHostConfiguration) =
 
      do
         isStarted <- true
-        configuration.Logger.Debug(sprintf "ActorHost started %s" configuration.Name)
+        logger.Debug(sprintf "ActorHost started %s" configuration.Name)
 
      let metricContext = Metrics.createContext configuration.Name
      let resolutionRequests = Metrics.createCounter(metricContext,"actorResolutionRequests")
@@ -64,8 +72,8 @@ type ActorHost private (configuration:ActorHostConfiguration) =
         configuration.EventStream.Subscribe(eventF)
         x
   
-     static member Start(?name, ?logger, ?serializer, ?registry, ?metrics, ?tracing, ?cancellationToken) = 
-        let config = (ActorHostConfiguration.Create(?name = name, ?logger = logger, 
+     static member Start(?name, ?loggers, ?serializer, ?registry, ?metrics, ?tracing, ?cancellationToken) = 
+        let config = (ActorHostConfiguration.Create(?name = name, ?loggers = loggers, 
                                                     ?serializer = serializer, ?registry = registry, 
                                                     ?cancellationToken = cancellationToken))
         instance <- new ActorHost(config)
@@ -81,11 +89,11 @@ type ActorHost private (configuration:ActorHostConfiguration) =
      interface IDisposable with
         member __.Dispose() =
            isDisposed <- true
-           configuration.Logger.Info("shutting down")
+           logger.Info("shutting down")
            cts.Cancel()
            cts.Dispose()
            configuration.Registry.Dispose()
            configuration.EventStream.Dispose()
            Metrics.dispose()
            Trace.dispose()
-           configuration.Logger.Info("shutdown")
+           logger.Info("shutdown")

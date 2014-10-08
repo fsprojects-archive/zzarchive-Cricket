@@ -44,6 +44,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MailboxTests.fs" />
     <Compile Include="TrieTests.fs" />
     <Compile Include="LocalRegistryTests.fs" />
     <Compile Include="ActorPathTests.fs" />

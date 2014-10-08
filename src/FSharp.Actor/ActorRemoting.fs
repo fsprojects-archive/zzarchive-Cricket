@@ -69,7 +69,7 @@ type RemotableInMemoryActorRegistry(transports : seq<ITransport>, registryTransp
     let registry = new InMemoryActorRegistry() :> ActorRegistry
     let messages = new ConcurrentDictionary<Guid, AsyncResultCell<ActorProtocol>>()
     let clients = new ConcurrentDictionary<string,NetAddress>()
-    let logger = Log.Logger("RemoteRegistry", Log.defaultFor Log.Debug)
+    let logger = Logger.create "RemoteRegistry"
     let transports = 
         Seq.fold (fun (s:Map<string, ITransport>) (t:ITransport) -> t.Start(actorHost.Serializer, actorHost.CancelToken); s.Add(t.Scheme, t)) Map.empty transports
 

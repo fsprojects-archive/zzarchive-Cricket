@@ -39,8 +39,8 @@ module Message =
                                ?parentId = context.ParentId, 
                                spanId = context.SpanId))
     
-    let receive timeout = MH (fun (ctx:ActorCell<_>) -> async {
-        let! msg = ctx.Receive(?timeout = timeout)
+    let receive() = MH (fun (ctx:ActorCell<_>) -> async {
+        let! msg = ctx.Mailbox.Receive()
         ctx.Sender <- msg.Sender
         ctx.ParentId <- msg.Id
         ctx.SpanId <- Random.randomLong()
@@ -53,7 +53,7 @@ module Message =
     let context() = MH (fun (ctx:ActorCell<_>) -> async { return ctx }) 
 
     let tryReceive timeout = MH (fun (ctx:ActorCell<_>) -> async {
-        let! msg = ctx.TryReceive(?timeout = timeout)
+        let! msg = ctx.Mailbox.TryReceive(timeout)
         return Option.map (fun (msg:Message<_>)-> 
             ctx.Sender <- msg.Sender
             ctx.ParentId <- msg.Id
@@ -62,8 +62,8 @@ module Message =
             msg.Message) msg 
     })
 
-    let scan timeout f = MH (fun (ctx:ActorCell<_>) -> async {
-        let! (msg:Message<_>) = ctx.Scan(f, ?timeout = timeout)
+    let scan f = MH (fun (ctx:ActorCell<_>) -> async {
+        let! (msg:Message<_>) = ctx.Mailbox.Scan(f)
         ctx.Sender <- msg.Sender
         ctx.ParentId <- msg.Id
         ctx.SpanId <- Random.randomLong()
@@ -72,7 +72,7 @@ module Message =
     })
 
     let tryScan timeout f = MH (fun (ctx:ActorCell<_>) -> async {
-        let! msg = ctx.TryScan(f, ?timeout = timeout)
+        let! msg = ctx.Mailbox.TryScan(timeout, f)
         return Option.map (fun (msg:Message<_>) -> 
             ctx.Sender <- msg.Sender
             ctx.ParentId <- msg.Id

@@ -26,7 +26,7 @@ let actorWithExceptionHandling =
         name "i_handle_exceptions"
         body (
             let rec loop() = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive()
 
                 try
                     invalidOp (sprintf "Lets, go bang - %s" msg)
@@ -62,7 +62,7 @@ let failingActor1 =
         name "failing_actor_1"
         body (
             let rec loop() = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive()
                 failwithf "Lets, go bang - %s" msg
                 return! loop()
             }

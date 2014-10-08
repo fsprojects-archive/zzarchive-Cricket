@@ -20,7 +20,7 @@ let actorDefinition id =
         body (
           let rec loop() =
               messageHandler {
-                  let! msg = Message.receive None
+                  let! msg = Message.receive()
                   do printfn "%s handled %s" id msg
                   return! loop()
               }

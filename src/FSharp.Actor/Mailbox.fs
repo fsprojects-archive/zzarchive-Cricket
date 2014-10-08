@@ -13,9 +13,9 @@ type IMailbox<'a> =
     inherit IDisposable
     abstract Post : 'a -> unit
     abstract TryScan : int * ('a -> Async<'b> option) -> Async<Option<'b>>
-    abstract Scan : int * ('a -> Async<'b> option) -> Async<'b>
+    abstract Scan : ('a -> Async<'b> option) -> Async<'b>
     abstract TryReceive : int -> Async<Option<'a>>
-    abstract Receive : int -> Async<'a>
+    abstract Receive : unit -> Async<'a>
 
 type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
     let mutable disposed = false
@@ -77,7 +77,7 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
                 Some(x)
 
     interface IMailbox<'a> with
-        member this.TryReceive(timeout) =
+        member __.TryReceive(timeout) =
               let rec await() =
                   async { match receiveFromArrivals() with
                           | None -> 
@@ -96,15 +96,15 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
                         do msgDeqeueMeter 1L
                         return Some(res) }
 
-        member this.Receive(timeout) =
+        member this.Receive() =
             async {            
-            let! msg = (this :> IMailbox<'a>).TryReceive(timeout)
+            let! msg = (this :> IMailbox<'a>).TryReceive(Timeout.Infinite)
             match msg with
             | Some(res) -> return res
             | None -> return raise(TimeoutException("Failed to receive message"))
             }
 
-        member this.TryScan(timeout, f) = 
+        member __.TryScan(timeout, f) = 
               let rec await() =
                   async { match scanArrivals(f) with
                           | None -> 
@@ -123,15 +123,15 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
                         do msgDeqeueMeter 1L
                         return Some(msg) }
 
-        member this.Scan(timeout, f) =
+        member this.Scan(f) =
             async {            
-            let! msg = (this :> IMailbox<'a>).TryScan(timeout, f)
+            let! msg = (this :> IMailbox<'a>).TryScan(Timeout.Infinite, f)
             match msg with
             | Some(res) -> return res
             | None -> return raise(TimeoutException("Failed to receive message"))
             }
 
-        member this.Post(msg) = 
+        member __.Post(msg) = 
             if disposed 
             then ()
             else
@@ -139,7 +139,7 @@ type DefaultMailbox<'a>(id : string, ?metricContext, ?boundingCapacity:int) =
                 msgEnqeueMeter 1L
                 awaitMsg.Set() |> ignore
 
-        member this.Dispose() = 
+        member __.Dispose() = 
             inbox <- null
             disposed <- true
 

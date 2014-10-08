@@ -34,7 +34,7 @@ type Message =
 let middleTier responseString = actor {
     body (
         let rec loop() = messageHandler {
-            let! msg = Message.receive None
+            let! msg = Message.receive()
             match msg with
             | Request(Some(id),payload) ->
                  do! Async.Sleep(rnd.Next(500, 3000))
@@ -64,7 +64,7 @@ let frontEnd =
         body (
             let middleTier = !~["B"; "C"]
             let rec loop state = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive()
                 let! sender = Message.sender()
                 match msg with
                 | Request(Some(id),payload) ->
@@ -91,7 +91,7 @@ let client =
         body (
             let frontend = !~"A"
             let rec loop() = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive()
                 match msg with
                 | Request(_,msg) ->
                     do! Async.Sleep(rnd.Next(500, 3000)) 

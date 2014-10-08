@@ -23,16 +23,16 @@ type IEventStream =
     abstract Unsubscribe<'a> : unit -> unit
     abstract Unsubscribe : string -> unit
 
-type DefaultEventStream(id, logger:Log.ILogger) = 
+type DefaultEventStream(id) = 
     let cts = new CancellationTokenSource()
     let metricContext = Metrics.createContext (sprintf "eventstream/%s" id)
     let subscriberCount = Metrics.createCounter(metricContext,"subscribers")
-    let logger = new Log.Logger("eventStream", logger)   
+    let logger = Logger.create (sprintf "eventStream/%s" id)   
     let mutable mailbox = new DefaultMailbox<Event>(metricContext.Key + "/mailbox", metricContext) :> IMailbox<_>
     let mutable subscriptions = new Dictionary<string, (Event -> unit)>()
     let rec worker() =
         async {
-            let! event = mailbox.Receive(Timeout.Infinite)
+            let! event = mailbox.Receive()
             match subscriptions.TryGetValue(event.PayloadType) with
             | true, f -> 
                 try 
