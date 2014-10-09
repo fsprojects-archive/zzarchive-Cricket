@@ -19,7 +19,7 @@ type ``Given an event stream``() =
 
         if resultGate.Wait(5000)
         then !result |> should equal 10
-        else Assert.Fail() 
+        else Assert.Fail("No result timeout") 
 
      [<Test>]
      member __.``I can remove a subscription post and subscribe to events by type``() =
@@ -33,7 +33,7 @@ type ``Given an event stream``() =
         es.Publish(12)
         if resultGate.Wait(5000)
         then !result |> should equal 10
-        else Assert.Fail() 
+        else Assert.Fail("No result timeout") 
 
      [<Test>]
      member __.``I can remove a subscription post and subscribe to events by key``() =
@@ -48,7 +48,8 @@ type ``Given an event stream``() =
 
         if resultGate.Wait(5000)
         then !result |> should equal 10
-        else Assert.Fail()
+        else Assert.Fail("No result timeout") 
+        
 
      [<Test>]
      member __.``I can post and subscribe to events with an event key``() =
@@ -58,8 +59,7 @@ type ``Given an event stream``() =
         es.Subscribe("counters", fun (x:Event) -> result := unbox<_> x.Payload; resultGate.Set())
 
         es.Publish("counters", 10)
-        resultGate.Wait(1000) |> ignore
 
         if resultGate.Wait(5000)
         then !result |> should equal 10
-        else Assert.Fail() 
+        else Assert.Fail("No result timeout") 

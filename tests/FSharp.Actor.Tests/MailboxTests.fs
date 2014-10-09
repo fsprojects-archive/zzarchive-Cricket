@@ -34,7 +34,7 @@ type ``Given a mailbox``() =
 
         if resultGate.Wait(1000)
         then !result |> should equal None
-        else Assert.Fail() 
+        else Assert.Fail("No result timeout") 
 
     [<Test>]
     member __.``I can receive None when timing out scanning for a messsage``() = 
@@ -66,7 +66,7 @@ type ``Given a mailbox``() =
 
         if resultGate.Wait(1000)
         then !result |> should equal None
-        else Assert.Fail() 
+        else Assert.Fail("No result timeout") 
 
     [<Test>]
     member __.``I can scan for a messsage``() = 
@@ -97,5 +97,5 @@ type ``Given a mailbox``() =
 
         if resultGate.Wait(1000)
         then !result |> should equal 10
-        else Assert.Fail() 
+        else Assert.Fail("No result timeout") 
         

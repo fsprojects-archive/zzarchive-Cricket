@@ -37,7 +37,25 @@ type ``Given an Message Handler``() =
 
         if resultGate.Wait(5000)
         then !result |> should equal 10
-        else Assert.Fail()
+        else Assert.Fail("No result timeout")
+
+    [<Test>]
+    member __.``I can timeout recieving a message``() =
+        let cell = getCell()
+        let resultGate = new ManualResetEventSlim(false)
+        let result = ref (Some 10)
+
+        messageHandler {
+            let! msg = Message.tryReceive 100
+            result := msg
+            resultGate.Set()
+        } |> MessageHandler.toAsync cell |> Async.Start
+
+        cell.Mailbox.Post(Message.create<int> None 10)
+
+        if resultGate.Wait(5000)
+        then !result |> should equal None
+        else Assert.Fail("No result timeout")
 
 
 
