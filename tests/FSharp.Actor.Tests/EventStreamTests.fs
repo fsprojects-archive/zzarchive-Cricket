@@ -17,7 +17,7 @@ type ``Given an event stream``() =
 
         es.Publish(10)
 
-        if resultGate.Wait(1000)
+        if resultGate.Wait(5000)
         then !result |> should equal 10
         else Assert.Fail() 
 
@@ -31,7 +31,7 @@ type ``Given an event stream``() =
         es.Publish(10)
         es.Unsubscribe<int>()
         es.Publish(12)
-        if resultGate.Wait(1000)
+        if resultGate.Wait(5000)
         then !result |> should equal 10
         else Assert.Fail() 
 
@@ -46,7 +46,7 @@ type ``Given an event stream``() =
         es.Unsubscribe("counters")
         es.Publish("counters", 12)
 
-        if resultGate.Wait(1000)
+        if resultGate.Wait(5000)
         then !result |> should equal 10
         else Assert.Fail()
 
@@ -60,6 +60,6 @@ type ``Given an event stream``() =
         es.Publish("counters", 10)
         resultGate.Wait(1000) |> ignore
 
-        if resultGate.Wait(1000)
+        if resultGate.Wait(5000)
         then !result |> should equal 10
         else Assert.Fail() 

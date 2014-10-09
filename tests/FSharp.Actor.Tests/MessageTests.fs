@@ -35,7 +35,7 @@ type ``Given an Message Handler``() =
 
         cell.Mailbox.Post(Message.create<int> None 10)
 
-        if resultGate.Wait(1000)
+        if resultGate.Wait(5000)
         then !result |> should equal 10
         else Assert.Fail()
 
