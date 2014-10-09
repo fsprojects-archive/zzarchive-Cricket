@@ -18,12 +18,6 @@ type MessageHandler<'a, 'b> = MH of ('a -> Async<'b>)
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Message = 
-
-    let emptyHandler = 
-        (MH (fun _ -> 
-         let rec loop() = 
-             async { return! loop() }
-         loop()))
     
     let private traceHandled (context:ActorCell<_>) =
         Trace.write (TraceEntry.Create(context.Self.Path, 
@@ -45,6 +39,9 @@ module Message =
           Sender = msg.Sender
           Message = (f msg.Message)
         }
+
+    let create<'a> sender (payload:'a) : Message<'a> = 
+        { Id = None; Message = payload; Sender = (defaultArg sender Null) }
     
     let receive() = MH (fun (ctx:ActorCell<_>) -> async {
         let! msg = ctx.Mailbox.Receive()
@@ -88,11 +85,11 @@ module Message =
             msg.Message) msg
     })
 
-    let postMessage (targets:'a) (msg:Message<obj>) =
+    let postMessage (targets:'a) msg =
         (ActorSelection.op_Implicit targets).Refs 
         |> List.iter (fun target ->
                         match target with
-                        | ActorRef(target) -> target.Post(msg)
+                        | ActorRef(target) -> target.Post(map box msg)
                         | Null -> ())
 
     let post targets msg =
@@ -105,8 +102,6 @@ module Message =
         let targets = (ActorSelection([ctx.Sender]))
         do postMessage targets { Id = ctx.ParentId; Sender = ctx.Self; Message = msg }
     })
-
-    let toAsync (MH handler) ctx = handler ctx |> Async.Ignore
 
     type MessageHandlerBuilder() = 
         member __.Bind(MH handler,f) =
@@ -167,6 +162,14 @@ module Message =
             else x.Zero()
           loop()
 
+module MessageHandler = 
+    
+    let toAsync ctx (MH handler) = handler ctx |> Async.Ignore
 
+    let empty = 
+        (MH (fun _ -> 
+         let rec loop() = 
+             async { return! loop() }
+         loop()))
 
                 

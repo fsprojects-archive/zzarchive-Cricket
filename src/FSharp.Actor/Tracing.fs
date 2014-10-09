@@ -122,7 +122,7 @@ with
 
 module Trace = 
     
-    let mutable private config = Unchecked.defaultof<_>
+    let mutable private config = TracingConfiguration.Create()
 
     let write header =
         if config.IsEnabled
@@ -135,9 +135,7 @@ module Trace =
         config.Writer.Dispose()
 
     let start(cfg:TracingConfiguration option) =
-        match cfg with
-        | Some(cfg) -> config <- cfg
-        | None -> config <- TracingConfiguration.Create()
+        Option.iter (fun cfg -> config <- cfg) cfg
 
         if config.IsEnabled
         then config.Writer.Start()

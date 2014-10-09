@@ -22,8 +22,8 @@ type ActorRef =
                 match x with
                 | ActorRef(actor) -> actor.Path
                 | _ -> ActorPath.deadLetter
-        member x.Post(msg : 'a, sender, ?id) = 
-             x.Post(Message<'a>.Create(msg, sender, ?id = id))
+        member x.Post(msg : 'a, sender, ?id) =
+             x.Post({ Id = id; Message = box msg; Sender = sender })
         member x.Post(msg) = 
             match x with
             | ActorRef(actor) -> actor.Post(msg)
@@ -36,9 +36,6 @@ and Message<'a> = {
     Sender : ActorRef
     Message : 'a
 }
-with
-    static member internal Create(msg, sender, ?id) =
-        { Id = id; Message = msg; Sender = sender }
 
 and IActor = 
     inherit IDisposable
@@ -88,3 +85,14 @@ type ActorCell<'a> = {
     mutable SpanId : uint64
     mutable Sender : ActorRef
 }
+with
+    static member Create(ref:ActorRef, mailbox, ?parentid, ?spanid, ?sender) =
+        {
+            Self = ref
+            Mailbox = mailbox
+            ParentId = parentid
+            SpanId = (defaultArg spanid 0UL)
+            Sender = (defaultArg sender ActorRef.Null)
+        }
+    static member Create(actor:IActor, mailbox, ?parentid, ?spanid, ?sender) = 
+        ActorCell<'a>.Create(ActorRef actor, mailbox, ?parentid = parentid, ?spanid = spanid, ?sender = sender)

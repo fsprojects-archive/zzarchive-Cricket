@@ -32,12 +32,11 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let firstArrivalGate = new ManualResetEventSlim(not defn.AwaitFirstMessage)
     let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox", ?boundingCapacity = defn.MaxQueueLength) :> IMailbox<_>)
     let systemMailbox = new DefaultMailbox<Message<SystemMessage>>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
+    let defn = defn
+    let ctx = ActorCell<'a>.Create(self, mailbox)
 
     let mutable cts = new CancellationTokenSource()
     let mutable messageHandlerCancel = new CancellationTokenSource()
-    
-    let mutable defn = defn
-    let mutable ctx = { Self = ActorRef self; Mailbox = mailbox; ParentId = None; SpanId = 0UL; Sender = Null; }
     let mutable status = ActorStatus.Stopped
 
     let publishEvent event = 
@@ -85,7 +84,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
                 uptimer.Start()
                 firstArrivalGate.Wait(messageHandlerCancel.Token)
                 if not(messageHandlerCancel.IsCancellationRequested)
-                then do! Message.toAsync defn.Behaviour ctx
+                then do! MessageHandler.toAsync ctx defn.Behaviour 
                 setStatus ActorStatus.Stopped
                 return! shutdown()
             with e -> 
@@ -94,13 +93,17 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
 
     let rec restart() =
         async { 
-            publishEvent(ActorEvent.ActorRestart(self.Ref))
-            restartCounter(1L)
-            do messageHandlerCancel.Cancel()
-
-            uptimer.Reset()
-            do start()
-            return! systemMessageHandler()
+            try
+                publishEvent(ActorEvent.ActorRestart(self.Ref))
+                restartCounter(1L)
+                do messageHandlerCancel.Cancel()
+                do! onRestart()
+                uptimer.Reset()
+                do start()
+                return! systemMessageHandler()
+            with e -> 
+                publishEvent(ActorEvent.ActorErrored(self.Ref, new Exception("Errored restarting", e)))
+                return! shutdown()
         }
 
     and systemMessageHandler() = 
@@ -110,8 +113,8 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             | Shutdown -> return! shutdown()
             | Restart -> return! restart()
             | Link -> 
-                onError <- (fun err -> Message.toAsync (Message.post sysMsg.Sender (Error(err))) ctx)
-                onShutdown <- (fun () -> Message.toAsync (Message.post sysMsg.Sender ChildShutdown) ctx)
+                onError <- (fun err -> MessageHandler.toAsync ctx (Message.post sysMsg.Sender (Error(err))))
+                onShutdown <- (fun () -> MessageHandler.toAsync ctx (Message.post sysMsg.Sender ChildShutdown))
                 publishEvent(ActorLinked(sysMsg.Sender, ctx.Self))
                 return! systemMessageHandler()
             | UnLink -> 
@@ -171,7 +174,7 @@ module ActorConfiguration =
         member __.Zero() = { 
             Path = ActorPath.ofString (Guid.NewGuid().ToString())
             EventStream = None
-            Behaviour = Message.emptyHandler
+            Behaviour = MessageHandler.empty
             OnError = None
             MaxQueueLength = Some 1000000
             Mailbox = None
@@ -278,10 +281,10 @@ module Supervisor =
         toActor config |> Actor.spawn
 
     let link ref supervisor = 
-        Message.postMessage supervisor (Message.Create(ChildLink, ref))
+        Message.postMessage supervisor (Message.create (Some ref) ChildLink)
 
     let unlink ref supervisor =
-        Message.postMessage supervisor (Message.Create(ChildUnLink, ref))
+        Message.postMessage supervisor (Message.create (Some ref) ChildUnLink)
 
 
 [<AutoOpen>]

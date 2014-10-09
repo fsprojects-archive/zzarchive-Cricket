@@ -44,12 +44,13 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EventStreamTests.fs" />
+    <Compile Include="MessageTests.fs" />
     <Compile Include="TrieTests.fs" />
-    <Compile Include="LocalRegistryTests.fs" />
+    <Compile Include="ActorRegistryTests.fs" />
     <Compile Include="ActorPathTests.fs" />
     <Compile Include="SampleStatsTests.fs" />
     <Compile Include="MailboxTests.fs" />
+    <Compile Include="EventStreamTests.fs" />
     <None Include="paket.references" />
     <None Include="app.config" />
   </ItemGroup>
