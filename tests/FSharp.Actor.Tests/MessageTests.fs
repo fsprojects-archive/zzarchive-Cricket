@@ -24,31 +24,31 @@ type ``Given an Message Handler``() =
     [<Test>]
     member __.``I can recieve a message``() =
         let cell = getCell()
-        let resultGate = new ManualResetEventSlim(false)
+        let resultGate = new AutoResetEvent(false)
         let result = ref 0
 
         messageHandler {
             let! msg = Message.receive()
             result := msg
-            resultGate.Set()
+            resultGate.Set() |> ignore
         } |> MessageHandler.toAsync cell |> Async.Start
 
         cell.Mailbox.Post(Message.create<int> None 10)
 
-        if resultGate.Wait(1000)
+        if resultGate.WaitOne(1000)
         then !result |> should equal 10
         else Assert.Fail("No result timeout")
 
     [<Test>]
     member __.``I can scan for a message``() =
         let cell = getCell()
-        let resultGate = new ManualResetEventSlim(false)
+        let resultGate = new AutoResetEvent(false)
         let result = ref 0
 
         messageHandler {
             let! msg = Message.scan(fun msg -> if msg.Message = 10 then Some (async { return msg }) else None)
             result := msg
-            resultGate.Set()
+            resultGate.Set() |> ignore
         } |> MessageHandler.toAsync cell |> Async.Start
 
         let producer = 
@@ -62,20 +62,20 @@ type ``Given an Message Handler``() =
 
         Async.Start(producer)
 
-        if resultGate.Wait(1000)
+        if resultGate.WaitOne(1000)
         then !result |> should equal 10
         else Assert.Fail("No result timeout") 
 
     [<Test>]
     member __.``I can time out scan for a message``() =
         let cell = getCell()
-        let resultGate = new ManualResetEventSlim(false)
+        let resultGate = new AutoResetEvent(false)
         let result = ref (Some 10)
 
         messageHandler {
             let! msg = Message.tryScan 100 (fun msg -> if msg.Message = 10 then Some (async { return msg }) else None)
             result := msg
-            resultGate.Set()
+            resultGate.Set() |> ignore
         } |> MessageHandler.toAsync cell |> Async.Start
 
         let producer = 
@@ -90,43 +90,43 @@ type ``Given an Message Handler``() =
 
         Async.Start(producer)
 
-        if resultGate.Wait(1000)
+        if resultGate.WaitOne(1000)
         then !result |> should equal None
         else Assert.Fail("No result timeout") 
 
     [<Test>]
     member __.``I can timeout recieving a message``() =
         let cell = getCell()
-        let resultGate = new ManualResetEventSlim(false)
+        let resultGate = new AutoResetEvent(false)
         let result = ref (Some 10)
 
         messageHandler {
             let! msg = Message.tryReceive 100
             result := msg
-            resultGate.Set()
+            resultGate.Set() |> ignore
         } |> MessageHandler.toAsync cell |> Async.Start
 
       
-        if resultGate.Wait(1000)
+        if resultGate.WaitOne(1000)
         then !result |> should equal None
         else Assert.Fail("No result timeout")
 
     [<Test>]
     member __.``I can recieve a message and get the sender``() =
         let cell = getCell()
-        let resultGate = new ManualResetEventSlim(false)
+        let resultGate = new AutoResetEvent(false)
         let result = ref ActorSelection.empty
 
         messageHandler {
             let! msg = Message.receive()
             let! sender = Message.sender()
             result := sender
-            resultGate.Set()
+            resultGate.Set() |> ignore
         } |> MessageHandler.toAsync cell |> Async.Start
 
         cell.Mailbox.Post(Message.create<int> (Some cell.Self) 10)
 
-        if resultGate.Wait(1000)
+        if resultGate.WaitOne(1000)
         then !result |> should equal (ActorSelection([cell.Self]))
         else Assert.Fail("No result timeout")
 
