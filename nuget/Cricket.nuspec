@@ -5,8 +5,8 @@
     <version>@build.number@</version>
     <authors>@authors@</authors>
     <owners>@authors@</owners>
-    <licenseUrl>https://github.com/colinbull/Fsharp.Actor/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/colinbull/Fsharp.Actor</projectUrl>
+    <licenseUrl>https://github.com/colinbull/Cricket/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/colinbull/Cricket</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
     <description>@description@</description>

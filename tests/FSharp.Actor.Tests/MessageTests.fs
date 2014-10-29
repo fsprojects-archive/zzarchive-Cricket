@@ -1,10 +1,10 @@
-﻿namespace FSharp.Actor.Tests
+﻿namespace Cricket.Tests
 
 open System
 open System.Threading
 open NUnit.Framework
 open FsUnit
-open FSharp.Actor
+open Cricket
 
 type RecordingActor(path) =
     let messages = new ResizeArray<Message<int>>()

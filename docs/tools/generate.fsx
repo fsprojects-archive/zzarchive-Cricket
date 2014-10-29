@@ -4,19 +4,19 @@
 // --------------------------------------------------------------------------------------
 
 // Binaries that have XML documentation (in a corresponding generated XML file)
-let referenceBinaries = [ "FSharp.Actor.dll" ]
+let referenceBinaries = [ "Cricket.dll" ]
 // Web site location for the generated documentation
-let website = "/FSharp.Actor"
+let website = "/Cricket"
 
-let githubLink = "https://github.com/fsprojects/FSharp.Actor"
+let githubLink = "https://github.com/fsprojects/Cricket"
 
 // Specify more information about your project
 let info =
-  [ "project-name", "FSharp.Actor"
+  [ "project-name", "Cricket"
     "project-author", "Colin Bull"
     "project-summary", "An actor framework for F#"
     "project-github", githubLink
-    "project-nuget", "http://nuget.com/packages/FSharp.Actor" ]
+    "project-nuget", "http://nuget.com/packages/Cricket" ]
 
 // --------------------------------------------------------------------------------------
 // For typical project, no changes are needed below

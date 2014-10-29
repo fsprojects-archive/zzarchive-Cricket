@@ -1,9 +1,9 @@
-﻿namespace FSharp.Actor.Tests
+﻿namespace Cricket.Tests
 
 open System
 open NUnit.Framework
 open FsUnit
-open FSharp.Actor
+open Cricket
 
 [<TestFixture; Category("Unit")>]
 type ``With Actor Path``() = 

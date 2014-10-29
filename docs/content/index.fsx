@@ -31,8 +31,8 @@ Installing
   <div class="span1"></div>
   <div class="span6">
     <div class="well well-small" id="nuget">
-      The F# Actor library can be <a href="https://nuget.org/packages/FSharp.Actor">installed from NuGet</a>:
-      <pre>PM> Install-Package FSharp.Actor</pre>
+      The F# Actor library can be <a href="https://nuget.org/packages/Cricket">installed from NuGet</a>:
+      <pre>PM> Install-Package Cricket</pre>
     </div>
   </div>
   <div class="span1"></div>
@@ -72,9 +72,9 @@ The library is available under Public Domain license, which allows modification 
 redistribution for both commercial and non-commercial purposes. For more information see the 
 [License file][license] in the GitHub repository. 
 
-  [content]: https://github.com/fsprojects/FSharp.Actor/tree/master/docs/content
-  [gh]: https://github.com/fsprojects/FSharp.Actor
-  [issues]: https://github.com/fsprojects/FSharp.Actor/issues
-  [readme]: https://github.com/fsprojects/FSharp.Actor/blob/master/README.md
-  [license]: https://github.com/fsprojects/FSharp.Actor/blob/master/LICENSE.txt
+  [content]: https://github.com/fsprojects/Cricket/tree/master/docs/content
+  [gh]: https://github.com/fsprojects/Cricket
+  [issues]: https://github.com/fsprojects/Cricket/issues
+  [readme]: https://github.com/fsprojects/Cricket/blob/master/README.md
+  [license]: https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt
 *)

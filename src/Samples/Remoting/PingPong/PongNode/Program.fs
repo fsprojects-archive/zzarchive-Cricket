@@ -3,7 +3,7 @@
 
 open System
 open System.Net
-open FSharp.Actor
+open Cricket
 open PingPong
 
 let pong = 

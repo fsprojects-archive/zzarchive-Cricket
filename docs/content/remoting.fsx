@@ -2,15 +2,15 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
-#r "FSharp.Actor.dll"
-open FSharp.Actor
+#r "Cricket.dll"
+open Cricket
 open System.Net
 
 (**
 Ping - Pong with Remoting
 =========================
 
-**A full working example is available [here](https://github.com/fsprojects/FSharp.Actor/tree/master/src/Samples/Remoting/PingPong)**
+**A full working example is available [here](https://github.com/fsprojects/Cricket/tree/master/src/Samples/Remoting/PingPong)**
 
 This example consists of two actors Ping and Pong that exchange a set of messages. When the Ping actor is created
 a counter is initialized in this case to 100000. Once this counter reaches zero the messages stop flowing and the 

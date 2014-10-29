@@ -1,7 +1,7 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 #if INTERACTIVE
-open FSharp.Actor
+open Cricket
 #endif
 
 [<AutoOpen>]

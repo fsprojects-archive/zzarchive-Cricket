@@ -1,13 +1,13 @@
 ﻿#nowarn "686"
-namespace FSharp.Actor.Diagnostics
+namespace Cricket.Diagnostics
     
 open System
 open System.IO
 open System.Diagnostics
 open System.Threading
 open System.Collections.Concurrent
-open FSharp.Actor
-open FSharp.Actor.Math.Statistics
+open Cricket
+open Cricket.Math.Statistics
 
 ///http://en.wikipedia.org/wiki/Moving_average#Application_to_measuring_computer_performance
 type MeterValues = {

@@ -1,13 +1,13 @@
-﻿namespace FSharp.Actor 
+﻿namespace Cricket 
 
 open System
 open System.Threading
 open System.Collections.Generic
-open FSharp.Actor
+open Cricket
 
 #if INTERACTIVE
-open FSharp.Actor
-open FSharp.Actor.Diagnostics
+open Cricket
+open Cricket.Diagnostics
 #endif
 
 module Routing = 

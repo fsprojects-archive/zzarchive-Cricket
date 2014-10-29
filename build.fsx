@@ -21,7 +21,7 @@ open System
 
 // The name of the project 
 // (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "FSharp.Actor"
+let project = "Cricket"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
@@ -38,7 +38,7 @@ let tags = "F# fsharp actor"
 
 // File system information 
 // (<solutionFile>.sln is built during the building process)
-let solutionFile  = "FSharp.Actor"
+let solutionFile  = "Cricket"
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
 
@@ -46,7 +46,7 @@ let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
 // The profile where the project is posted 
 let gitHome = "https://github.com/fsprojects"
 // The name of the project on GitHub
-let gitName = "FSharp.Actor"
+let gitName = "Cricket"
 
 // --------------------------------------------------------------------------------------
 // END TODO: The rest of the file includes standard build steps 
@@ -106,7 +106,7 @@ Target "RunTests" (fun _ ->
 
 Target "NuGet" (fun _ ->
     
-    CopyFiles "temp\lib" !!"bin\**\FSharp.Actor.dll"
+    CopyFiles "temp\lib" !!"bin\**\Cricket.dll"
 
     NuGet (fun p -> 
         { p with

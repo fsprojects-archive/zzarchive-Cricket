@@ -1,9 +1,9 @@
 ﻿#I "../../bin"
-#r "FSharp.Actor.dll"
+#r "Cricket.dll"
 
 open System
-open FSharp.Actor
-open FSharp.Actor.Diagnostics
+open Cricket
+open Cricket.Diagnostics
 
 ActorHost.Start()
 

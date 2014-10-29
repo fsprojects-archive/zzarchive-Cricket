@@ -8,9 +8,9 @@
     <ProjectGuid>a20060ec-e820-4ed1-a871-537914c10183</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FSharp.Actor.Tests</RootNamespace>
-    <AssemblyName>FSharp.Actor.Tests</AssemblyName>
+    <AssemblyName>Cricket.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>FSharp.Actor.Tests</Name>
+    <Name>Cricket.Tests</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
@@ -55,8 +55,8 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FSharp.Actor\FSharp.Actor.fsproj">
-      <Name>FSharp.Actor</Name>
+    <ProjectReference Include="..\..\src\FSharp.Actor\Cricket.fsproj">
+      <Name>Cricket</Name>
       <Project>{aa4bc25b-04f7-4b39-bf28-0b0058193ed9}</Project>
       <Private>True</Private>
     </ProjectReference>

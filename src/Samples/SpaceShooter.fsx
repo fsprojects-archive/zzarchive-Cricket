@@ -1,7 +1,7 @@
 ﻿#I "../../bin"
-#r "FSharp.Actor.dll"
+#r "Cricket.dll"
 open System
-open FSharp.Actor
+open Cricket
 
 ActorHost.Start().SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt) 
 

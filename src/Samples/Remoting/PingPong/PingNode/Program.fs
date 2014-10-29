@@ -3,7 +3,7 @@
 
 open System
 open System.Net
-open FSharp.Actor
+open Cricket
 open PingPong
 
 ActorHost.Start()

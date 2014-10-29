@@ -2,7 +2,7 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
-#r "FSharp.Actor.dll"
+#r "Cricket.dll"
 
 #I @"D:\Appdev\Foogle.Charts\packages\FSharp.Data.2.0.9\lib\net40"
 #r "FSharp.Data.dll"
@@ -12,8 +12,8 @@
 #load @"Foogle.Charts.fsx"
 
 open System
-open FSharp.Actor
-open FSharp.Actor.Diagnostics
+open Cricket
+open Cricket.Diagnostics
 open Foogle
 
 (**

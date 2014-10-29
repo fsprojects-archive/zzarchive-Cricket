@@ -3,9 +3,9 @@
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
 #r "FsPickler.dll"
-#r "FSharp.Actor.dll"
-open FSharp.Actor
-open FSharp.Actor.Diagnostics
+#r "Cricket.dll"
+open Cricket
+open Cricket.Diagnostics
 open System.IO
 open System.Threading
 open Nessos.FsPickler

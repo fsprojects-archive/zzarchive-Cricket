@@ -1,12 +1,12 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 open System
 open System.Threading
-open FSharp.Actor.Diagnostics
+open Cricket.Diagnostics
 
 #if INTERACTIVE
-open FSharp.Actor
-open FSharp.Actor.Diagnostics
+open Cricket
+open Cricket.Diagnostics
 #endif
 
 type ActorRef = 

@@ -2,9 +2,9 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
-#r "FSharp.Actor.dll"
+#r "Cricket.dll"
 open System
-open FSharp.Actor
+open Cricket
 
 (**
 
@@ -50,7 +50,7 @@ actor would have to now know about all other actors that __could__ be effected b
 Enter Supervisors
 -----------------
 
-Supervisors are a concept well known in the [erlang community](http://www.erlang.org/doc/man/supervisor.html) although similar there are a few minor differences in the FSharp.Actor implementation see [here](supervisors_error_recovery.html#Differences-From-Erlang). 
+Supervisors are a concept well known in the [erlang community](http://www.erlang.org/doc/man/supervisor.html) although similar there are a few minor differences in the Cricket implementation see [here](supervisors_error_recovery.html#Differences-From-Erlang). 
 Essentially a supervisor does exactly what it says on the tin. It supervisors other actors. If an actor errors and is `linked` to a supervisor then the supervisor will tell that actor to either 
 shutdown or restart depending on the strategy it has been set. Of course these aren't the only options but that will be [covered later](supervisors_error_recovery.html#supervisor-strategies).
 
@@ -80,8 +80,8 @@ this actor is now started and if I send a message to it it will simply throw and
       (ActorRef actor://HP20024950_Fsi_3856@*/failing_actor_1,
        System.Exception: Lets, go bang - Bang!
        at Microsoft.FSharp.Core.Operators.FailWith[T](String message)
-       at FSI_0003.loop@66-2.Invoke(String _arg1) in D:\Appdev\Fsharp.Actor\docs\content\supervisors_error_recovery.fsx:line 66
-       at FSharp.Actor.MessageModule.Bind@109-2.Invoke(a2 _arg5) in D:\Appdev\Fsharp.Actor\src\FSharp.Actor\Message.fs:line 109
+       at FSI_0003.loop@66-2.Invoke(String _arg1) in D:\Appdev\Cricket\docs\content\supervisors_error_recovery.fsx:line 66
+       at Cricket.MessageModule.Bind@109-2.Invoke(a2 _arg5) in D:\Appdev\Cricket\src\Cricket\Message.fs:line 109
        at Microsoft.FSharp.Control.AsyncBuilderImpl.args@797-1.Invoke(a a))
     ActorShutdown (ActorRef actor://HP20024950_Fsi_3856@*/failing_actor_1)
 
@@ -112,8 +112,8 @@ this is the supervisor creating a link to the actor reference, telling it to red
       (ActorRef actor://HP20024950_Fsi_7664@*/failing_actor_1,
        System.Exception: Lets, go bang - Bang!
        at Microsoft.FSharp.Core.Operators.FailWith[T](String message)
-       at FSI_0003.loop@66-2.Invoke(String _arg1) in D:\Appdev\Fsharp.Actor\docs\content\supervisors_error_recovery.fsx:line 66
-       at FSharp.Actor.MessageModule.Bind@109-2.Invoke(a2 _arg5) in D:\Appdev\Fsharp.Actor\src\FSharp.Actor\Message.fs:line 109
+       at FSI_0003.loop@66-2.Invoke(String _arg1) in D:\Appdev\Cricket\docs\content\supervisors_error_recovery.fsx:line 66
+       at Cricket.MessageModule.Bind@109-2.Invoke(a2 _arg5) in D:\Appdev\Cricket\src\Cricket\Message.fs:line 109
        at Microsoft.FSharp.Control.AsyncBuilderImpl.args@797-1.Invoke(a a))
     ActorRestart (ActorRef actor://HP20024950_Fsi_7664@*/failing_actor_1)
     ActorStarted (ActorRef actor://HP20024950_Fsi_7664@*/failing_actor_1)
@@ -160,7 +160,7 @@ supervision fails.
 Supervisor Strategies
 ---------------------
 
-Supervisor Stratgies define the way in which the supervisor handles errors from its children. By default FSharp.Actor defines the following.
+Supervisor Stratgies define the way in which the supervisor handles errors from its children. By default Cricket defines the following.
 
 ###Fail
 
@@ -183,7 +183,7 @@ When any actor in the tree encounters an error the supervisor will restart all o
 Differences from Erlang
 -----------------------
 
-In erlang actors control the startup, shutdown and restarting of actors. This is not the case in FSharp.Actor. In FSharp.Actor supervisors do indeed have the ability
+In erlang actors control the startup, shutdown and restarting of actors. This is not the case in Cricket. In Cricket supervisors do indeed have the ability
 to shutdown and restart the actors, and actors will notify supervisors on errors, shutdown and restart events but they do not control the lifecycle of the actors. 
 
 *)

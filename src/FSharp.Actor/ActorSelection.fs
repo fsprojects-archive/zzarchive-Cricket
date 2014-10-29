@@ -1,7 +1,7 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 open System
-open FSharp.Actor
+open Cricket
 
 type ActorSelection = 
     | ActorSelection of ActorRef list

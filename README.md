@@ -1,6 +1,6 @@
-# FSharp.Actor
+# Cricket
 
-F# Actor is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
+Cricket is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
 The actor can then respond to the receipt of the message by executing one or more of the following actions (possibly concurrently),
 
  * Create a number of new actors
@@ -18,18 +18,18 @@ making it very difficult for you to shoot or self in the foot.
 
 ## Building
 
-- Simply build FSharp.Actor.sln in Visual Studio, Mono Develop, or Xamarin Studio. You can also use the FAKE script:
+- Simply build Cricket.sln in Visual Studio, Mono Develop, or Xamarin Studio. You can also use the FAKE script:
 
   * Windows: Run *build.cmd* 
     * [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/4adhvsdt0sktqo95/branch/master)](https://ci.appveyor.com/project/colinbull/fsharp-actor/branch/master)
   * Mono: Run *build.sh*
-    * [![Travis Build Status](https://travis-ci.org/fsprojects/FSharp.Actor.svg?branch=master)](https://travis-ci.org/fsprojects/FSharp.Actor)
+    * [![Travis Build Status](https://travis-ci.org/fsprojects/Cricket.svg?branch=master)](https://travis-ci.org/fsprojects/Cricket)
 
 ## Simple Example
 
 
-	#r "FSharp.Actor.dll"
-	open FSharp.Actor
+	#r "Cricket.dll"
+	open Cricket
 	
 	ActorHost.Start()
 	

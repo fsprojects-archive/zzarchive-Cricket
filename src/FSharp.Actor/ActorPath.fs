@@ -1,10 +1,10 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 open System
 open System.Net
 open System.Net.NetworkInformation
 open System.Net.Sockets
-open FSharp.Actor
+open Cricket
 
 type private actorPathComponent =
     | Transport of string

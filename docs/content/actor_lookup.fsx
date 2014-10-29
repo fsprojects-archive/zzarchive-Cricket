@@ -2,8 +2,8 @@
 // This block of code is omitted in the generated HTML documentation. Use 
 // it to define helpers that you do not want to show in the documentation.
 #I "../../bin"
-#r "FSharp.Actor.dll"
-open FSharp.Actor
+#r "Cricket.dll"
+open Cricket
 
 ActorHost.Start()
 
@@ -37,7 +37,7 @@ This path is broken down into the following components.
 is a remote actor then this portion will be replaced with the scheme of the message that the transport was recieved on. For example if the message was received on
 the `TcpActorProtocol` then this portion of the path will be set to `actor.tcp`
 
-* **Host Name** - This identifies the host that the actor was created in. The host name can be set when calling [`ActorHost.Start(..)`](http://fsprojects.github.io/FSharp.Actor/reference/fsharp-actor-actorhost.html)
+* **Host Name** - This identifies the host that the actor was created in. The host name can be set when calling [`ActorHost.Start(..)`](http://fsprojects.github.io/Cricket/reference/cricket-actorhost.html)
 
 * **Protocol Address** - Typically you will simply let the framework resolve this for you. As the exact structure of this will depend on the underlying transport. In the example above 
 we are using the `actor.tcp` transport so the IP address an port are required for this transport; However another example maybe a message queue based protocol in which case this may define the topic or queue name.
@@ -138,11 +138,11 @@ let selection3 = !!["/models/agg/total/*"; "/models/stats/mean"]
 (*** include-value: selection3 ***)
 
 (**
-for a complete list see [here](https://github.com/fsprojects/FSharp.Actor/blob/master/src/FSharp.Actor/ActorSelection.fs#L12).
+for a complete list see [here](https://github.com/fsprojects/Cricket/blob/master/src/Cricket/ActorSelection.fs#L12).
 
 ###Actor Selection combinators
 
-The library also provides a set of functions over `ActorSelection` see [here](http://fsprojects.github.io/FSharp.Actor/reference/fsharp-actor-actorselectionmodule.html). These 
+The library also provides a set of functions over `ActorSelection` see [here](http://fsprojects.github.io/Cricket/reference/cricket-actorselectionmodule.html). These 
 all you to take an `ActorSelection` create a new actor selection. For example if I wanted to exclude `selection2` from `selection3` I could do the following   
 *)
 

@@ -1,9 +1,9 @@
-﻿namespace FSharp.Actor.Diagnostics
+﻿namespace Cricket.Diagnostics
 
 open System
 open System.IO
 open Nessos.FsPickler
-open FSharp.Actor
+open Cricket
 open System.Threading
 open System.Collections.Concurrent
 

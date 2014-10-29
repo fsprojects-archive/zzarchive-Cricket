@@ -1,9 +1,9 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 open System
 open System.Threading
-open FSharp.Actor
-open FSharp.Actor.Diagnostics
+open Cricket
+open Cricket.Diagnostics
 
 type TCPTransport(config:TcpConfig) as self = 
     let scheme = "actor.tcp"

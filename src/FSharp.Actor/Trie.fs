@@ -1,4 +1,4 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 type TrieKey = 
     | Key of string

@@ -1,10 +1,10 @@
-﻿namespace FSharp.Actor.Tests
+﻿namespace Cricket.Tests
 
 open System
 open NUnit.Framework
 open FsUnit
-open FSharp.Actor
-open FSharp.Actor.Math.Statistics
+open Cricket
+open Cricket.Math.Statistics
 
 [<TestFixture; Category("Unit")>]
 type ``Given a set of data I can incremetally compute``() = 

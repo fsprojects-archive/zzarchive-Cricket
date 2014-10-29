@@ -1,8 +1,8 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 open System
 open System.Threading
-open FSharp.Actor.Diagnostics
+open Cricket.Diagnostics
 
 type ActorHostConfiguration = {
      Registry : ActorRegistry

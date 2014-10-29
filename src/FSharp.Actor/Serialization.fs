@@ -1,4 +1,4 @@
-﻿namespace FSharp.Actor
+﻿namespace Cricket
 
 open System.Reflection
 open System.IO
