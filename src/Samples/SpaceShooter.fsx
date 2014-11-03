@@ -65,7 +65,7 @@ let universe =
         name "universe"
         body (
             let rec loop (state:UniverseState) = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive ()
                 let state =
                     match msg with
                     | ItemUpdate(id, x) ->
@@ -87,7 +87,7 @@ let spaceship =
         body (
             let universe = !~"universe"
             let rec loop (state:Spaceship) = messageHandler {
-                let! msg = Message.receive None
+                let! msg = Message.receive ()
                 let state =
                     match msg with
                     | MoveLeft -> { state with Position = { state.Position with X = (max 0 (state.Position.X - 1)) }}
