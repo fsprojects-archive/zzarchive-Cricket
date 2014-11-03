@@ -4,7 +4,6 @@
     <meta charset="utf-8"/>
     <title>Hello World Example
 </title>
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="description" content="An actor framework for F#"/>
     <meta name="author" content="Colin Bull"/>
@@ -14,8 +13,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
-    <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/Cricket/content/style.css" />
+    <script type="text/javascript" src="/Cricket/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -26,9 +25,9 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Actor">github page</a></li>
+          <li><a href="https://github.com/fsprojects/Cricket">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="/FSharp.Actor/index.html">FSharp.Actor</a></h3>
+        <h3 class="muted"><a href="/Cricket/index.html">Cricket</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -41,7 +40,7 @@ simple actor called <code>greeter</code> which responds to messages of type <cod
 a response to the debug log then wait for another message.</p>
 
 <pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">ActorHost</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">Start</span>()</pre>
+<span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">ActorHost</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">Start</span>()</pre>
 
 
 <p>Before we create any actor we must start the actor host for 
@@ -52,80 +51,80 @@ legged union to represent our messages, but this could just of easily been a cla
 type really. Typically though unions are a good fit for defining message types.</p>
 
 <pre class="fssnip">
-<span class="k">type</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">Say</span> <span class="o">=</span>
-    | <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">Hello</span>
-    | <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">HelloWorld</span>
-    | <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">Name</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">string</span></pre>
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">Say</span> <span class="o">=</span>
+    | <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">Hello</span>
+    | <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="i">HelloWorld</span>
+    | <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="i">Name</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs8', 8)" onmouseover="showTip(event, 'fs8', 8)" class="i">string</span></pre>
 
 
 <p>Now we have our message type, its is time to create our actor. To do this we can use the
-<code>actor {}</code> syntax. The syntax allows for various different properties to be set (see <a href="reference/fsharp-actor-actorconfiguration-1.html">here</a>),
+<code>actor {}</code> syntax. The syntax allows for various different properties to be set (see <a href="reference/cricket-actorconfiguration-1.html">here</a>),
 but name and messageHandler are the minimum required to get a functioning actor. The messageHandler is simply a function that provides the behaviour 
-of the actor. It is of type <code>ActorCell&lt;'a&gt; -&gt; Async&lt;unit&gt;</code> where the <a href="reference/fsharp-actor-actorcell-1.html">ActorCell<'a></a> 
+of the actor. It is of type <code>ActorCell&lt;'a&gt; -&gt; Async&lt;unit&gt;</code> where the <a href="reference/cricket-actorcell-1.html">ActorCell<'a></a> 
 type holds the context for this actor. To wait for a message we simply call receive, this will block this thread until a message 
 arrives at the actor. Once it arrives, the function will resume and process the message. Once we have finished defininf our actor
 configuration we can spawn the actor.</p>
 
 <pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 10)" onmouseover="showTip(event, 'fs10', 10)" class="i">greeter</span> <span class="o">=</span> 
-    <span onmouseout="hideTip(event, 'fs11', 11)" onmouseover="showTip(event, 'fs11', 11)" class="i">actor</span> {
-        <span onmouseout="hideTip(event, 'fs12', 12)" onmouseover="showTip(event, 'fs12', 12)" class="k">name</span> <span class="s">&quot;</span><span class="s">greeter</span><span class="s">&quot;</span>
-        <span onmouseout="hideTip(event, 'fs13', 13)" onmouseover="showTip(event, 'fs13', 13)" class="k">body</span> (
-            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs14', 14)" onmouseover="showTip(event, 'fs14', 14)" class="i">loop</span>() <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 15)" onmouseover="showTip(event, 'fs15', 15)" class="i">messageHandler</span> {
-                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs16', 16)" onmouseover="showTip(event, 'fs16', 16)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs17', 17)" onmouseover="showTip(event, 'fs17', 17)" class="i">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 18)" onmouseover="showTip(event, 'fs18', 18)" class="i">receive</span> <span onmouseout="hideTip(event, 'fs19', 19)" onmouseover="showTip(event, 'fs19', 19)" class="i">None</span> <span class="c">//Wait for a message</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs9', 9)" onmouseover="showTip(event, 'fs9', 9)" class="i">greeter</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs10', 10)" onmouseover="showTip(event, 'fs10', 10)" class="i">actor</span> {
+        <span onmouseout="hideTip(event, 'fs11', 11)" onmouseover="showTip(event, 'fs11', 11)" class="k">name</span> <span class="s">&quot;</span><span class="s">greeter</span><span class="s">&quot;</span>
+        <span onmouseout="hideTip(event, 'fs12', 12)" onmouseover="showTip(event, 'fs12', 12)" class="k">body</span> (
+            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs13', 13)" onmouseover="showTip(event, 'fs13', 13)" class="i">loop</span>() <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 14)" onmouseover="showTip(event, 'fs14', 14)" class="i">messageHandler</span> {
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs15', 15)" onmouseover="showTip(event, 'fs15', 15)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs16', 16)" onmouseover="showTip(event, 'fs16', 16)" class="i">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs17', 17)" onmouseover="showTip(event, 'fs17', 17)" class="i">receive</span>() <span class="c">//Wait for a message</span>
 
-                <span class="k">match</span> <span onmouseout="hideTip(event, 'fs16', 20)" onmouseover="showTip(event, 'fs16', 20)" class="i">msg</span> <span class="k">with</span>
-                | <span onmouseout="hideTip(event, 'fs6', 21)" onmouseover="showTip(event, 'fs6', 21)" class="i">Hello</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs20', 22)" onmouseover="showTip(event, 'fs20', 22)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s">&quot;</span> <span class="c">//Handle Hello leg</span>
-                | <span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="i">HelloWorld</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs20', 24)" onmouseover="showTip(event, 'fs20', 24)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s"> </span><span class="s">World</span><span class="s">&quot;</span> <span class="c">//Handle HelloWorld leg</span>
-                | <span onmouseout="hideTip(event, 'fs8', 25)" onmouseover="showTip(event, 'fs8', 25)" class="i">Name</span> <span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="i">name</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs20', 27)" onmouseover="showTip(event, 'fs20', 27)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s">,</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs21', 28)" onmouseover="showTip(event, 'fs21', 28)" class="i">name</span> <span class="c">//Handle Name leg</span>
+                <span class="k">match</span> <span onmouseout="hideTip(event, 'fs15', 18)" onmouseover="showTip(event, 'fs15', 18)" class="i">msg</span> <span class="k">with</span>
+                | <span onmouseout="hideTip(event, 'fs5', 19)" onmouseover="showTip(event, 'fs5', 19)" class="i">Hello</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs18', 20)" onmouseover="showTip(event, 'fs18', 20)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s">&quot;</span> <span class="c">//Handle Hello leg</span>
+                | <span onmouseout="hideTip(event, 'fs6', 21)" onmouseover="showTip(event, 'fs6', 21)" class="i">HelloWorld</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs18', 22)" onmouseover="showTip(event, 'fs18', 22)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s"> </span><span class="s">World</span><span class="s">&quot;</span> <span class="c">//Handle HelloWorld leg</span>
+                | <span onmouseout="hideTip(event, 'fs7', 23)" onmouseover="showTip(event, 'fs7', 23)" class="i">Name</span> <span onmouseout="hideTip(event, 'fs19', 24)" onmouseover="showTip(event, 'fs19', 24)" class="i">name</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs18', 25)" onmouseover="showTip(event, 'fs18', 25)" class="i">printfn</span> <span class="s">&quot;</span><span class="s">Hello</span><span class="s">,</span><span class="s"> </span><span class="s">%</span><span class="s">s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs19', 26)" onmouseover="showTip(event, 'fs19', 26)" class="i">name</span> <span class="c">//Handle Name leg</span>
 
-                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs14', 29)" onmouseover="showTip(event, 'fs14', 29)" class="i">loop</span>() <span class="c">//Recursively loop</span>
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs13', 27)" onmouseover="showTip(event, 'fs13', 27)" class="i">loop</span>() <span class="c">//Recursively loop</span>
 
             }
-            <span onmouseout="hideTip(event, 'fs14', 30)" onmouseover="showTip(event, 'fs14', 30)" class="i">loop</span>())
-    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs22', 31)" onmouseover="showTip(event, 'fs22', 31)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 32)" onmouseover="showTip(event, 'fs23', 32)" class="i">spawn</span></pre>
+            <span onmouseout="hideTip(event, 'fs13', 28)" onmouseover="showTip(event, 'fs13', 28)" class="i">loop</span>())
+    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs20', 29)" onmouseover="showTip(event, 'fs20', 29)" class="i">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 30)" onmouseover="showTip(event, 'fs21', 30)" class="i">spawn</span></pre>
 
 
 <p>Once the actor is spawned it is now ready to except messages. To post a message to an actor we can use the <code>&lt;--</code> operator, like this.</p>
 
 <pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs10', 33)" onmouseover="showTip(event, 'fs10', 33)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs8', 34)" onmouseover="showTip(event, 'fs8', 34)" class="i">Name</span>(<span class="s">&quot;</span><span class="s">from</span><span class="s"> </span><span class="s">F</span><span class="s">#</span><span class="s"> </span><span class="s">Actor</span><span class="s">&quot;</span>)</pre>
+<span onmouseout="hideTip(event, 'fs9', 31)" onmouseover="showTip(event, 'fs9', 31)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs7', 32)" onmouseover="showTip(event, 'fs7', 32)" class="i">Name</span>(<span class="s">&quot;</span><span class="s">from</span><span class="s"> </span><span class="s">F</span><span class="s">#</span><span class="s"> </span><span class="s">Actor</span><span class="s">&quot;</span>)</pre>
 
 
 <p>This requires you to have a direct reference to the actor, which is not always practical. It would be nice to be able to resolve actors by name
 at runtime and in fact the framework lets you do this using the <code>!!</code> operator.</p>
 
 <pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 35)" onmouseover="showTip(event, 'fs24', 35)" class="i">resolvedGreeter</span> <span class="o">=</span> <span class="o">!!</span><span class="s">&quot;</span><span class="s">greeter</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs22', 33)" onmouseover="showTip(event, 'fs22', 33)" class="i">resolvedGreeter</span> <span class="o">=</span> <span class="o">!!</span><span class="s">&quot;</span><span class="s">greeter</span><span class="s">&quot;</span></pre>
 
 
-<p>The <code>!!</code> operator returns an <a href="reference/fsharp-actor-actorselection-0.html">actorSelection</a> type, which can represent one or many actors that 
+<p>The <code>!!</code> operator returns an <a href="reference/cricket-actorselection-0.html">actorSelection</a> type, which can represent one or many actors that 
 match the path you gave (for more on actor lookup see <a href="actor_lookup.html">here</a>). once we have an <code>actorSelection</code> we can use it exactly 
 like the direct reference.</p>
 
 <pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs24', 36)" onmouseover="showTip(event, 'fs24', 36)" class="i">resolvedGreeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs6', 37)" onmouseover="showTip(event, 'fs6', 37)" class="i">Hello</span></pre>
+<span onmouseout="hideTip(event, 'fs22', 34)" onmouseover="showTip(event, 'fs22', 34)" class="i">resolvedGreeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs5', 35)" onmouseover="showTip(event, 'fs5', 35)" class="i">Hello</span></pre>
 
 
 <p>Or we can inline all of this</p>
 
 <pre class="fssnip">
-<span class="s">&quot;</span><span class="s">greeter</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs6', 38)" onmouseover="showTip(event, 'fs6', 38)" class="i">Hello</span></pre>
+<span class="s">&quot;</span><span class="s">greeter</span><span class="s">&quot;</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs5', 36)" onmouseover="showTip(event, 'fs5', 36)" class="i">Hello</span></pre>
 
 
 <h2><a name="System-Messages" class="anchor" href="#System-Messages">System Messages</a></h2>
 
 <p>Great.. so at this point we have an actor and can send messages to it. But we have no obvious way of shutting down this actor once we are done with it. Now we could
 add an extra leg to our message type <code>Stop</code> for example that would cause the message loop to not recursively return but instead simply exit. And in some domains this 
-will be desirable. But it is worth noting that the F# Actor Framework, provides a set of <a href="reference/fsharp-actor-systemmessage.html">System Messages</a> that allow you to control
+will be desirable. But it is worth noting that the F# Actor Framework, provides a set of <a href="reference/cricket-systemmessage.html">System Messages</a> that allow you to control
 certain framework level items to do with your actor, like shutting down, restarting or several other tasks to do with supervisors.</p>
 
 <p>Here we will just focus on shutting down the actor, since this is built into the framework all we have to do is send it the <code>Shutdown</code> or <code>Restart</code> message</p>
 
 <pre class="fssnip">
-<span onmouseout="hideTip(event, 'fs10', 39)" onmouseover="showTip(event, 'fs10', 39)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs25', 40)" onmouseover="showTip(event, 'fs25', 40)" class="i">Restart</span>
+<span onmouseout="hideTip(event, 'fs9', 37)" onmouseover="showTip(event, 'fs9', 37)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs23', 38)" onmouseover="showTip(event, 'fs23', 38)" class="i">Restart</span>
 
-<span onmouseout="hideTip(event, 'fs10', 41)" onmouseover="showTip(event, 'fs10', 41)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs26', 42)" onmouseover="showTip(event, 'fs26', 42)" class="i">Shutdown</span></pre>
+<span onmouseout="hideTip(event, 'fs9', 39)" onmouseover="showTip(event, 'fs9', 39)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs24', 40)" onmouseover="showTip(event, 'fs24', 40)" class="i">Shutdown</span></pre>
 
 
 <p>Thats about it for the basics, for more indepth examples have a look at the links below.</p>
@@ -137,58 +136,56 @@ certain framework level items to do with your actor, like shutting down, restart
 <li><a href="remoting.html">Ping Pong - Remoting Version</a> - Same as the in process Ping Pong example, however the actors are in seperate processes.</li>
 </ul>
 
-<div class="tip" id="fs1">namespace FSharp</div>
-<div class="tip" id="fs2">namespace FSharp.Actor</div>
-<div class="tip" id="fs3">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;member private Serializer : ISerializer<br />&#160;&#160;...<br /><br />Full name: FSharp.Actor.ActorHost</div>
-<div class="tip" id="fs4">static member ActorHost.Start : ?name:string * ?logger:Log.Logger * ?serializer:ISerializer * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
-<div class="tip" id="fs5">type Say =<br />&#160;&#160;| Hello<br />&#160;&#160;| HelloWorld<br />&#160;&#160;| Name of string<br /><br />Full name: Tutorial.Say</div>
-<div class="tip" id="fs6">union case Say.Hello: Say</div>
-<div class="tip" id="fs7">union case Say.HelloWorld: Say</div>
-<div class="tip" id="fs8">union case Say.Name: string -&gt; Say</div>
-<div class="tip" id="fs9">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
-<div class="tip" id="fs10">val greeter : ActorRef<br /><br />Full name: Tutorial.greeter</div>
-<div class="tip" id="fs11">val actor : ActorConfigurationBuilder<br /><br />Full name: FSharp.Actor.ActorConfiguration.actor</div>
-<div class="tip" id="fs12">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
-<div class="tip" id="fs13">custom operation: body (MessageHandler&lt;ActorCell&lt;&#39;a&gt;,unit&gt;)<br /><br />Calls ActorConfigurationBuilder.Body </div>
-<div class="tip" id="fs14">val loop : (unit -&gt; MessageHandler&lt;ActorCell&lt;Say&gt;,&#39;a&gt;)</div>
-<div class="tip" id="fs15">val messageHandler : Message.MessageHandlerBuilder<br /><br />Full name: FSharp.Actor.ActorConfiguration.messageHandler</div>
-<div class="tip" id="fs16">val msg : Say</div>
-<div class="tip" id="fs17">Multiple items<br />module Message<br /><br />from FSharp.Actor<br /><br />--------------------<br />type Message&lt;&#39;a&gt; =<br />&#160;&#160;{Id: uint64 option;<br />&#160;&#160;&#160;Sender: ActorRef;<br />&#160;&#160;&#160;Message: &#39;a;}<br />&#160;&#160;static member private Box : objM:Message&lt;&#39;a&gt; -&gt; Message&lt;obj&gt;<br />&#160;&#160;static member private Create : msg:&#39;a * sender:ActorRef * ?id:uint64 -&gt; Message&lt;obj&gt;<br />&#160;&#160;static member private Unbox : objM:Message&lt;obj&gt; -&gt; Message&lt;&#39;a&gt;<br /><br />Full name: FSharp.Actor.Message&lt;_&gt;</div>
-<div class="tip" id="fs18">val receive : timeout:int option -&gt; MessageHandler&lt;ActorCell&lt;&#39;a&gt;,&#39;a&gt;<br /><br />Full name: FSharp.Actor.Message.receive</div>
-<div class="tip" id="fs19">union case Option.None: Option&lt;&#39;T&gt;</div>
-<div class="tip" id="fs20">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
-<div class="tip" id="fs21">val name : string</div>
-<div class="tip" id="fs22">Multiple items<br />module Actor<br /><br />from FSharp.Actor<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: FSharp.Actor.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
-<div class="tip" id="fs23">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.Actor.spawn</div>
-<div class="tip" id="fs24">val resolvedGreeter : ActorSelection<br /><br />Full name: Tutorial.resolvedGreeter</div>
-<div class="tip" id="fs25">union case SystemMessage.Restart: SystemMessage</div>
-<div class="tip" id="fs26">union case SystemMessage.Shutdown: SystemMessage</div>
+<div class="tip" id="fs1">namespace Cricket</div>
+<div class="tip" id="fs2">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;member private Serializer : ISerializer<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
+<div class="tip" id="fs3">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?serializer:ISerializer * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs4">type Say =<br />&#160;&#160;| Hello<br />&#160;&#160;| HelloWorld<br />&#160;&#160;| Name of string<br /><br />Full name: Tutorial.Say</div>
+<div class="tip" id="fs5">union case Say.Hello: Say</div>
+<div class="tip" id="fs6">union case Say.HelloWorld: Say</div>
+<div class="tip" id="fs7">union case Say.Name: string -&gt; Say</div>
+<div class="tip" id="fs8">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs9">val greeter : ActorRef<br /><br />Full name: Tutorial.greeter</div>
+<div class="tip" id="fs10">val actor : ActorConfigurationBuilder<br /><br />Full name: Cricket.ActorConfiguration.actor</div>
+<div class="tip" id="fs11">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
+<div class="tip" id="fs12">custom operation: body (MessageHandler&lt;ActorCell&lt;&#39;a&gt;,unit&gt;)<br /><br />Calls ActorConfigurationBuilder.Body </div>
+<div class="tip" id="fs13">val loop : (unit -&gt; MessageHandler&lt;ActorCell&lt;Say&gt;,&#39;a&gt;)</div>
+<div class="tip" id="fs14">val messageHandler : Message.MessageHandlerBuilder<br /><br />Full name: Cricket.ActorConfiguration.messageHandler</div>
+<div class="tip" id="fs15">val msg : Say</div>
+<div class="tip" id="fs16">Multiple items<br />module Message<br /><br />from Cricket<br /><br />--------------------<br />type Message&lt;&#39;a&gt; =<br />&#160;&#160;{Id: uint64 option;<br />&#160;&#160;&#160;Sender: ActorRef;<br />&#160;&#160;&#160;Message: &#39;a;}<br /><br />Full name: Cricket.Message&lt;_&gt;</div>
+<div class="tip" id="fs17">val receive : unit -&gt; MessageHandler&lt;ActorCell&lt;&#39;a&gt;,&#39;a&gt;<br /><br />Full name: Cricket.Message.receive</div>
+<div class="tip" id="fs18">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs19">val name : string</div>
+<div class="tip" id="fs20">Multiple items<br />module Actor<br /><br />from Cricket<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: Cricket.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs21">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: Cricket.Actor.spawn</div>
+<div class="tip" id="fs22">val resolvedGreeter : ActorSelection<br /><br />Full name: Tutorial.resolvedGreeter</div>
+<div class="tip" id="fs23">union case SystemMessage.Restart: SystemMessage</div>
+<div class="tip" id="fs24">union case SystemMessage.Shutdown: SystemMessage</div>
 
         </div>
         <div class="span3">
-          <img src="/FSharp.Actor/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <img src="/Cricket/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">FSharp.Actor</li>
-            <li><a href="/FSharp.Actor/index.html">Home page</a></li>
+            <li class="nav-header">Cricket</li>
+            <li><a href="/Cricket/index.html">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="http://nuget.com/packages/FSharp.Actor">Get Library via NuGet</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Actor">Source Code on GitHub</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/LICENSE.txt">License</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://nuget.com/packages/Cricket">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="/FSharp.Actor/tutorial.html">Tutorial</a></li>
+            <li><a href="/Cricket/tutorial.html">Tutorial</a></li>
             <li class="nav-header">Documentation</li>
-			<li><a href="/FSharp.Actor/remoting.html">Remoting</a></li>
-			<li><a href="/FSharp.Actor/actor_lookup.html">Resolving Actors</a></li>
-			<li><a href="/FSharp.Actor/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
-			<li><a href="/FSharp.Actor/diagnostics_tracing.html">Tracing</a></li>
-			<li><a href="/FSharp.Actor/diagnostics_metrics.html">Metrics</a></li>
-            <li><a href="/FSharp.Actor/reference/index.html">API Reference</a></li>
+			<li><a href="/Cricket/remoting.html">Remoting</a></li>
+			<li><a href="/Cricket/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/Cricket/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/Cricket/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/Cricket/diagnostics_metrics.html">Metrics</a></li>
+            <li><a href="/Cricket/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="https://github.com/fsprojects/FSharp.Actor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+    <a href="https://github.com/fsprojects/Cricket"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
   </body>
   </html>

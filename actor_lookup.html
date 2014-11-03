@@ -12,8 +12,8 @@
     <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
     <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
 
-    <link type="text/css" rel="stylesheet" href="/FSharp.Actor/content/style.css" />
-    <script type="text/javascript" src="/FSharp.Actor/content/tips.js"></script>
+    <link type="text/css" rel="stylesheet" href="/Cricket/content/style.css" />
+    <script type="text/javascript" src="/Cricket/content/tips.js"></script>
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -24,9 +24,9 @@
       <div class="masthead">
         <ul class="nav nav-pills pull-right">
           <li><a href="http://fsharp.org">fsharp.org</a></li>
-          <li><a href="https://github.com/fsprojects/FSharp.Actor">github page</a></li>
+          <li><a href="https://github.com/fsprojects/Cricket">github page</a></li>
         </ul>
-        <h3 class="muted"><a href="/FSharp.Actor/index.html">FSharp.Actor</a></h3>
+        <h3 class="muted"><a href="/Cricket/index.html">Cricket</a></h3>
       </div>
       <hr />
       <div class="row">
@@ -53,7 +53,7 @@ might be something like the following</p>
 <li><p><strong>Protocol</strong> - This defines which protocol actors should use to talk to each other. Local actors will simply use the <code>actor</code> protocol. When the actor
 is a remote actor then this portion will be replaced with the scheme of the message that the transport was recieved on. For example if the message was received on
 the <code>TcpActorProtocol</code> then this portion of the path will be set to <code>actor.tcp</code></p></li>
-<li><p><strong>Host Name</strong> - This identifies the host that the actor was created in. The host name can be set when calling <a href="http://fsprojects.github.io/FSharp.Actor/reference/fsharp-actor-actorhost.html"><code>ActorHost.Start(..)</code></a></p></li>
+<li><p><strong>Host Name</strong> - This identifies the host that the actor was created in. The host name can be set when calling <a href="http://fsprojects.github.io/Cricket/reference/cricket-actorhost.html"><code>ActorHost.Start(..)</code></a></p></li>
 <li><p><strong>Protocol Address</strong> - Typically you will simply let the framework resolve this for you. As the exact structure of this will depend on the underlying transport. In the example above 
 we are using the <code>actor.tcp</code> transport so the IP address an port are required for this transport; However another example maybe a message queue based protocol in which case this may define the topic or queue name.</p></li>
 <li><p><strong>Local Path</strong> - This is the name that was given to the actor when it was defined.</p></li>
@@ -148,99 +148,98 @@ local path of the actor is defined, it is defined like any path. This path is us
 a few examples are:</p>
 
 <pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">selection1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">resolve</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="i">selection1</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="i">resolve</span> <span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span></pre>
 
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_5968@*/models/stats/mean]
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9200@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 18)" onmouseover="showTip(event, 'fs16', 18)" class="i">selection2</span> <span class="o">=</span> <span class="o">!!</span><span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">selection2</span> <span class="o">=</span> <span class="o">!!</span><span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span></pre>
 
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_5968@*/models/stats/mean]
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9200@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 19)" onmouseover="showTip(event, 'fs17', 19)" class="i">selection3</span> <span class="o">=</span> <span class="o">!!</span>[<span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">agg</span><span class="s">/</span><span class="s">total</span><span class="s">/</span><span class="s">*</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span>]</pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 18)" onmouseover="showTip(event, 'fs16', 18)" class="i">selection3</span> <span class="o">=</span> <span class="o">!!</span>[<span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">agg</span><span class="s">/</span><span class="s">total</span><span class="s">/</span><span class="s">*</span><span class="s">&quot;</span>; <span class="s">&quot;</span><span class="s">/</span><span class="s">models</span><span class="s">/</span><span class="s">stats</span><span class="s">/</span><span class="s">mean</span><span class="s">&quot;</span>]</pre>
 
 
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/month;
-   ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/year;
-   ActorRef actor://HP20024950_Fsi_5968@*/models/stats/mean]
+  [ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/year;
+   ActorRef actor://HP20024950_Fsi_9200@*/models/stats/mean]
 </code></pre></td></tr></table>
 
-<p>for a complete list see <a href="https://github.com/fsprojects/FSharp.Actor/blob/master/src/FSharp.Actor/ActorSelection.fs#L12">here</a>.</p>
+<p>for a complete list see <a href="https://github.com/fsprojects/Cricket/blob/master/src/Cricket/ActorSelection.fs#L12">here</a>.</p>
 
 <h3><a name="Actor-Selection-combinators" class="anchor" href="#Actor-Selection-combinators">Actor Selection combinators</a></h3>
 
-<p>The library also provides a set of functions over <code>ActorSelection</code> see <a href="http://fsprojects.github.io/FSharp.Actor/reference/fsharp-actor-actorselectionmodule.html">here</a>. These 
+<p>The library also provides a set of functions over <code>ActorSelection</code> see <a href="http://fsprojects.github.io/Cricket/reference/cricket-actorselectionmodule.html">here</a>. These 
 all you to take an <code>ActorSelection</code> create a new actor selection. For example if I wanted to exclude <code>selection2</code> from <code>selection3</code> I could do the following</p>
 
 <pre class="fssnip">
-<span class="k">let</span> <span onmouseout="hideTip(event, 'fs18', 20)" onmouseover="showTip(event, 'fs18', 20)" class="i">selection4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 21)" onmouseover="showTip(event, 'fs19', 21)" class="i">ActorSelection</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs20', 22)" onmouseover="showTip(event, 'fs20', 22)" class="i">exclude</span> <span onmouseout="hideTip(event, 'fs16', 23)" onmouseover="showTip(event, 'fs16', 23)" class="i">selection2</span> <span onmouseout="hideTip(event, 'fs17', 24)" onmouseover="showTip(event, 'fs17', 24)" class="i">selection3</span></pre>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 19)" onmouseover="showTip(event, 'fs17', 19)" class="i">selection4</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs18', 20)" onmouseover="showTip(event, 'fs18', 20)" class="i">ActorSelection</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs19', 21)" onmouseover="showTip(event, 'fs19', 21)" class="i">exclude</span> <span onmouseout="hideTip(event, 'fs15', 22)" onmouseover="showTip(event, 'fs15', 22)" class="i">selection2</span> <span onmouseout="hideTip(event, 'fs16', 23)" onmouseover="showTip(event, 'fs16', 23)" class="i">selection3</span></pre>
 
 
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/month;
-   ActorRef actor://HP20024950_Fsi_5968@*/models/agg/total/year]
+  [ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/year]
 </code></pre></td></tr></table>
 
-<div class="tip" id="fs1">namespace FSharp</div>
-<div class="tip" id="fs2">namespace FSharp.Actor</div>
-<div class="tip" id="fs3">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;member private Serializer : ISerializer<br />&#160;&#160;...<br /><br />Full name: FSharp.Actor.ActorHost</div>
-<div class="tip" id="fs4">static member ActorHost.Start : ?name:string * ?logger:Log.Logger * ?serializer:ISerializer * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
-<div class="tip" id="fs5">val createActor : localName:string -&gt; ActorRef<br /><br />Full name: Actor_lookup.createActor</div>
-<div class="tip" id="fs6">val localName : string</div>
-<div class="tip" id="fs7">val actor : ActorConfigurationBuilder<br /><br />Full name: FSharp.Actor.ActorConfiguration.actor</div>
-<div class="tip" id="fs8">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
-<div class="tip" id="fs9">Multiple items<br />module Actor<br /><br />from FSharp.Actor<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: FSharp.Actor.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
-<div class="tip" id="fs10">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: FSharp.Actor.Actor.spawn</div>
-<div class="tip" id="fs11">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of Head: &#39;T * Tail: &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
-<div class="tip" id="fs12">val iter : action:(&#39;T -&gt; unit) -&gt; list:&#39;T list -&gt; unit<br /><br />Full name: Microsoft.FSharp.Collections.List.iter</div>
-<div class="tip" id="fs13">val ignore : value:&#39;T -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Operators.ignore</div>
-<div class="tip" id="fs14">val selection1 : ActorSelection<br /><br />Full name: Actor_lookup.selection1</div>
-<div class="tip" id="fs15">val resolve : a:&#39;a -&gt; ActorSelection<br /><br />Full name: FSharp.Actor.ActorOperators.resolve</div>
-<div class="tip" id="fs16">val selection2 : ActorSelection<br /><br />Full name: Actor_lookup.selection2</div>
-<div class="tip" id="fs17">val selection3 : ActorSelection<br /><br />Full name: Actor_lookup.selection3</div>
-<div class="tip" id="fs18">val selection4 : ActorSelection<br /><br />Full name: Actor_lookup.selection4</div>
-<div class="tip" id="fs19">Multiple items<br />union case ActorSelection.ActorSelection: ActorRef list -&gt; ActorSelection<br /><br />--------------------<br />module ActorSelection<br /><br />from FSharp.Actor<br /><br />--------------------<br />type ActorSelection =<br />&#160;&#160;| ActorSelection of ActorRef list<br />&#160;&#160;member private Refs : ActorRef list<br />&#160;&#160;static member op_Implicit : s:&#39;a -&gt; ActorSelection<br /><br />Full name: FSharp.Actor.ActorSelection</div>
-<div class="tip" id="fs20">val exclude : ActorSelection -&gt; r:ActorSelection -&gt; ActorSelection<br /><br />Full name: FSharp.Actor.ActorSelection.exclude</div>
+<div class="tip" id="fs1">namespace Cricket</div>
+<div class="tip" id="fs2">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;member private Serializer : ISerializer<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
+<div class="tip" id="fs3">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?serializer:ISerializer * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs4">val createActor : localName:string -&gt; ActorRef<br /><br />Full name: Actor_lookup.createActor</div>
+<div class="tip" id="fs5">val localName : string</div>
+<div class="tip" id="fs6">val actor : ActorConfigurationBuilder<br /><br />Full name: Cricket.ActorConfiguration.actor</div>
+<div class="tip" id="fs7">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
+<div class="tip" id="fs8">Multiple items<br />module Actor<br /><br />from Cricket<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: Cricket.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs9">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: Cricket.Actor.spawn</div>
+<div class="tip" id="fs10">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of Head: &#39;T * Tail: &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
+<div class="tip" id="fs11">val iter : action:(&#39;T -&gt; unit) -&gt; list:&#39;T list -&gt; unit<br /><br />Full name: Microsoft.FSharp.Collections.List.iter</div>
+<div class="tip" id="fs12">val ignore : value:&#39;T -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Operators.ignore</div>
+<div class="tip" id="fs13">val selection1 : ActorSelection<br /><br />Full name: Actor_lookup.selection1</div>
+<div class="tip" id="fs14">val resolve : a:&#39;a -&gt; ActorSelection<br /><br />Full name: Cricket.ActorOperators.resolve</div>
+<div class="tip" id="fs15">val selection2 : ActorSelection<br /><br />Full name: Actor_lookup.selection2</div>
+<div class="tip" id="fs16">val selection3 : ActorSelection<br /><br />Full name: Actor_lookup.selection3</div>
+<div class="tip" id="fs17">val selection4 : ActorSelection<br /><br />Full name: Actor_lookup.selection4</div>
+<div class="tip" id="fs18">Multiple items<br />union case ActorSelection.ActorSelection: ActorRef list -&gt; ActorSelection<br /><br />--------------------<br />module ActorSelection<br /><br />from Cricket<br /><br />--------------------<br />type ActorSelection =<br />&#160;&#160;| ActorSelection of ActorRef list<br />&#160;&#160;member private Refs : ActorRef list<br />&#160;&#160;static member op_Implicit : s:&#39;a -&gt; ActorSelection<br /><br />Full name: Cricket.ActorSelection</div>
+<div class="tip" id="fs19">val exclude : ActorSelection -&gt; r:ActorSelection -&gt; ActorSelection<br /><br />Full name: Cricket.ActorSelection.exclude</div>
 
         </div>
         <div class="span3">
-          <img src="/FSharp.Actor/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <img src="/Cricket/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
           <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
-            <li class="nav-header">FSharp.Actor</li>
-            <li><a href="/FSharp.Actor/index.html">Home page</a></li>
+            <li class="nav-header">Cricket</li>
+            <li><a href="/Cricket/index.html">Home page</a></li>
             <li class="divider"></li>
-            <li><a href="http://nuget.com/packages/FSharp.Actor">Get Library via NuGet</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Actor">Source Code on GitHub</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/LICENSE.txt">License</a></li>
-            <li><a href="https://github.com/fsprojects/FSharp.Actor/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            <li><a href="http://nuget.com/packages/Cricket">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
             
             <li class="nav-header">Getting started</li>
-            <li><a href="/FSharp.Actor/tutorial.html">Tutorial</a></li>
+            <li><a href="/Cricket/tutorial.html">Tutorial</a></li>
             <li class="nav-header">Documentation</li>
-			<li><a href="/FSharp.Actor/remoting.html">Remoting</a></li>
-			<li><a href="/FSharp.Actor/actor_lookup.html">Resolving Actors</a></li>
-			<li><a href="/FSharp.Actor/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
-			<li><a href="/FSharp.Actor/diagnostics_tracing.html">Tracing</a></li>
-			<li><a href="/FSharp.Actor/diagnostics_metrics.html">Metrics</a></li>
-            <li><a href="/FSharp.Actor/reference/index.html">API Reference</a></li>
+			<li><a href="/Cricket/remoting.html">Remoting</a></li>
+			<li><a href="/Cricket/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/Cricket/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/Cricket/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/Cricket/diagnostics_metrics.html">Metrics</a></li>
+            <li><a href="/Cricket/reference/index.html">API Reference</a></li>
           </ul>
         </div>
       </div>
     </div>
-    <a href="https://github.com/fsprojects/FSharp.Actor"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+    <a href="https://github.com/fsprojects/Cricket"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
   </body>
   </html>
