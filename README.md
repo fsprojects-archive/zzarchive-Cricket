@@ -43,7 +43,7 @@ making it very difficult for you to shoot or self in the foot.
 	        name "greeter"
 	        body (
 	            let rec loop() = messageHandler {
-	                let! msg = Message.receive None
+	                let! msg = Message.receive()
 	
 	                match msg with
 	                | Hello ->  printfn "Hello"
