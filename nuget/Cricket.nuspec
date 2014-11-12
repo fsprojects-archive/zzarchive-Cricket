@@ -5,8 +5,8 @@
     <version>@build.number@</version>
     <authors>@authors@</authors>
     <owners>@authors@</owners>
-    <licenseUrl>https://github.com/colinbull/Cricket/blob/master/LICENSE.md</licenseUrl>
-    <projectUrl>https://github.com/colinbull/Cricket</projectUrl>
+    <licenseUrl>https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/fsprojects/Cricket</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/fsprojects/Cricket/master/docs/files/img/logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>@summary@</summary>
