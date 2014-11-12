@@ -5,7 +5,7 @@ open NUnit.Framework
 open FsUnit
 open Cricket
 
-[<TestFixture; Category("Unit"); Ignore("Failing on build servers")>]
+[<TestFixture; Category("Unit")>]
 type ``Given an event stream``() = 
 
      [<Test>]
