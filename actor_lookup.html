@@ -153,7 +153,7 @@ a few examples are:</p>
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9200@*/models/stats/mean]
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_4056@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <pre class="fssnip">
@@ -162,7 +162,7 @@ a few examples are:</p>
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_9200@*/models/stats/mean]
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://HP20024950_Fsi_4056@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <pre class="fssnip">
@@ -172,9 +172,9 @@ a few examples are:</p>
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/month;
-   ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/year;
-   ActorRef actor://HP20024950_Fsi_9200@*/models/stats/mean]
+  [ActorRef actor://HP20024950_Fsi_4056@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_4056@*/models/agg/total/year;
+   ActorRef actor://HP20024950_Fsi_4056@*/models/stats/mean]
 </code></pre></td></tr></table>
 
 <p>for a complete list see <a href="https://github.com/fsprojects/Cricket/blob/master/src/Cricket/ActorSelection.fs#L12">here</a>.</p>
@@ -191,13 +191,13 @@ all you to take an <code>ActorSelection</code> create a new actor selection. For
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/month;
-   ActorRef actor://HP20024950_Fsi_9200@*/models/agg/total/year]
+  [ActorRef actor://HP20024950_Fsi_4056@*/models/agg/total/month;
+   ActorRef actor://HP20024950_Fsi_4056@*/models/agg/total/year]
 </code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace Cricket</div>
-<div class="tip" id="fs2">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;member private Serializer : ISerializer<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
-<div class="tip" id="fs3">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?serializer:ISerializer * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs2">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;static member Dispose : unit -&gt; unit<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
+<div class="tip" id="fs3">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?serializer:&#39;a0 * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
 <div class="tip" id="fs4">val createActor : localName:string -&gt; ActorRef<br /><br />Full name: Actor_lookup.createActor</div>
 <div class="tip" id="fs5">val localName : string</div>
 <div class="tip" id="fs6">val actor : ActorConfigurationBuilder<br /><br />Full name: Cricket.ActorConfiguration.actor</div>
