@@ -10,6 +10,7 @@ ActorHost.Start()
          .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
          .EnableRemoting(
                [new TCPTransport(TcpConfig.Default(IPEndPoint.Create(12002)))],
+               new BinarySerializer(),
                new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(12003))),
                new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
          ) |> ignore

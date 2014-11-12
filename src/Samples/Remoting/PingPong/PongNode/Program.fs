@@ -35,6 +35,7 @@ let main argv =
              .SubscribeEvents(fun (evnt:ActorEvent) -> printfn "%A" evnt)
              .EnableRemoting(
                    [new TCPTransport(TcpConfig.Default(IPEndPoint.Create(transportPort)))],
+                   new BinarySerializer(),
                    new TcpActorRegistryTransport(TcpConfig.Default(IPEndPoint.Create(registryTransportPort))),
                    new UdpActorRegistryDiscovery(UdpConfig.Default(), 1000)
              ) |> ignore

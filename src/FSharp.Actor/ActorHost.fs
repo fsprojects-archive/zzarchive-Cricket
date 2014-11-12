@@ -8,14 +8,12 @@ type ActorHostConfiguration = {
      Registry : ActorRegistry
      EventStream : IEventStream
      LogWriters : seq<ILogWriter>
-     Serializer : ISerializer
      CancellationToken : CancellationToken
      Name : string
 }
 with
     static member Create(?name, ?loggers, ?serializer, ?registry, ?eventStream, ?cancellationToken) =
         let hostName = defaultArg name Environment.DefaultActorHostName
-        let serializer = defaultArg serializer (new BinarySerializer() :> ISerializer)
         let ct = defaultArg cancellationToken Async.DefaultCancellationToken
 
         let getDefaultLogWriters() = 
@@ -28,7 +26,6 @@ with
             LogWriters = logWriters
             Registry = defaultArg registry (new InMemoryActorRegistry() :> ActorRegistry)
             EventStream = defaultArg eventStream (new DefaultEventStream("host") :> IEventStream)
-            Serializer = serializer
             CancellationToken = ct
             Name = hostName
         }
@@ -56,7 +53,6 @@ type ActorHost private (configuration:ActorHostConfiguration) =
      member internal __.Configure(f) = configuration <- (f configuration)
      
      member internal __.Name with get() = configuration.Name
-     member internal __.Serializer with get() = configuration.Serializer
      member internal __.EventStream with get() = configuration.EventStream
      member internal __.CancelToken with get() = cts.Token
      

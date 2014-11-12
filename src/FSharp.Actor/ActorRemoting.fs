@@ -64,14 +64,14 @@ type IActorRegistryDiscovery =
     inherit IDisposable 
     abstract Start : ActorRegistryDiscoverySettings -> unit
 
-type RemotableInMemoryActorRegistry(transports : seq<ITransport>, registryTransport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, actorHost:ActorHost) = 
+type RemotableInMemoryActorRegistry(transports : seq<ITransport>, serializer:ISerializer, registryTransport:IActorRegistryTransport, discovery:IActorRegistryDiscovery, actorHost:ActorHost) = 
     
     let registry = new InMemoryActorRegistry() :> ActorRegistry
     let messages = new ConcurrentDictionary<Guid, AsyncResultCell<ActorProtocol>>()
     let clients = new ConcurrentDictionary<string,NetAddress>()
     let logger = Logger.create "RemoteRegistry"
     let transports = 
-        Seq.fold (fun (s:Map<string, ITransport>) (t:ITransport) -> t.Start(actorHost.Serializer, actorHost.CancelToken); s.Add(t.Scheme, t)) Map.empty transports
+        Seq.fold (fun (s:Map<string, ITransport>) (t:ITransport) -> t.Start(serializer, actorHost.CancelToken); s.Add(t.Scheme, t)) Map.empty transports
 
     let resolveTransport name = 
         transports.TryFind name
@@ -130,8 +130,8 @@ type RemotableInMemoryActorRegistry(transports : seq<ITransport>, registryTransp
     do
         let cancelToken = actorHost.CancelToken
         cancelToken.Register(fun () -> dispose()) |> ignore
-        registryTransport.Start({ TransportHandler = transportHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
-        discovery.Start({ SystemDetails = (actorHost.Name, registryTransport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = cancelToken; Serializer = actorHost.Serializer })
+        registryTransport.Start({ TransportHandler = transportHandler; CancellationToken = cancelToken; Serializer = serializer })
+        discovery.Start({ SystemDetails = (actorHost.Name, registryTransport.ListeningEndpoint); DiscoveryHandler = discoveryHandler; CancellationToken = cancelToken; Serializer = serializer })
     
     let handledResolveResponse result =
          match result with
@@ -193,8 +193,8 @@ module ActorHostRemotingExtensions =
     
     type ActorHost with
         
-        member x.EnableRemoting(transports, registryTransport, discovery) = 
+        member x.EnableRemoting(transports, serializer, registryTransport, discovery) = 
             x.Configure (fun c -> 
-                { c with Registry = (new RemotableInMemoryActorRegistry(transports, registryTransport, discovery, x)) }
+                { c with Registry = (new RemotableInMemoryActorRegistry(transports, serializer, registryTransport, discovery, x)) }
             )
             x

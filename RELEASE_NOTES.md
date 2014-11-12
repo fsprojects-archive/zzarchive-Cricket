@@ -33,5 +33,9 @@
 * Added supervisors.
 * Added simple routing primitive - more to come, shortestQueue etc. 
 * Fixed UDP malformed packet and multicast constrianed to single router hop problem (#28)
-* Ignored failing tests on build server for now. They pass consistently when run locally. 
+* Ignored failing tests on build server for now. They pass consistently when run locally.
+
+#### 0.0.9-alpha - November 12th 2014
+* Serailizer options now removed from Actor Host and placed in remoting
+* Updated documentation
 

@@ -129,6 +129,3 @@ let timeLine() =
 
 let data = timeLine()
 
-
-Chart.Timeline(data, rowLabels = true, barLabels = false)
-|> Chart.WithTitle("Ping - Pong messages")
