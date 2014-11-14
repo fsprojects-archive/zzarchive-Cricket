@@ -55,7 +55,7 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\FSharp.Actor\Cricket.fsproj">
+    <ProjectReference Include="..\..\src\Cricket\Cricket.fsproj">
       <Name>Cricket</Name>
       <Project>{aa4bc25b-04f7-4b39-bf28-0b0058193ed9}</Project>
       <Private>True</Private>
