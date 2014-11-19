@@ -22,7 +22,7 @@ Currently there are a couple of actor libraries on the .NET platform
  * [F# Core](http://msdn.microsoft.com/en-us/library/ee370357.aspx) - The FSharp.Core library actually has its own actor implementation in the form of the `MailboxProcessor<'T>` type. 
 
 F# Actor in no way aims to be a clone of either of these however it does draw on the ideas in all of the above frameworks as well as Erlang and OTP. Instead F# actor aims to be as simple and safe to use as possible hopefully
-making it difficult for you to shoot or self in the foot.
+making it difficult for you to shoot yourself in the foot.
 
 Installing
 ----------
