@@ -56,3 +56,10 @@ making it very difficult for you to shoot or self in the foot.
 	    } |> Actor.spawn
 	
 	greeter <-- Name("from F# Actor") 
+
+
+## Maintainer(s)
+
+- [@colinbull](https://github.com/colinbull)
+
+The default maintainer account for projects under "fsprojects" is [@fsgit](https://github.com/fsgit) - F# Community Project Incubation Space (repo management)
