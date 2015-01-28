@@ -5,7 +5,7 @@ open NUnit.Framework
 open FsUnit
 open Cricket
 
-[<TestFixture; Category("Unit"); Ignore("Temp failing on build server")>]
+[<TestFixture; Category("Unit")>]
 type ``Given a mailbox``() = 
 
     [<Test>]
@@ -95,7 +95,7 @@ type ``Given a mailbox``() =
 
         Async.Start(producer)
 
-        if resultGate.WaitOne(1000)
+        if resultGate.WaitOne(2000)
         then !result |> should equal 10
         else Assert.Fail("No result timeout") 
         

@@ -5,7 +5,7 @@ open NUnit.Framework
 open FsUnit
 open Cricket
 
-[<TestFixture; Category("Unit"); Ignore("Temp failing on build server")>]
+[<TestFixture; Category("Unit")>]
 type ``Given an event stream``() = 
 
      [<Test>]
@@ -29,10 +29,15 @@ type ``Given an event stream``() =
         es.Subscribe(fun (x:int) -> result := x; resultGate.Set() |> ignore)
 
         es.Publish(10)
-        es.Unsubscribe<int>()
-        es.Publish(12)
-        if resultGate.WaitOne(1000)
-        then !result |> should equal 10
+
+        if resultGate.WaitOne(2000)
+        then 
+            !result |> should equal 10
+            es.Unsubscribe<int>()
+            Thread.Sleep(1000)
+            es.Publish(12)
+            resultGate.WaitOne(2000) |> ignore
+            !result <> 12 |> should be True
         else Assert.Fail("No result timeout") 
 
      [<Test>]
@@ -40,14 +45,20 @@ type ``Given an event stream``() =
         let es = new DefaultEventStream("test") :> IEventStream
         let resultGate = new ManualResetEvent(false)
         let result = ref 0
-        es.Subscribe("counters", fun (x:Event) -> result := unbox<_> x.Payload; resultGate.Set() |> ignore)
+        es.Subscribe("counters", fun (x:Event) -> 
+            result := unbox<_> x.Payload; 
+            resultGate.Set() |> ignore
+        )
 
         es.Publish("counters", 10)
-        es.Unsubscribe("counters")
-        es.Publish("counters", 12)
-
-        if resultGate.WaitOne(1000)
-        then !result |> should equal 10
+        if resultGate.WaitOne(2000)
+        then 
+            !result |> should equal 10
+            es.Unsubscribe("counters")
+            Thread.Sleep(1000)
+            es.Publish("counters", 12)
+            resultGate.WaitOne(2000) |> ignore
+            !result <> 12 |> should be True
         else Assert.Fail("No result timeout") 
         
 
@@ -60,6 +71,6 @@ type ``Given an event stream``() =
 
         es.Publish("counters", 10)
 
-        if resultGate.WaitOne(1000)
+        if resultGate.WaitOne(2000)
         then !result |> should equal 10
         else Assert.Fail("No result timeout") 

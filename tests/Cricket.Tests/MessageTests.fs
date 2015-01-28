@@ -14,7 +14,7 @@ type RecordingActor(path) =
         member x.Post(msg) = messages.Add(Message.map unbox msg)
         member x.Dispose() = ()
 
-[<TestFixture; Category("Unit"); Ignore("Temp failing on build server")>]
+[<TestFixture; Category("Unit")>]
 type ``Given an Message Handler``() =
     
     let getCell() =
@@ -62,7 +62,7 @@ type ``Given an Message Handler``() =
 
         Async.Start(producer)
 
-        if resultGate.WaitOne(1000)
+        if resultGate.WaitOne(2000)
         then !result |> should equal 10
         else Assert.Fail("No result timeout") 
 
