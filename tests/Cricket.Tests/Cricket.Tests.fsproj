@@ -47,6 +47,7 @@
     <Compile Include="TrieTests.fs" />
     <Compile Include="ActorRegistryTests.fs" />
     <Compile Include="ActorPathTests.fs" />
+    <Compile Include="ActorTests.fs" />
     <Compile Include="SampleStatsTests.fs" />
     <Compile Include="MailboxTests.fs" />
     <Compile Include="EventStreamTests.fs" />

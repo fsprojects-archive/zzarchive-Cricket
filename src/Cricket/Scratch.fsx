@@ -7,13 +7,26 @@ open Cricket.Diagnostics
 
 ActorHost.Start()
 
+let writer = 
+    actor {
+        body (
+            let rec loop() = 
+                messageHandler {
+                  let! msg = Message.receive()
+                  do printfn "%s" msg
+                  return! loop()
+                }
+            loop()
+        )
+    } |> Actor.spawn
+
 let actorDefinition id = 
     actor {
         body (
           let rec loop() =
               messageHandler {
-                  let! msg = Message.receive None
-                  do printfn "%s handled %s" id msg
+                  let! msg = Message.receive()
+                  do! Message.post writer (sprintf "%s handled %s" id msg)
                   return! loop()
               }
           loop()

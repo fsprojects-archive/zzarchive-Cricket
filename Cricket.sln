@@ -30,6 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 		docs\content\routing.fsx = docs\content\routing.fsx
 		docs\content\supervisors_error_recovery.fsx = docs\content\supervisors_error_recovery.fsx
 		docs\content\tutorial.fsx = docs\content\tutorial.fsx
+		docs\content\actor_lifecycle.fsx = docs\content\actor_lifecycle.fsx
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{BF60BC93-E09B-4E5F-9D85-95A519479D54}"

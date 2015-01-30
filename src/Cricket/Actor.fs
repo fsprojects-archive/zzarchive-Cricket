@@ -16,6 +16,12 @@ type ActorConfiguration<'a> = {
     Behaviour : MessageHandler<ActorCell<'a>, unit>
     Mailbox : IMailbox<Message<'a>> option
     OnError : (exn -> Async<unit>) option
+    PreShutdown : (unit -> Async<unit>) option
+    PostShutdown : (unit -> Async<unit>) option
+    PreRestart : (unit -> Async<unit>) option
+    PostRestart : (unit -> Async<unit>) option
+    PreStartup : (unit -> Async<unit>) option
+    PostStartup : (unit -> Async<unit>) option
     MaxQueueLength : int option
     AwaitFirstMessage : bool
 }
@@ -45,24 +51,32 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let setStatus stats = 
         status <- stats
     
+    let mutable preShutdown = defaultArg defn.PreShutdown (fun () -> async.Zero())
+    let mutable preRestart = defaultArg defn.PreRestart (fun () -> async.Zero())
+    let mutable preStartup = defaultArg defn.PreStartup (fun () -> async.Zero())
+    let mutable postStartup = defaultArg defn.PostStartup (fun () -> async.Zero())
+    let mutable postShutdown = defaultArg defn.PostShutdown (fun () -> async.Zero())
+    let mutable postRestart = defaultArg defn.PostRestart (fun () -> async.Zero())
     let mutable onShutdown = (fun () -> async.Zero())
     let mutable onRestart = (fun () -> async.Zero())
 
     let shutdown() = 
         async {
             try
+                do! preShutdown()
                 publishEvent(ActorEvent.ActorShutdown(self.Ref))
                 messageHandlerCancel.Cancel()
                 setStatus ActorStatus.Stopped
                 shutdownCounter(1L)
                 uptimer.Stop()
                 do! onShutdown()
+                do! postShutdown()
                 return ()
             with e -> 
-                publishEvent(ActorEvent.ActorErrored(self.Ref, new Exception("Errored handling error", e)))
+                publishEvent(ActorEvent.ActorErrored(self.Ref, new Exception("An error occured shutting down actor", e)))
                 return ()
         }
-
+    
     let mutable onError = defaultArg defn.OnError (fun ctx -> async { return! shutdown() })
 
     let handleError (err:exn) =
@@ -81,10 +95,14 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         setStatus ActorStatus.Running
         async {
             try
+                do! preStartup()
                 uptimer.Start()
-                firstArrivalGate.Wait(messageHandlerCancel.Token)
+                if defn.AwaitFirstMessage then firstArrivalGate.Wait(messageHandlerCancel.Token)
                 if not(messageHandlerCancel.IsCancellationRequested)
-                then do! MessageHandler.toAsync ctx defn.Behaviour 
+                then 
+                    publishEvent(ActorEvent.ActorStarted(self.Ref))
+                    do! postStartup()
+                    do! MessageHandler.toAsync ctx defn.Behaviour 
                 setStatus ActorStatus.Stopped
                 return! shutdown()
             with e -> 
@@ -94,12 +112,14 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let rec restart() =
         async { 
             try
+                do! preRestart()
                 publishEvent(ActorEvent.ActorRestart(self.Ref))
                 restartCounter(1L)
                 do messageHandlerCancel.Cancel()
-                do! onRestart()
                 uptimer.Reset()
+                do! onRestart()
                 do start()
+                do! postRestart()
                 return! systemMessageHandler()
             with e -> 
                 publishEvent(ActorEvent.ActorErrored(self.Ref, new Exception("Errored restarting", e)))
@@ -131,7 +151,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             messageHandlerCancel <- null
         messageHandlerCancel <- new CancellationTokenSource()
         Async.Start(async {
-                        publishEvent(ActorEvent.ActorStarted(self.Ref))
                         do! messageHandler()
                     }, messageHandlerCancel.Token)
 
@@ -176,6 +195,12 @@ module ActorConfiguration =
             EventStream = None
             Behaviour = MessageHandler.empty
             OnError = None
+            PreShutdown = None
+            PostShutdown = None
+            PreRestart = None
+            PostRestart = None
+            PreStartup = None
+            PostStartup = None
             MaxQueueLength = Some 1000000
             Mailbox = None
             AwaitFirstMessage = true
@@ -204,6 +229,27 @@ module ActorConfiguration =
         [<CustomOperation("waitFirstMessage", MaintainsVariableSpace = true)>]
         member __.WaitFirstMessage(ctx:ActorConfiguration<'a>, es) = 
             { ctx with AwaitFirstMessage = es }
+        [<CustomOperation("onError", MaintainsVariableSpace = true)>]
+        member __.OnError(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with OnError = Some f }
+        [<CustomOperation("preRestart", MaintainsVariableSpace = true)>]
+        member __.PreRestart(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with PreRestart = Some f }
+        [<CustomOperation("preShutdown", MaintainsVariableSpace = true)>]
+        member __.PreShutdown(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with PreShutdown = Some f }
+        [<CustomOperation("preStartup", MaintainsVariableSpace = true)>]
+        member __.PreStartup(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with PreStartup = Some f }
+        [<CustomOperation("postStartup", MaintainsVariableSpace = true)>]
+        member __.PostStartup(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with PostStartup = Some f }
+        [<CustomOperation("postRestart", MaintainsVariableSpace = true)>]
+        member __.PostRestart(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with PostRestart = Some f }
+        [<CustomOperation("postShutdown", MaintainsVariableSpace = true)>]
+        member __.PostShutdown(ctx:ActorConfiguration<'a>, f) = 
+             { ctx with PostShutdown = Some f }
 
     let actor = new ActorConfigurationBuilder()
 
