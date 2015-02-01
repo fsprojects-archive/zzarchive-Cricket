@@ -28,7 +28,7 @@ type ``Given an Actor Configuration``() =
 [<TestFixture; Category("Unit")>]
 type ``Given an Actor Lifecycle events get fired``() = 
 
-    let actorBaseImpl = 
+    let actorBaseImpl() = 
         actor {
             name "TestActor"
             body (
@@ -40,19 +40,55 @@ type ``Given an Actor Lifecycle events get fired``() =
                 loop())
         }
 
+    let testBody msg actor = 
+        let gate = new ManualResetEvent(false)
+        let wasCalled = ref false
+        let actor = 
+            actor (async { 
+                 wasCalled := true; 
+                 gate.Set() |> ignore; 
+                 return (); 
+            }) 
+            |> Actor.start
+
+        actor <-- "Msg"
+        actor <-- msg
+
+        if gate.WaitOne()
+        then !wasCalled |> should equal true
+        else Assert.Fail("Timeout")
+
     [<Test>]
-    member t.``PreStartEvent gets fired on first start``() =
-          let gate = new ManualResetEvent(false)
-          let wasCalled = ref false
-          let actor = 
-              actor {
-                  inherits actorBaseImpl
-                  preStartup (fun () -> async { wasCalled := true; gate.Set() |> ignore; return (); })
-              } |> Actor.start
+    member t.``PreRestart gets fired``() =
+           testBody SystemMessage.Restart (fun h ->  actor {
+                  inherits (actorBaseImpl())
+                  preRestart (fun () -> h)
+              })
 
-          actor <-- "Msg"
+    [<Test>]
+    member t.``PostRestart gets fired``() =
+           testBody SystemMessage.Restart (fun h ->  actor {
+                  inherits (actorBaseImpl())
+                  postRestart (fun () -> h)
+              })
 
-          if gate.WaitOne()
-          then !wasCalled |> should equal true
-          else Assert.Fail("Timeout")
+    [<Test>]
+    member t.``PreShutdown gets fired``() =
+           testBody SystemMessage.Shutdown (fun h ->  actor {
+                  inherits (actorBaseImpl())
+                  preShutdown (fun () -> h)
+              })
 
+    [<Test>]
+    member t.``PostShutdown gets fired``() =
+           testBody SystemMessage.Shutdown (fun h ->  actor {
+                  inherits (actorBaseImpl())
+                  postShutdown (fun () -> h)
+              })
+
+    [<Test>]
+    member t.``PreStartEvent gets fired``() =
+           testBody "" (fun h ->  actor {
+                  inherits (actorBaseImpl())
+                  preStartup (fun () -> h)
+              })

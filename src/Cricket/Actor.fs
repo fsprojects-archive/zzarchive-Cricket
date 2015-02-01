@@ -21,9 +21,7 @@ type ActorConfiguration<'a> = {
     PreRestart : (unit -> Async<unit>) option
     PostRestart : (unit -> Async<unit>) option
     PreStartup : (unit -> Async<unit>) option
-    PostStartup : (unit -> Async<unit>) option
     MaxQueueLength : int option
-    AwaitFirstMessage : bool
 }
 with
     override x.ToString() = "Config: " + x.Path.ToString()
@@ -35,7 +33,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let restartCounter = Metrics.createCounter(metricContext,"restartCount")
     let uptimer = Metrics.createUptime(metricContext,"uptime", 1000)
 
-    let firstArrivalGate = new ManualResetEventSlim(not defn.AwaitFirstMessage)
     let mailbox = defaultArg defn.Mailbox (new DefaultMailbox<Message<'a>>(metricContext.Key + "/mailbox", ?boundingCapacity = defn.MaxQueueLength) :> IMailbox<_>)
     let systemMailbox = new DefaultMailbox<Message<SystemMessage>>(metricContext.Key + "/system_mailbox") :> IMailbox<_>
     let defn = defn
@@ -54,7 +51,6 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     let mutable preShutdown = defaultArg defn.PreShutdown (fun () -> async.Zero())
     let mutable preRestart = defaultArg defn.PreRestart (fun () -> async.Zero())
     let mutable preStartup = defaultArg defn.PreStartup (fun () -> async.Zero())
-    let mutable postStartup = defaultArg defn.PostStartup (fun () -> async.Zero())
     let mutable postShutdown = defaultArg defn.PostShutdown (fun () -> async.Zero())
     let mutable postRestart = defaultArg defn.PostRestart (fun () -> async.Zero())
     let mutable onShutdown = (fun () -> async.Zero())
@@ -95,13 +91,10 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
         setStatus ActorStatus.Running
         async {
             try
-                do! preStartup()
                 uptimer.Start()
-                if defn.AwaitFirstMessage then firstArrivalGate.Wait(messageHandlerCancel.Token)
                 if not(messageHandlerCancel.IsCancellationRequested)
                 then 
                     publishEvent(ActorEvent.ActorStarted(self.Ref))
-                    do! postStartup()
                     do! MessageHandler.toAsync ctx defn.Behaviour 
                 setStatus ActorStatus.Stopped
                 return! shutdown()
@@ -151,6 +144,7 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
             messageHandlerCancel <- null
         messageHandlerCancel <- new CancellationTokenSource()
         Async.Start(async {
+                        do! preStartup()
                         do! messageHandler()
                     }, messageHandlerCancel.Token)
 
@@ -165,19 +159,13 @@ type Actor<'a>(defn:ActorConfiguration<'a>) as self =
     interface IActor with
         member x.Path with get() = defn.Path
         member x.Post(msg) =
-            if status <> ActorStatus.Stopped
-            then
                match msg.Message with
                | :? SystemMessage -> systemMailbox.Post(Message.map unbox msg)
                | _ -> (x :> IActor<'a>).Post(Message.map unbox msg)
 
     interface IActor<'a> with
         member x.Path with get() = defn.Path
-        member x.Post(msg) =
-            if status <> ActorStatus.Stopped
-            then
-                if not(firstArrivalGate.IsSet) then firstArrivalGate.Set()
-                mailbox.Post(msg) 
+        member x.Post(msg) = mailbox.Post(msg) 
 
     interface IDisposable with  
         member x.Dispose() =
@@ -200,10 +188,8 @@ module ActorConfiguration =
             PreRestart = None
             PostRestart = None
             PreStartup = None
-            PostStartup = None
             MaxQueueLength = Some 1000000
             Mailbox = None
-            AwaitFirstMessage = true
         }
         member x.Yield(()) = x.Zero()
         [<CustomOperation("inherits", MaintainsVariableSpace = true)>]
@@ -226,9 +212,6 @@ module ActorConfiguration =
         [<CustomOperation("raiseEventsOn", MaintainsVariableSpace = true)>]
         member __.RaiseEventsOn(ctx:ActorConfiguration<'a>, es) = 
             { ctx with EventStream = Some es }
-        [<CustomOperation("waitFirstMessage", MaintainsVariableSpace = true)>]
-        member __.WaitFirstMessage(ctx:ActorConfiguration<'a>, es) = 
-            { ctx with AwaitFirstMessage = es }
         [<CustomOperation("onError", MaintainsVariableSpace = true)>]
         member __.OnError(ctx:ActorConfiguration<'a>, f) = 
              { ctx with OnError = Some f }
@@ -241,9 +224,6 @@ module ActorConfiguration =
         [<CustomOperation("preStartup", MaintainsVariableSpace = true)>]
         member __.PreStartup(ctx:ActorConfiguration<'a>, f) = 
              { ctx with PreStartup = Some f }
-        [<CustomOperation("postStartup", MaintainsVariableSpace = true)>]
-        member __.PostStartup(ctx:ActorConfiguration<'a>, f) = 
-             { ctx with PostStartup = Some f }
         [<CustomOperation("postRestart", MaintainsVariableSpace = true)>]
         member __.PostRestart(ctx:ActorConfiguration<'a>, f) = 
              { ctx with PostRestart = Some f }
@@ -292,7 +272,6 @@ module Supervisor =
     let toActor (config : SupervisorConfiguration) =
         actor {
             path config.Path
-            waitFirstMessage false
             body (
                 let rec loop children = 
                     messageHandler {
