@@ -51,7 +51,10 @@ module internal Net =
 [<AutoOpen>]
 module SystemNetExtensions =      
     type IPEndPoint with
-        static member Create(?port:int) = new IPEndPoint(Net.getIPAddress(), defaultArg port (Net.getFirstFreePort()))
+        static member Create(?port:int) = 
+            let port = defaultArg port (Net.getFirstFreePort())
+            let ipAddress = Net.getIPAddress() 
+            new IPEndPoint(ipAddress, port)
 
 type MessageId = Guid
 

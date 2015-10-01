@@ -58,7 +58,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
     let maxFlushTime = defaultArg maxFlushTime 1000
     let fileName = (defaultArg filename (Environment.DefaultActorHostName  + ".actortrace"))
     let mutable fileStream = Unchecked.defaultof<FileStream>
-    let pickler = FsPickler.CreateBinary()
+    let pickler = FsPickler.CreateBinarySerializer()
     let writeQueue = new BlockingCollection<TraceEntry>()
     let numberOfEvents = ref 0
     let totalEvents = ref 0L
@@ -70,7 +70,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
             for i in 0..(!numberOfEvents - 1) do
                 match writeQueue.TryTake() with
                 | true, header -> 
-                    pickler.Serialize(typeof<TraceEntry>, fileStream, header, leaveOpen = true)
+                    pickler.Serialize(fileStream, header, leaveOpen = true)
                     Interlocked.Increment(totalEvents) |> ignore
                 | false, _ -> ()
             do! fileStream.FlushAsync(cancelToken)
@@ -83,7 +83,7 @@ type DefaultTraceWriter(?filename, ?flushThreshold, ?maxFlushTime, ?token) =
             writeQueue.CompleteAdding()
             //try and write any remaining events to the file. 
             for header in writeQueue.GetConsumingEnumerable() do
-                 pickler.Serialize(typeof<TraceEntry>, fileStream, header, leaveOpen = true)
+                 pickler.Serialize(fileStream, header, leaveOpen = true)
 
             fileStream.Flush(true)
         with e -> ()
@@ -144,9 +144,9 @@ module Trace =
 
     let readTraces(file) = 
         seq {
-            let pickler = FsPickler.CreateBinary()
+            let pickler = FsPickler.CreateBinarySerializer()
             use fileStream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read ||| FileShare.Delete)
             while fileStream.Position < fileStream.Length do
-                  yield pickler.Deserialize(typeof<TraceEntry>, fileStream, leaveOpen = true) |> unbox<TraceEntry>
+                  yield pickler.Deserialize(fileStream, leaveOpen = true) |> unbox<TraceEntry>
         }
 

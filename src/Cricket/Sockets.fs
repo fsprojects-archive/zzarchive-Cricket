@@ -7,23 +7,6 @@ open System.Collections.Concurrent
 open System.Threading
 open Microsoft.FSharp.Control
 
-module Message = 
-    
-    let unpack (message : byte[]) =
-        try
-           let guid = new Guid(message.[0..15])
-           let ipAddress = IPAddress(message.[16..19])
-           let port = BitConverter.ToInt32(message.[20..23], 0)
-           let endpoint = new IPEndPoint(ipAddress, port)
-           NetAddress.OfEndPoint endpoint, guid, message.[24..]
-        with e -> 
-            raise (InvalidMessageException(message, e))
-
-    let pack (endpoint:IPEndPoint) (messageId:Guid) payload =
-        let ipEndpoint = endpoint.Address.GetAddressBytes()
-        let portBytes = BitConverter.GetBytes endpoint.Port
-        let header = Array.append (Array.append (messageId.ToByteArray()) ipEndpoint) portBytes
-        Array.append header payload
 
 type Pool<'a>(ctx, poolSize:int, ctor) = 
     let pool = new BlockingCollection<'a>(poolSize)
@@ -106,9 +89,9 @@ module Socket =
             pool <- new Pool<SocketAsyncEventArgs>(ctx, poolSize, build)
 
     let read (args:SocketAsyncEventArgs) = 
-        let length = BitConverter.ToInt32(args.Buffer, args.Offset)
-        let data = Array.zeroCreate<byte> length
-        Buffer.BlockCopy(args.Buffer, args.Offset + 4, data, 0, length)
+        //let length = BitConverter.ToInt32(args.Buffer, args.Offset)
+        let data = Array.zeroCreate<byte> args.BytesTransferred
+        Buffer.BlockCopy(args.Buffer, args.Offset, data, 0, args.BytesTransferred)
         data
     
     let executeSafe f g args = if not(f args) then g args
@@ -176,8 +159,9 @@ module Socket =
             let token = args.UserToken :?> Token
             if args.SocketError = SocketError.Success && args.BytesTransferred > 0 
             then
-                
+               
                 let data = read args
+                                    
                 if data.Length > 0
                 then handler (Received (token.Endpoint , data))
 
@@ -290,8 +274,7 @@ module Socket =
             args.RemoteEndPoint <- remoteEndpoint
             socket.Connect(remoteEndpoint)
             
-        member x.Send (data:byte[]) = 
-            let data = Array.append (BitConverter.GetBytes(data.Length)) data
+        member x.Send (data:byte[]) =
             let rec send' offset = 
                 if offset < data.Length
                 then
@@ -300,8 +283,9 @@ module Socket =
                         let saea = pool.CheckOut()
                         let size = min (data.Length - offset) bufferSize
                         saea.UserToken <- { (saea.UserToken :?> Token) with Socket = socket; Endpoint = socket.RemoteEndPoint :?> IPEndPoint }
+                        saea.SetBuffer(saea.Offset, size)
                         Buffer.BlockCopy(data, offset, saea.Buffer, saea.Offset, size)
-                        executeSafe socket.SendAsync complete  saea
+                        executeSafe socket.SendAsync complete saea
                         send' (offset + size)
                     else raise (ConnectionLost(socket.RemoteEndPoint :?> IPEndPoint))
             send' 0
@@ -434,37 +418,34 @@ with
 
 type TCP(config:TcpConfig) =        
     let mutable isStarted = false
-    let mutable handler : (NetAddress * Guid * byte[] -> Unit) = (fun (_,_,_) -> ())
+    let mutable handler : (NetAddress -> byte[] -> Unit) = (fun _ _ -> ())
     let mutable cancellationToken  : CancellationToken = Unchecked.defaultof<_>
     let clients = new ConcurrentDictionary<string, Socket.Client>()
-
-    let rec messageHandler recievedFrom message = handler (Message.unpack message)
 
     let onReceive event =
         match event with
         | Socket.Connected(ep) -> ()//printfn "%A" event
         | Socket.Disconnected(ep) -> ()//printfn "%A" event
-        | Socket.Received(address, bytes) -> messageHandler address bytes
+        | Socket.Received(address, bytes) -> handler (NetAddress address) bytes
         | Socket.Sent(address, bytes) -> ()//printfn "%A" event
 
     let server = Socket.Server.Create(config.ListenerEndpoint, onReceive, config.Backlog, config.PoolSize, config.BufferSize)
 
-    let publishAsync (endpoint:IPEndPoint) (messageId:Guid) payload = async {
-            let msg = Message.pack config.ListenerEndpoint messageId payload
+    let publishAsync (endpoint:IPEndPoint) payload = async {
             let key = endpoint.ToString()
             let client = clients.GetOrAdd(key, fun _ -> 
                                                     let c = Socket.Client.Create(onReceive, poolSize = config.PoolSize, bufferSize = config.BufferSize)
                                                     c.Connect(endpoint)
                                                     c
                                          ) 
-            client.Send msg        
+            client.Send payload        
         }
     
-    member x.Publish(endpoint, payload, ?messageId) = 
-        x.PublishAsync(endpoint, payload, ?messageId = messageId) |> Async.RunSynchronously
+    member x.Publish(endpoint, payload) = 
+        x.PublishAsync(endpoint, payload) |> Async.RunSynchronously
 
-    member x.PublishAsync(endpoint, payload, ?messageId) = 
-        publishAsync endpoint (defaultArg messageId (Guid.NewGuid())) payload
+    member x.PublishAsync(endpoint, payload) = 
+        publishAsync endpoint payload
     
     member x.Endpoint = config.ListenerEndpoint
 

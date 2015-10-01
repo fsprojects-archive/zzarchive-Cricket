@@ -17,7 +17,7 @@ type TCPTransport(config:TcpConfig) as self =
     let mutable token = Unchecked.defaultof<CancellationToken>
     let mutable serializer = Unchecked.defaultof<ISerializer>
 
-    let handler =(fun (_:NetAddress, _, payload) -> 
+    let handler =(fun (_:NetAddress) payload -> 
                     try
                         receivedRate(1L)
                         let msg = serializer.Deserialize<RemoteMessage>(payload)
@@ -31,7 +31,9 @@ type TCPTransport(config:TcpConfig) as self =
     let post target payload = 
         async {
             publishRate(1L)
-            do sendTimer(fun () -> Async.StartImmediate(tcp.PublishAsync((ActorPath.toNetAddress target).Endpoint, serializer.Serialize payload), token))
+            do sendTimer(fun () -> 
+                    Async.StartImmediate(tcp.PublishAsync((ActorPath.toNetAddress target).Endpoint, serializer.Serialize payload), token)
+               )
         }
 
     interface ITransport with
@@ -55,11 +57,11 @@ type TcpActorRegistryTransport(config:TcpConfig) =
     let sendTimer = Metrics.createTimer(metricContext,"time_to_send")
 
     let handler internalHandler = 
-        (fun (address,msgId, payload) ->
+        (fun address payload ->
                 try
                     receivedRate(1L)
                     let msg = settings.Serializer.Deserialize payload
-                    internalHandler (address,msg,msgId)
+                    internalHandler (address,msg,Guid.NewGuid())
                 with e -> 
                     logger.Error("Unable to handle Registry Transport message", exn = e)
         )
@@ -68,7 +70,7 @@ type TcpActorRegistryTransport(config:TcpConfig) =
         member x.ListeningEndpoint with get() = NetAddress config.ListenerEndpoint
         member x.Post(NetAddress endpoint, msg, msgId) = 
             publishRate(1L)
-            sendTimer (fun () -> tcpChannel.Publish(endpoint, settings.Serializer.Serialize msg, msgId))
+            sendTimer (fun () -> tcpChannel.Publish(endpoint, settings.Serializer.Serialize msg))
         member x.Start(setts) = 
             settings <- setts
             settings.CancellationToken.Register(fun () -> (x :> IActorRegistryTransport).Dispose()) |> ignore

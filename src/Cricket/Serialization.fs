@@ -9,7 +9,7 @@ type ISerializer =
     abstract Deserialize : byte[] -> 'a
 
 type BinarySerializer() = 
-    let pickler = FsPickler.CreateBinary()
+    let pickler = FsPickler.CreateBinarySerializer()
 
     interface ISerializer with
         member x.Serialize(a:'a) = 
@@ -21,7 +21,7 @@ type BinarySerializer() =
             pickler.Deserialize(ms)
 
 type XmlSerializer() = 
-    let pickler = FsPickler.CreateXml()
+    let pickler = FsPickler.CreateXmlSerializer()
 
     interface ISerializer with
         member x.Serialize(a:'a) =
@@ -31,4 +31,3 @@ type XmlSerializer() =
         member x.Deserialize(bytes) = 
             use ms = new MemoryStream(bytes)
             pickler.Deserialize(ms)
-
