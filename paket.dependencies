@@ -3,7 +3,6 @@ source http://nuget.org/api/v2
 nuget FAKE
 nuget FSharp.Compiler.Service
 nuget FSharp.Formatting 
-nuget FsPickler 
 nuget FsUnit 
 nuget Microsoft.AspNet.Razor 
 nuget NUnit 

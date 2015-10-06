@@ -12,13 +12,15 @@ type ActorHostConfiguration = {
      Name : string
 }
 with
-    static member Create(?name, ?loggers, ?serializer, ?registry, ?eventStream, ?cancellationToken) =
+    static member Create(?name, ?loggers, ?registry, ?eventStream, ?cancellationToken) =
         let hostName = defaultArg name Environment.DefaultActorHostName
         let ct = defaultArg cancellationToken Async.DefaultCancellationToken
 
         let getDefaultLogWriters() = 
-            [ ConsoleWindowLogWriter(LogLevel.Debug) :> ILogWriter
-              OutputWindowLogWriter(LogLevel.Debug)  :> ILogWriter ]
+            [
+              ConsoleWindowLogWriter(LogLevel.Debug) :> ILogWriter
+              OutputWindowLogWriter(LogLevel.Debug)  :> ILogWriter
+            ]
 
         let logWriters = (defaultArg loggers (getDefaultLogWriters()) |> Seq.toList)
         Logger.setLogWriters logWriters
@@ -68,9 +70,10 @@ type ActorHost private (configuration:ActorHostConfiguration) =
         configuration.EventStream.Subscribe(eventF)
         x
   
-     static member Start(?name, ?loggers, ?serializer, ?registry, ?metrics, ?tracing, ?cancellationToken) = 
-        let config = (ActorHostConfiguration.Create(?name = name, ?loggers = loggers, 
-                                                    ?serializer = serializer, ?registry = registry, 
+     static member Start(?name, ?loggers, ?registry, ?metrics, ?tracing, ?cancellationToken) = 
+        let config = (ActorHostConfiguration.Create(?name = name,
+                                                    ?loggers = loggers, 
+                                                    ?registry = registry, 
                                                     ?cancellationToken = cancellationToken))
         instance <- new ActorHost(config)
         Metrics.start(metrics)

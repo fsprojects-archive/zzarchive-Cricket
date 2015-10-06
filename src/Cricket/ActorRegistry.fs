@@ -1,7 +1,6 @@
 ﻿namespace Cricket
 
 open System
-open System.Net
 open System.Threading
 open System.Collections.Concurrent
 
