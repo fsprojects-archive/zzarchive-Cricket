@@ -277,15 +277,15 @@ module Metrics =
             | None -> ()
 
     let configureSystemMetrics(enabled, systemCounters) =
-        if config.IsEnabled && enabled
-        then
-            let ctx = createContext("system")
-            let instanceName = Path.GetFileNameWithoutExtension(Environment.ProcessName)
+        // if config.IsEnabled && enabled
+        // then
+        //     let ctx = createContext("system")
+        //     let instanceName = Path.GetFileNameWithoutExtension(Environment.ProcessName)
             
-            for ((category, metricCat), counters) in systemCounters do 
-                for (counter, label) in counters do
-                    createPerformanceCounterGuage(ctx,(metricCat + "/" + label),(category, counter, instanceName))
-    
+        //     for ((category, metricCat), counters) in systemCounters do 
+        //         for (counter, label) in counters do
+        //             createPerformanceCounterGuage(ctx,(metricCat + "/" + label),(category, counter, instanceName))
+        ()
 
     let dispose() = 
         disposables |> Seq.iter (fun d -> d.Dispose())

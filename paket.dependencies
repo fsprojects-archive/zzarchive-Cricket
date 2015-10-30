@@ -9,4 +9,5 @@ nuget NUnit
 nuget NUnit.Runners 
 nuget RazorEngine
 nuget Nuget.CommandLine
+nuget FsPickler
 nuget fszmq

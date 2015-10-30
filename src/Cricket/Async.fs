@@ -46,7 +46,7 @@ module AsyncExtensions =
         Async.FromContinuations(fun (_,econt,_) -> econt e)
     
       static member AwaitTask (t : Task) =
-        let flattenExns (e : AggregateException) = e.Flatten().InnerExceptions |> Seq.nth 0
+        let flattenExns (e : AggregateException) = e.Flatten().InnerExceptions |> Seq.item 0
         let rewrapAsyncExn (it : Async<unit>) =
           async { try do! it with :? AggregateException as ae -> do! (Async.Raise <| flattenExns ae) }
         let tcs = new TaskCompletionSource<unit>(TaskCreationOptions.None)

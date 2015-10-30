@@ -177,3 +177,4 @@ TestResults.xml
 nuget/*.nupkg
 *.actortrace
 release.cmd
+.paket/paket.exe

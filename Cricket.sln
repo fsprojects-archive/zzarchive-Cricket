@@ -27,7 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "content", "content", "{8E6D
 		docs\content\diagnostics_tracing.fsx = docs\content\diagnostics_tracing.fsx
 		docs\content\index.fsx = docs\content\index.fsx
 		docs\content\pingpong.fsx = docs\content\pingpong.fsx
-		docs\content\remoting.fsx = docs\content\remoting.fsx
 		docs\content\routing.fsx = docs\content\routing.fsx
 		docs\content\supervisors_error_recovery.fsx = docs\content\supervisors_error_recovery.fsx
 		docs\content\tutorial.fsx = docs\content\tutorial.fsx
@@ -46,44 +45,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{ED8079DD
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Cricket.Tests", "tests\Cricket.Tests\Cricket.Tests.fsproj", "{A20060EC-E820-4ED1-A871-537914C10183}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{C947B00D-EAA8-4B40-8BE0-CFB9A52B2513}"
-	ProjectSection(SolutionItems) = preProject
-		src\Samples\SpaceShooter.fsx = src\Samples\SpaceShooter.fsx
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "remoting", "remoting", "{60DA9018-EDE4-4F5A-9233-63FB93C7D207}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PingPong", "PingPong", "{F6692506-85CD-4938-8373-82276CA987AE}"
-EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "PingNode", "src\Samples\Remoting\PingPong\PingNode\PingNode.fsproj", "{974911AD-AE52-4C5D-BA32-C5B462CABF36}"
-EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "PongNode", "src\Samples\Remoting\PingPong\PongNode\PongNode.fsproj", "{DB53842E-77D6-44C2-8CEF-21321A29D658}"
-EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "PingPongDomain", "src\Samples\Remoting\PingPong\PingPongDomain\PingPongDomain.fsproj", "{7DE72277-5AB4-4626-99F9-F540D7361D38}"
-EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SocketTests", "SocketTests\SocketTests.fsproj", "{5A94738D-BB6D-41A0-8C5C-00DA03AC670A}"
-EndProject
-Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "SocketTests.Client", "SocketTests.Client\SocketTests.Client.fsproj", "{E4A1BEE0-8F69-4E9A-8F7C-A4263BA59A20}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5A94738D-BB6D-41A0-8C5C-00DA03AC670A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5A94738D-BB6D-41A0-8C5C-00DA03AC670A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5A94738D-BB6D-41A0-8C5C-00DA03AC670A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5A94738D-BB6D-41A0-8C5C-00DA03AC670A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DE72277-5AB4-4626-99F9-F540D7361D38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DE72277-5AB4-4626-99F9-F540D7361D38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DE72277-5AB4-4626-99F9-F540D7361D38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DE72277-5AB4-4626-99F9-F540D7361D38}.Release|Any CPU.Build.0 = Release|Any CPU
-		{974911AD-AE52-4C5D-BA32-C5B462CABF36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{974911AD-AE52-4C5D-BA32-C5B462CABF36}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{974911AD-AE52-4C5D-BA32-C5B462CABF36}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{974911AD-AE52-4C5D-BA32-C5B462CABF36}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A20060EC-E820-4ED1-A871-537914C10183}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+	    {A20060EC-E820-4ED1-A871-537914C10183}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A20060EC-E820-4ED1-A871-537914C10183}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A20060EC-E820-4ED1-A871-537914C10183}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A20060EC-E820-4ED1-A871-537914C10183}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -91,21 +59,12 @@ Global
 		{AA4BC25B-04F7-4B39-BF28-0B0058193ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA4BC25B-04F7-4B39-BF28-0B0058193ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA4BC25B-04F7-4B39-BF28-0B0058193ED9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB53842E-77D6-44C2-8CEF-21321A29D658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB53842E-77D6-44C2-8CEF-21321A29D658}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB53842E-77D6-44C2-8CEF-21321A29D658}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB53842E-77D6-44C2-8CEF-21321A29D658}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E4A1BEE0-8F69-4E9A-8F7C-A4263BA59A20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E4A1BEE0-8F69-4E9A-8F7C-A4263BA59A20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E4A1BEE0-8F69-4E9A-8F7C-A4263BA59A20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E4A1BEE0-8F69-4E9A-8F7C-A4263BA59A20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{83F16175-43B1-4C90-A1EE-8E351C33435D} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
 		{8E6D5255-776D-4B61-85F9-73C37AA1FB9A} = {A6A6AF7D-D6E3-442D-9B1E-58CC91879BE1}
 		{A20060EC-E820-4ED1-A871-537914C10183} = {ED8079DD-2B06-4030-9F0F-DC548F98E1C4}
 		{60DA9018-EDE4-4F5A-9233-63FB93C7D207} = {C947B00D-EAA8-4B40-8BE0-CFB9A52B2513}
-		{5A94738D-BB6D-41A0-8C5C-00DA03AC670A} = {C947B00D-EAA8-4B40-8BE0-CFB9A52B2513}
 		{E4A1BEE0-8F69-4E9A-8F7C-A4263BA59A20} = {C947B00D-EAA8-4B40-8BE0-CFB9A52B2513}
 		{F6692506-85CD-4938-8373-82276CA987AE} = {60DA9018-EDE4-4F5A-9233-63FB93C7D207}
 		{974911AD-AE52-4C5D-BA32-C5B462CABF36} = {F6692506-85CD-4938-8373-82276CA987AE}

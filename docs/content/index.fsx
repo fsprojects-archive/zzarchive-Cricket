@@ -53,8 +53,6 @@ The API reference is automatically generated from Markdown comments in the libra
  * Diagnostics - including [Metrics](diagnostics_metrics.html) and [Message Tracing](diagnostics_tracing.html)
 
  * [Supervisor Trees and Error Recovery](supervisors_error_recovery.html)
-
- * [Remoting](remoting.html)
  
  * [Actor Lookup & Location Transparency](actor_lookup.html)
 
