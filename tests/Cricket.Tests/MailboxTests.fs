@@ -2,7 +2,6 @@
 
 open System.Threading
 open NUnit.Framework
-open FsUnit
 open Cricket
 
 [<TestFixture; Category("Unit")>]
@@ -14,7 +13,7 @@ type ``Given a mailbox``() =
 
         mailbox.Post(10)
         let result = Async.RunSynchronously(mailbox.Receive())
-        result |> should equal 10
+        Assert.AreEqual(10,result)
     
     [<Test>]
     member __.``I receive None when no message after timeout period``() = 
@@ -33,7 +32,7 @@ type ``Given a mailbox``() =
         Async.Start(receiver)
 
         if resultGate.WaitOne(1000)
-        then !result |> should equal None
+        then Assert.AreEqual(None, !result)
         else Assert.Fail("No result timeout") 
 
     [<Test>]
@@ -65,7 +64,7 @@ type ``Given a mailbox``() =
         Async.Start(producer)
 
         if resultGate.WaitOne(1000)
-        then !result |> should equal None
+        then Assert.AreEqual(None, !result)
         else Assert.Fail("No result timeout") 
 
     [<Test>]
@@ -96,6 +95,6 @@ type ``Given a mailbox``() =
         Async.Start(producer)
 
         if resultGate.WaitOne(2000)
-        then !result |> should equal 10
+        then Assert.AreEqual(!result, 10)
         else Assert.Fail("No result timeout") 
         

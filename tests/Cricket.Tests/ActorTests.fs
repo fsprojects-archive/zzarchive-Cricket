@@ -3,7 +3,6 @@
 open System
 open System.Threading
 open NUnit.Framework
-open FsUnit
 open Cricket
 
 [<TestFixture; Category("Unit")>]
@@ -15,7 +14,7 @@ type ``Given an Actor Configuration``() =
               actor {
                 name "TestActor"
               }
-          actor.Path |> should equal (ActorPath.ofString "TestActor")
+          Assert.AreEqual(ActorPath.ofString "TestActor", actor.Path)
 
     [<Test>]
     member t.``I can create an actor with a given path``() = 
@@ -23,7 +22,7 @@ type ``Given an Actor Configuration``() =
               actor {
                 path (ActorPath.ofString "TestActor")
               }
-           actor.Path |> should equal (ActorPath.ofString "TestActor")           
+           Assert.AreEqual(ActorPath.ofString "TestActor", actor.Path)      
 
 [<TestFixture; Category("Unit")>]
 type ``Given an Actor Lifecycle events get fired``() = 
@@ -55,7 +54,7 @@ type ``Given an Actor Lifecycle events get fired``() =
         actor <-- msg
 
         if gate.WaitOne()
-        then !wasCalled |> should equal true
+        then Assert.True(!wasCalled)
         else Assert.Fail("Timeout")
 
     [<Test>]

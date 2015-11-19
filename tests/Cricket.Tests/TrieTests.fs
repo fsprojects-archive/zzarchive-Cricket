@@ -1,7 +1,6 @@
 ﻿namespace Cricket.Tests
 
 open NUnit.Framework
-open FsUnit
 open Cricket
 
 [<TestFixture; Category("Unit")>]
@@ -9,7 +8,7 @@ type ``Given a trie``() =
     
     [<Test>]
     member t.``I can create an empty one``() =
-        Trie.empty |> should equal (Trie.Node(None, Map.empty))
+        Assert.AreEqual(Trie.Node(None, Map.empty), Trie.empty)
 
     [<Test>]
     member t.``I can add a value to an empty trie``() =
@@ -25,7 +24,7 @@ type ``Given a trie``() =
                                             )
                             )]
                       )
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
 
     [<Test>]
     member t.``I can add different values with the same root``() =
@@ -44,7 +43,7 @@ type ``Given a trie``() =
                                             )
                             )]
                       )
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
 
     [<Test>]
     member t.``I can add different values with a different root``() =
@@ -68,7 +67,7 @@ type ``Given a trie``() =
                                             )
                             )]
                       )
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
 
     [<Test>]
     member t.``I can retrieve a node with its children``() =
@@ -79,7 +78,7 @@ type ``Given a trie``() =
             |> Trie.values
         printfn "%A" actual
         let expected = ["ab"; "ac"]
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
 
     [<Test>]
     member t.``I can retrieve from a trie with mutiple roots``() =
@@ -90,7 +89,7 @@ type ``Given a trie``() =
             |> Trie.values
         printfn "%A" actual
         let expected = ["ab"]
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
 
     [<Test>]
     member t.``I can retrieve from a trie with mutiple roots and get the other key``() =
@@ -101,7 +100,7 @@ type ``Given a trie``() =
             |> Trie.values
         printfn "%A" actual
         let expected = ["bc"]
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
 
     [<Test>]
     member t.``I can retrieve a leaf node it should have just its value``() =
@@ -112,14 +111,14 @@ type ``Given a trie``() =
             |> Trie.values
         printfn "%A" actual
         let expected = ["ac"]
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
         
     [<Test>]
     member t.``I can remove a value from a trie``() =
         let actual = 
             Trie.empty |> Trie.add [TrieKey.Key "a";TrieKey.Key "b"] "ab" |> Trie.remove [TrieKey.Key "a";TrieKey.Key "b"]
         let expected : Trie<string> = Trie.empty
-        actual |> should equal expected
+        Assert.AreEqual(expected, actual)
         
     [<Test>]
     member t.``I can add a wildcard into a trie key``() =
@@ -132,5 +131,5 @@ type ``Given a trie``() =
                 |> Trie.add [TrieKey.Key "a";TrieKey.Key "c";TrieKey.Key "e"] "ace"
                 |> Trie.resolve [TrieKey.Key "a"; TrieKey.Wildcard; TrieKey.Key "e"]
            let expected = ["abe"; "ace"]
-           actual |> should equal expected
+           Assert.AreEqual(expected, actual)
             

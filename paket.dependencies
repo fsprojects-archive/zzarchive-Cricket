@@ -1,12 +1,9 @@
 source http://nuget.org/api/v2
 
 nuget FAKE
-nuget FSharp.Compiler.Service
 nuget FSharp.Formatting 
-nuget FsUnit 
-nuget Microsoft.AspNet.Razor 
-nuget NUnit 
-nuget NUnit.Runners 
+nuget NUnit = 2.6.4 
+nuget NUnit.Runners = 2.6.4 
 nuget RazorEngine
 nuget Nuget.CommandLine
 nuget FsPickler

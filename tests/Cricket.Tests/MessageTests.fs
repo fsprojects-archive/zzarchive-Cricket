@@ -3,7 +3,6 @@
 open System
 open System.Threading
 open NUnit.Framework
-open FsUnit
 open Cricket
 
 type RecordingActor(path) =
@@ -36,7 +35,7 @@ type ``Given an Message Handler``() =
         cell.Mailbox.Post(Message.create<int> None 10)
 
         if resultGate.WaitOne(10000)
-        then !result |> should equal 10
+        then Assert.AreEqual(10, !result)
         else Assert.Fail("No result timeout")
 
     [<Test>]
@@ -63,7 +62,7 @@ type ``Given an Message Handler``() =
         Async.Start(producer)
 
         if resultGate.WaitOne(2000)
-        then !result |> should equal 10
+        then Assert.AreEqual(10, !result)
         else Assert.Fail("No result timeout") 
 
     [<Test>]
@@ -91,7 +90,7 @@ type ``Given an Message Handler``() =
         Async.Start(producer)
 
         if resultGate.WaitOne(1000)
-        then !result |> should equal None
+        then Assert.AreEqual(None, !result)
         else Assert.Fail("No result timeout") 
 
     [<Test>]
@@ -108,7 +107,7 @@ type ``Given an Message Handler``() =
 
       
         if resultGate.WaitOne(1000)
-        then !result |> should equal None
+        then Assert.AreEqual(None, !result)
         else Assert.Fail("No result timeout")
 
     [<Test>]
@@ -127,7 +126,7 @@ type ``Given an Message Handler``() =
         cell.Mailbox.Post(Message.create<int> (Some cell.Self) 10)
 
         if resultGate.WaitOne(1000)
-        then !result |> should equal (ActorSelection([cell.Self]))
+        then Assert.AreEqual(ActorSelection([cell.Self]), !result)
         else Assert.Fail("No result timeout")
 
 

@@ -2,7 +2,6 @@
 
 open System.Threading
 open NUnit.Framework
-open FsUnit
 open Cricket
 
 [<TestFixture; Category("Unit")>]
@@ -18,7 +17,7 @@ type ``Given an event stream``() =
         es.Publish(10)
 
         if resultGate.WaitOne(1000)
-        then !result |> should equal 10
+        then Assert.AreEqual(10, !result)
         else Assert.Fail("No result timeout") 
 
      [<Test>]
@@ -32,12 +31,12 @@ type ``Given an event stream``() =
 
         if resultGate.WaitOne(2000)
         then 
-            !result |> should equal 10
+            Assert.AreEqual(10, !result)
             es.Unsubscribe<int>()
             Thread.Sleep(1000)
             es.Publish(12)
             resultGate.WaitOne(2000) |> ignore
-            !result <> 12 |> should be True
+            Assert.AreNotEqual(12, !result)
         else Assert.Fail("No result timeout") 
 
      [<Test>]
@@ -53,12 +52,12 @@ type ``Given an event stream``() =
         es.Publish("counters", 10)
         if resultGate.WaitOne(2000)
         then 
-            !result |> should equal 10
+            Assert.AreEqual(10, !result)
             es.Unsubscribe("counters")
             Thread.Sleep(1000)
             es.Publish("counters", 12)
             resultGate.WaitOne(2000) |> ignore
-            !result <> 12 |> should be True
+            Assert.AreNotEqual(12, !result)
         else Assert.Fail("No result timeout") 
         
 
@@ -72,5 +71,5 @@ type ``Given an event stream``() =
         es.Publish("counters", 10)
 
         if resultGate.WaitOne(2000)
-        then !result |> should equal 10
+        then Assert.AreEqual(10, !result)
         else Assert.Fail("No result timeout") 

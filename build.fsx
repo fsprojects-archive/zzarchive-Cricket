@@ -130,8 +130,13 @@ Target "NuGet" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Generate the documentation
 
+Target "GenerateReferenceDocs" (fun _ ->
+    if not <| executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:REFERENCE"] [] then
+      failwith "generating reference documentation failed"
+)
+
 Target "GenerateDocs" (fun _ ->
-    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"] [] |> ignore
+    executeFSIWithArgs "docs/tools" "generate.fsx" ["--define:RELEASE"; "--define:HELP"] [] |> ignore
 )
 
 // --------------------------------------------------------------------------------------
@@ -169,11 +174,13 @@ Target "BuildDocs" DoNothing
 "All"
   ==> "CleanDocs"
   ==> "GenerateDocs"
+  ==> "GenerateReferenceDocs"
   ==> "BuildDocs"
 
 "All" 
   ==> "CleanDocs"
   ==> "GenerateDocs"
+  ==> "GenerateReferenceDocs"
   ==> "ReleaseDocs"
   ==> "NuGet"
   ==> "Release"

@@ -39,6 +39,10 @@
 * Serailizer options now removed from Actor Host and placed in remoting
 * Updated documentation
 
-#### 0.0.10-alpha - Unreleased
+#### 0.0.10-alpha - November 15th 2014
 * Added actor lifecycle events - pre/post (Startup, Restart and Shutdown)
 * Fixed failing tests on mono and windows
+
+### 0.0.11-alpha - November 19th 2015
+* Fixed reference documentation
+* Removed half baked remoting solution

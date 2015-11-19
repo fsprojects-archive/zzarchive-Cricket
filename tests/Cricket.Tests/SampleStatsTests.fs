@@ -2,7 +2,6 @@
 
 open System
 open NUnit.Framework
-open FsUnit
 open Cricket
 open Cricket.Math.Statistics
 
@@ -14,40 +13,40 @@ type ``Given a set of data I can incremetally compute``() =
 
     [<Test>]
     member t.``the max of the data``() = 
-        result.Max |> should be (equalWithin 0.0001 4) 
+        Assert.That(result.Max, Is.EqualTo(4).Within(0.0001))
 
     [<Test>]
     member t.``the min of the data``() = 
-        result.Min |> should be (equalWithin 0.0001 -3)
+        Assert.That(result.Min, Is.EqualTo(-3).Within(0.0001))
         
     [<Test>]
     member t.``the sum of the data``() = 
-        result.Sum |> should be (equalWithin 0.0001 2)
+        Assert.That(result.Sum, Is.EqualTo(2).Within(0.0001))
 
     [<Test>]
     member t.``the sample size of the data``() = 
-        result.Count |> should be (equalWithin 0.0001 5)  
+        Assert.That(result.Count, Is.EqualTo(5).Within(0.0001)) 
         
     [<Test>]
     member t.``the mean of the data``() = 
-        result.Mean |> should be (equalWithin 0.0001 0.4)
+        Assert.That(result.Mean, Is.EqualTo(0.4).Within(0.0001))
 
     [<Test>]
     member t.``the variance of the data``() = 
-        result.Variance |> should be (equalWithin 0.0001 8.3) 
+        Assert.That(result.Variance, Is.EqualTo(8.3).Within(0.0001))
         
     [<Test>]
     member t.``the standard deviation of the data``() = 
-        result.StandardDeviation |> should be (equalWithin 0.0001 2.8809)
-        
+        Assert.That(result.StandardDeviation, Is.EqualTo(2.8809).Within(0.0001))
+            
     [<Test>]
     member t.``the skewness of the data``() = 
-        result.Skewness |> should be (equalWithin 0.0001 -0.02525)
+        Assert.That(result.Skewness, Is.EqualTo(-0.02525).Within(0.0001))
         
     [<Test>]
     member t.``the kurtosis of the data``() = 
-        result.Kurtosis |> should be (equalWithin 0.0001 1.5489)
+        Assert.That(result.Kurtosis, Is.EqualTo(1.5489).Within(0.0001))
         
     [<Test>]
-    member t.``the excess kurtosis of the data``() = 
-        result.ExcessKurtosis |> should be (equalWithin 0.0001 -1.4511)               
+    member t.``the excess kurtosis of the data``() =
+        Assert.That(result.ExcessKurtosis, Is.EqualTo(-1.4511).Within(0.0001))               

@@ -22,10 +22,11 @@ let info =
 // For typical project, no changes are needed below
 // --------------------------------------------------------------------------------------
 
+#I "../../packages/FSharpVSPowerTools.Core/lib/net45"
 #I "../../packages/FSharp.Formatting/lib/net40"
 #I "../../packages/RazorEngine/lib/net40"
 #I "../../packages/FSharp.Compiler.Service/lib/net40"
-#r "../../packages/Microsoft.AspNet.Razor/lib/net40/System.Web.Razor.dll"
+#r "../../packages/Microsoft.AspNet.Razor/lib/net45/System.Web.Razor.dll"
 #r "../../packages/FAKE/tools/FakeLib.dll"
 #r "RazorEngine.dll"
 #r "FSharp.Literate.dll"
@@ -52,12 +53,20 @@ let output     = __SOURCE_DIRECTORY__ @@ "../output"
 let files      = __SOURCE_DIRECTORY__ @@ "../files"
 let templates  = __SOURCE_DIRECTORY__ @@ "templates"
 let formatting = __SOURCE_DIRECTORY__ @@ "../../packages/FSharp.Formatting/"
-let docTemplate = formatting @@ "templates/docpage.cshtml"
+let docTemplate = "docpage.cshtml"
 
 // Where to look for *.csproj templates (in this order)
-let layoutRoots =
-  [ templates; formatting @@ "templates"
-    formatting @@ "templates/reference" ]
+let layoutRootsAll = new System.Collections.Generic.Dictionary<string, string list>()
+layoutRootsAll.Add("en",[ templates; formatting @@ "templates"
+                          formatting @@ "templates/reference" ])
+subDirectories (directoryInfo templates)
+|> Seq.iter (fun d ->
+                let name = d.Name
+                if name.Length = 2 || name.Length = 3 then
+                    layoutRootsAll.Add(
+                            name, [templates @@ name
+                                   formatting @@ "templates"
+                                   formatting @@ "templates/reference" ]))
 
 // Copy static files and CSS + JS from F# Formatting
 let copyFiles () =
@@ -66,31 +75,77 @@ let copyFiles () =
   CopyRecursive (formatting @@ "styles") (output @@ "content") true 
     |> Log "Copying styles and scripts: "
 
+let binaries =
+    let manuallyAdded = 
+        referenceBinaries 
+        |> List.map (fun b -> bin @@ b)
+    
+    let conventionBased = 
+        directoryInfo bin 
+        |> subDirectories
+        |> Array.map (fun d -> d.FullName @@ (sprintf "%s.dll" d.Name))
+        |> List.ofArray
+
+    conventionBased @ manuallyAdded
+
+let libDirs =
+    let conventionBasedbinDirs =
+        directoryInfo bin 
+        |> subDirectories
+        |> Array.map (fun d -> d.FullName)
+        |> List.ofArray
+
+    conventionBasedbinDirs @ [bin]
+
 // Build API reference from XML comments
 let buildReference () =
   CleanDir (output @@ "reference")
-  for lib in referenceBinaries do
-    MetadataFormat.Generate
-      ( bin @@ lib, output @@ "reference", layoutRoots, 
-        parameters = ("root", root)::info,
-        sourceRepo = githubLink @@ "tree/master",
-        sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
-        publicOnly = true )
+  MetadataFormat.Generate
+    ( binaries, output @@ "reference", layoutRootsAll.["en"],
+      parameters = ("root", root)::info,
+      sourceRepo = githubLink @@ "tree/master",
+      sourceFolder = __SOURCE_DIRECTORY__ @@ ".." @@ "..",
+      publicOnly = true,libDirs = libDirs )
 
 // Build documentation from `fsx` and `md` files in `docs/content`
 let buildDocumentation () =
   let fsi = FsiEvaluator()
-  let subdirs = Directory.EnumerateDirectories(content, "*", SearchOption.AllDirectories)
-  for dir in Seq.append [content] subdirs do
-    let sub = if dir.Length > content.Length then dir.Substring(content.Length + 1) else "."
+  // First, process files which are placed in the content root directory.
+  printfn "Content: %s" content
+  Literate.ProcessDirectory
+    ( content, docTemplate, output, replacements = ("root", root)::info,
+      lineNumbers = false,
+      layoutRoots = layoutRootsAll.["en"],
+      generateAnchors = true,
+      processRecursive = false,
+      fsiEvaluator = fsi )
+
+  // And then process files which are placed in the sub directories
+  // (some sub directories might be for specific language).
+
+  let subdirs = Directory.EnumerateDirectories(content, "*", SearchOption.TopDirectoryOnly)
+  for dir in subdirs do
+    let dirname = (new DirectoryInfo(dir)).Name
+    let layoutRoots =
+        // Check whether this directory name is for specific language
+        let key = layoutRootsAll.Keys
+                  |> Seq.tryFind (fun i -> i = dirname)
+        match key with
+        | Some lang -> layoutRootsAll.[lang]
+        | None -> layoutRootsAll.["en"] // "en" is the default language
+
     Literate.ProcessDirectory
-      ( dir, docTemplate, output @@ sub, replacements = ("root", root)::info,
-        layoutRoots = layoutRoots,
+      ( dir, docTemplate, output @@ dirname, replacements = ("root", root)::info,
         lineNumbers = false,
+        layoutRoots = layoutRoots,
         generateAnchors = true,
         fsiEvaluator = fsi )
 
 // Generate
 copyFiles()
+#if HELP
 buildDocumentation()
+#endif
+#if REFERENCE
 buildReference()
+#endif
