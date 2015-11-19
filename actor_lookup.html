@@ -147,14 +147,14 @@ a few examples are:</p>
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/stats/mean]</code></pre></td></tr></table>
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/stats/mean]</code></pre></td></tr></table>
 
 <pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">selection2</span> <span class="o">=</span> <span class="o">!!</span><span class="s">&quot;/models/stats/mean&quot;</span>
 </code></pre>
 
 <p>which gives us</p>
 
-<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/stats/mean]</code></pre></td></tr></table>
+<table class="pre"><tr><td><pre><code>ActorSelection [ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/stats/mean]</code></pre></td></tr></table>
 
 <pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs16', 18)" onmouseover="showTip(event, 'fs16', 18)" class="i">selection3</span> <span class="o">=</span> <span class="o">!!</span>[<span class="s">&quot;/models/agg/total/*&quot;</span>; <span class="s">&quot;/models/stats/mean&quot;</span>]
 </code></pre>
@@ -162,9 +162,9 @@ a few examples are:</p>
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/agg/total/month;
-   ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/agg/total/year;
-   ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/stats/mean]</code></pre></td></tr></table>
+  [ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/agg/total/month;
+   ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/agg/total/year;
+   ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/stats/mean]</code></pre></td></tr></table>
 
 <p>for a complete list see <a href="https://github.com/fsprojects/Cricket/blob/master/src/Cricket/ActorSelection.fs#L12">here</a>.</p>
 
@@ -179,8 +179,8 @@ all you to take an <code>ActorSelection</code> create a new actor selection. For
 <p>which gives us</p>
 
 <table class="pre"><tr><td><pre><code>ActorSelection
-  [ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/agg/total/month;
-   ActorRef actor://PI-LON-PCD00135_Fsi_9332@*/models/agg/total/year]</code></pre></td></tr></table>
+  [ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/agg/total/month;
+   ActorRef actor://PI-LON-PCD00135_Fsi_20064@*/models/agg/total/year]</code></pre></td></tr></table>
 
 <div class="tip" id="fs1">namespace Cricket</div>
 <div class="tip" id="fs2">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;static member Dispose : unit -&gt; unit<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>

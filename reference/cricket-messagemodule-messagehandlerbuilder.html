@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>MessageHandlerBuilder - Cricket</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content="Colin Bull"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/Cricket/content/style.css" />
+    <script type="text/javascript" src="/Cricket/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsprojects/Cricket">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Cricket/index.html">Cricket</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+
+
+
+<h1>MessageHandlerBuilder</h1>
+<p>
+  <span>Namespace: Cricket</span><br />
+  <span>Parent Module: <a href="cricket-messagemodule.html">Message</a></span>
+</p>
+<div class="xmldoc">
+</div>
+  <h3>Constructors</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Constructor</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '131', 131)" onmouseover="showTip(event, '131', 131)">
+            new()
+          </code>
+          <div class="tip" id="131">
+            <strong>Signature:</strong> unit -&gt; MessageHandlerBuilder<br />
+                      </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L106-106" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Instance members</h3>
+  <table class="table table-bordered member-list">
+    <thead>
+      <tr><td>Instance member</td><td>Description</td></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '132', 132)" onmouseover="showTip(event, '132', 132)">
+            Bind(a, f)
+          </code>
+          <div class="tip" id="132">
+            <strong>Signature:</strong> (a:Async&lt;&#39;?7694&gt; * f:(&#39;?7694 -&gt; MessageHandler&lt;&#39;?7695,&#39;?7696&gt;)) -&gt; MessageHandler&lt;&#39;?7695,&#39;?7696&gt;<br />
+                          <strong>Type parameters:</strong> '?7694, '?7695, '?7696          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L115-115" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '133', 133)" onmouseover="showTip(event, '133', 133)">
+            Bind(arg1, f)
+          </code>
+          <div class="tip" id="133">
+            <strong>Signature:</strong> (MessageHandler&lt;&#39;?7690,&#39;?7691&gt; * f:(&#39;?7691 -&gt; MessageHandler&lt;&#39;?7690,&#39;?7692&gt;)) -&gt; MessageHandler&lt;&#39;?7690,&#39;?7692&gt;<br />
+                          <strong>Type parameters:</strong> '?7690, '?7691, '?7692          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L107-107" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '134', 134)" onmouseover="showTip(event, '134', 134)">
+            Combine(c1, c2)
+          </code>
+          <div class="tip" id="134">
+            <strong>Signature:</strong> (c1:MessageHandler&lt;&#39;?7709,unit&gt; * c2:MessageHandler&lt;&#39;?7709,&#39;?7710&gt;) -&gt; MessageHandler&lt;&#39;?7709,&#39;?7710&gt;<br />
+                          <strong>Type parameters:</strong> '?7709, '?7710          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L137-137" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '135', 135)" onmouseover="showTip(event, '135', 135)">
+            Delay(f)
+          </code>
+          <div class="tip" id="135">
+            <strong>Signature:</strong> (f:(unit -&gt; MessageHandler&lt;&#39;?7706,&#39;?7707&gt;)) -&gt; MessageHandler&lt;&#39;?7706,&#39;?7707&gt;<br />
+                          <strong>Type parameters:</strong> '?7706, '?7707          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L135-135" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '136', 136)" onmouseover="showTip(event, '136', 136)">
+            For(sq, f)
+          </code>
+          <div class="tip" id="136">
+            <strong>Signature:</strong> (sq:seq&lt;&#39;a&gt; * f:(&#39;a -&gt; MessageHandler&lt;&#39;b,&#39;c&gt;)) -&gt; MessageHandler&lt;&#39;b,unit&gt;<br />
+                          <strong>Type parameters:</strong> 'a, 'b, 'c          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L153-153" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '137', 137)" onmouseover="showTip(event, '137', 137)">
+            Return(m)
+          </code>
+          <div class="tip" id="137">
+            <strong>Signature:</strong> m:&#39;?7698 -&gt; MessageHandler&lt;ActorCell&lt;&#39;?7699&gt;,&#39;?7698&gt;<br />
+                          <strong>Type parameters:</strong> '?7698, '?7699          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L124-124" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '138', 138)" onmouseover="showTip(event, '138', 138)">
+            ReturnFrom(arg1)
+          </code>
+          <div class="tip" id="138">
+            <strong>Signature:</strong> MessageHandler&lt;ActorCell&lt;&#39;?7701&gt;,&#39;?7702&gt; -&gt; MessageHandler&lt;ActorCell&lt;&#39;?7701&gt;,&#39;?7702&gt;<br />
+                          <strong>Type parameters:</strong> '?7701, '?7702          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L129-129" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '139', 139)" onmouseover="showTip(event, '139', 139)">
+            TryFinally(arg1, comp)
+          </code>
+          <div class="tip" id="139">
+            <strong>Signature:</strong> (MessageHandler&lt;&#39;?7716,&#39;?7717&gt; * comp:(unit -&gt; unit)) -&gt; MessageHandler&lt;&#39;?7716,&#39;?7717&gt;<br />
+                          <strong>Type parameters:</strong> '?7716, '?7717          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L141-141" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '140', 140)" onmouseover="showTip(event, '140', 140)">
+            TryWith(arg1, comp)
+          </code>
+          <div class="tip" id="140">
+            <strong>Signature:</strong> (MessageHandler&lt;&#39;?7719,&#39;?7720&gt; * comp:(exn -&gt; MessageHandler&lt;&#39;?7719,&#39;?7720&gt;)) -&gt; MessageHandler&lt;&#39;?7719,&#39;?7720&gt;<br />
+                          <strong>Type parameters:</strong> '?7719, '?7720          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L144-144" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '141', 141)" onmouseover="showTip(event, '141', 141)">
+            Using(r, f)
+          </code>
+          <div class="tip" id="141">
+            <strong>Signature:</strong> (r:&#39;?7712 * f:(&#39;?7712 -&gt; MessageHandler&lt;&#39;?7713,&#39;?7714&gt;)) -&gt; MessageHandler&lt;&#39;?7713,&#39;?7714&gt;<br />
+                          <strong>Type parameters:</strong> '?7712, '?7713, '?7714          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L139-139" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '142', 142)" onmouseover="showTip(event, '142', 142)">
+            While(t, f)
+          </code>
+          <div class="tip" id="142">
+            <strong>Signature:</strong> (t:(unit -&gt; bool) * f:(unit -&gt; MessageHandler&lt;&#39;?7726,unit&gt;)) -&gt; MessageHandler&lt;&#39;?7726,unit&gt;<br />
+                          <strong>Type parameters:</strong> '?7726          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L159-159" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+      <tr>
+        <td class="member-name">
+
+          <code onmouseout="hideTip(event, '143', 143)" onmouseover="showTip(event, '143', 143)">
+            Zero()
+          </code>
+          <div class="tip" id="143">
+            <strong>Signature:</strong> unit -&gt; MessageHandler&lt;&#39;?7704,unit&gt;<br />
+                          <strong>Type parameters:</strong> '?7704          </div>
+        </td>
+        <td class="xmldoc">
+            <a href="https://github.com/fsprojects/Cricket/tree/master/src/Cricket/Message.fs#L134-134" class="github-link">
+              <img src="../content/img/github.png" class="normal" />
+              <img src="../content/img/github-blue.png" class="hover" />
+            </a>
+          
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+        </div>
+        <div class="span3">
+          <img src="/Cricket/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Cricket</li>
+            <li><a href="/Cricket/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.com/packages/Cricket">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Cricket/tutorial.html">Tutorial</a></li>
+            <li class="nav-header">Documentation</li>
+			<li><a href="/Cricket/remoting.html">Remoting</a></li>
+			<li><a href="/Cricket/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/Cricket/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/Cricket/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/Cricket/diagnostics_metrics.html">Metrics</a></li>
+            <li><a href="/Cricket/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsprojects/Cricket"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
