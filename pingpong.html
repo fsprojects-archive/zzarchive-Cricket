@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Ping - Pong
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="An actor framework for F#"/>
+    <meta name="author" content="Colin Bull"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/Cricket/content/style.css" />
+    <script type="text/javascript" src="/Cricket/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsprojects/Cricket">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Cricket/index.html">Cricket</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Ping-Pong" class="anchor" href="#Ping-Pong">Ping - Pong</a></h1>
+
+<p>This example consists of two actors Ping and Pong that exchange a set of messages. When the Ping actor is created
+a counter is initialized in this case to 100000. Once this counter reaches zero the messages stop flowing and the 
+actors shutdown. The message cascade is started by the Ping actor which sends a Ping message to the Pong actor, 
+which then returns a Pong message back to the Ping actor, which then decrements its count.</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="t">ActorHost</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="f">Start</span>()<span class="o">.</span><span class="f">SubscribeEvents</span>(<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">evnt</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="t">ActorEvent</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="f">printfn</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs4', 7)" onmouseover="showTip(event, 'fs4', 7)" class="i">evnt</span>) <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs7', 8)" onmouseover="showTip(event, 'fs7', 8)" class="f">ignore</span>
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="t">PingPong</span> <span class="o">=</span>
+    | <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="p">Ping</span>
+    | <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="p">Pong</span>
+    | <span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="p">Stop</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="f">ping</span> <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">count</span> <span class="o">=</span>
+    <span onmouseout="hideTip(event, 'fs14', 15)" onmouseover="showTip(event, 'fs14', 15)" class="i">actor</span> {
+        <span onmouseout="hideTip(event, 'fs15', 16)" onmouseover="showTip(event, 'fs15', 16)" class="k">name</span> <span class="s">&quot;ping&quot;</span>
+        <span onmouseout="hideTip(event, 'fs16', 17)" onmouseover="showTip(event, 'fs16', 17)" class="k">body</span> (
+                <span class="k">let</span> <span onmouseout="hideTip(event, 'fs17', 18)" onmouseover="showTip(event, 'fs17', 18)" class="i">pong</span> <span class="o">=</span> <span class="o">!~</span><span class="s">&quot;pong&quot;</span>
+
+                <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs18', 19)" onmouseover="showTip(event, 'fs18', 19)" class="f">loop</span> <span onmouseout="hideTip(event, 'fs13', 20)" onmouseover="showTip(event, 'fs13', 20)" class="i">count</span> <span class="o">=</span> 
+                    <span onmouseout="hideTip(event, 'fs19', 21)" onmouseover="showTip(event, 'fs19', 21)" class="i">messageHandler</span> {
+                        <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs20', 22)" onmouseover="showTip(event, 'fs20', 22)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 23)" onmouseover="showTip(event, 'fs21', 23)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs22', 24)" onmouseover="showTip(event, 'fs22', 24)" class="f">receive</span>()
+                        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs20', 25)" onmouseover="showTip(event, 'fs20', 25)" class="i">msg</span> <span class="k">with</span>
+                        | <span onmouseout="hideTip(event, 'fs10', 26)" onmouseover="showTip(event, 'fs10', 26)" class="p">Pong</span> <span class="k">when</span> <span onmouseout="hideTip(event, 'fs13', 27)" onmouseover="showTip(event, 'fs13', 27)" class="i">count</span> <span class="o">&gt;</span> <span class="n">0</span> <span class="k">-&gt;</span>
+                              <span class="k">if</span> <span onmouseout="hideTip(event, 'fs13', 28)" onmouseover="showTip(event, 'fs13', 28)" class="i">count</span> <span class="o">%</span> <span class="n">1000</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs6', 29)" onmouseover="showTip(event, 'fs6', 29)" class="f">printfn</span> <span class="s">&quot;Ping: ping </span><span class="pf">%d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs13', 30)" onmouseover="showTip(event, 'fs13', 30)" class="i">count</span>
+                              <span class="k">do!</span> <span onmouseout="hideTip(event, 'fs21', 31)" onmouseover="showTip(event, 'fs21', 31)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 32)" onmouseover="showTip(event, 'fs23', 32)" class="f">post</span> <span onmouseout="hideTip(event, 'fs17', 33)" onmouseover="showTip(event, 'fs17', 33)" class="i">pong</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 34)" onmouseover="showTip(event, 'fs24', 34)" class="i">Value</span> <span onmouseout="hideTip(event, 'fs9', 35)" onmouseover="showTip(event, 'fs9', 35)" class="p">Ping</span>
+                              <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs18', 36)" onmouseover="showTip(event, 'fs18', 36)" class="f">loop</span> (<span onmouseout="hideTip(event, 'fs13', 37)" onmouseover="showTip(event, 'fs13', 37)" class="i">count</span> <span class="o">-</span> <span class="n">1</span>)
+                        | <span onmouseout="hideTip(event, 'fs9', 38)" onmouseover="showTip(event, 'fs9', 38)" class="p">Ping</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="f">failwithf</span> <span class="s">&quot;Ping: received a ping message, panic...&quot;</span>
+                        | _ <span class="k">-&gt;</span> <span class="k">do!</span> <span onmouseout="hideTip(event, 'fs21', 40)" onmouseover="showTip(event, 'fs21', 40)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 41)" onmouseover="showTip(event, 'fs23', 41)" class="f">post</span> <span onmouseout="hideTip(event, 'fs17', 42)" onmouseover="showTip(event, 'fs17', 42)" class="i">pong</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs24', 43)" onmouseover="showTip(event, 'fs24', 43)" class="i">Value</span> <span onmouseout="hideTip(event, 'fs11', 44)" onmouseover="showTip(event, 'fs11', 44)" class="p">Stop</span>
+                    }
+                
+                <span onmouseout="hideTip(event, 'fs18', 45)" onmouseover="showTip(event, 'fs18', 45)" class="f">loop</span> <span onmouseout="hideTip(event, 'fs13', 46)" onmouseover="showTip(event, 'fs13', 46)" class="i">count</span>        
+           ) 
+    }
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs26', 47)" onmouseover="showTip(event, 'fs26', 47)" class="i">pong</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs14', 48)" onmouseover="showTip(event, 'fs14', 48)" class="i">actor</span> {
+        <span onmouseout="hideTip(event, 'fs15', 49)" onmouseover="showTip(event, 'fs15', 49)" class="k">name</span> <span class="s">&quot;pong&quot;</span>
+        <span onmouseout="hideTip(event, 'fs16', 50)" onmouseover="showTip(event, 'fs16', 50)" class="k">body</span> (
+            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs18', 51)" onmouseover="showTip(event, 'fs18', 51)" class="f">loop</span> <span onmouseout="hideTip(event, 'fs13', 52)" onmouseover="showTip(event, 'fs13', 52)" class="i">count</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs19', 53)" onmouseover="showTip(event, 'fs19', 53)" class="i">messageHandler</span> {
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs20', 54)" onmouseover="showTip(event, 'fs20', 54)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs21', 55)" onmouseover="showTip(event, 'fs21', 55)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs22', 56)" onmouseover="showTip(event, 'fs22', 56)" class="f">receive</span>()
+                <span class="k">match</span> <span onmouseout="hideTip(event, 'fs20', 57)" onmouseover="showTip(event, 'fs20', 57)" class="i">msg</span> <span class="k">with</span>
+                | <span onmouseout="hideTip(event, 'fs9', 58)" onmouseover="showTip(event, 'fs9', 58)" class="p">Ping</span> <span class="k">-&gt;</span> 
+                      <span class="k">if</span> <span onmouseout="hideTip(event, 'fs13', 59)" onmouseover="showTip(event, 'fs13', 59)" class="i">count</span> <span class="o">%</span> <span class="n">1000</span> <span class="o">=</span> <span class="n">0</span> <span class="k">then</span> <span onmouseout="hideTip(event, 'fs6', 60)" onmouseover="showTip(event, 'fs6', 60)" class="f">printfn</span> <span class="s">&quot;Pong: ping </span><span class="pf">%d</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs13', 61)" onmouseover="showTip(event, 'fs13', 61)" class="i">count</span>
+                      <span class="k">do!</span> <span onmouseout="hideTip(event, 'fs21', 62)" onmouseover="showTip(event, 'fs21', 62)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 63)" onmouseover="showTip(event, 'fs27', 63)" class="f">reply</span> <span onmouseout="hideTip(event, 'fs10', 64)" onmouseover="showTip(event, 'fs10', 64)" class="p">Pong</span>
+                      <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs18', 65)" onmouseover="showTip(event, 'fs18', 65)" class="f">loop</span> (<span onmouseout="hideTip(event, 'fs13', 66)" onmouseover="showTip(event, 'fs13', 66)" class="i">count</span> <span class="o">+</span> <span class="n">1</span>)
+                | <span onmouseout="hideTip(event, 'fs10', 67)" onmouseover="showTip(event, 'fs10', 67)" class="p">Pong</span> _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs25', 68)" onmouseover="showTip(event, 'fs25', 68)" class="f">failwithf</span> <span class="s">&quot;Pong: received a pong message, panic...&quot;</span>
+                | _ <span class="k">-&gt;</span> ()
+            }
+            <span onmouseout="hideTip(event, 'fs18', 69)" onmouseover="showTip(event, 'fs18', 69)" class="f">loop</span> <span class="n">0</span>        
+        ) 
+    }
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 70)" onmouseover="showTip(event, 'fs28', 70)" class="i">pingRef</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 71)" onmouseover="showTip(event, 'fs29', 71)" class="t">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 72)" onmouseover="showTip(event, 'fs30', 72)" class="f">spawn</span> (<span onmouseout="hideTip(event, 'fs12', 73)" onmouseover="showTip(event, 'fs12', 73)" class="f">ping</span> <span class="n">10000</span>)
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs31', 74)" onmouseover="showTip(event, 'fs31', 74)" class="i">pongRef</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs29', 75)" onmouseover="showTip(event, 'fs29', 75)" class="t">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 76)" onmouseover="showTip(event, 'fs30', 76)" class="f">spawn</span> <span onmouseout="hideTip(event, 'fs26', 77)" onmouseover="showTip(event, 'fs26', 77)" class="i">pong</span>
+
+<span onmouseout="hideTip(event, 'fs28', 78)" onmouseover="showTip(event, 'fs28', 78)" class="i">pingRef</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs10', 79)" onmouseover="showTip(event, 'fs10', 79)" class="p">Pong</span>
+</code></pre>
+
+<div class="tip" id="fs1">namespace Cricket</div>
+<div class="tip" id="fs2">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;static member Dispose : unit -&gt; unit<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
+<div class="tip" id="fs3">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:System.Threading.CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs4">val evnt : ActorEvent</div>
+<div class="tip" id="fs5">type ActorEvent =<br />&#160;&#160;| ActorStarted of ActorRef<br />&#160;&#160;| ActorShutdown of ActorRef<br />&#160;&#160;| ActorRestart of ActorRef<br />&#160;&#160;| ActorErrored of ActorRef * exn<br />&#160;&#160;| ActorLinked of ActorRef * ActorRef<br />&#160;&#160;| ActorUnLinked of ActorRef * ActorRef<br /><br />Full name: Cricket.ActorEvent</div>
+<div class="tip" id="fs6">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs7">val ignore : value:&#39;T -&gt; unit<br /><br />Full name: Microsoft.FSharp.Core.Operators.ignore</div>
+<div class="tip" id="fs8">type PingPong =<br />&#160;&#160;| Ping<br />&#160;&#160;| Pong<br />&#160;&#160;| Stop<br /><br />Full name: Pingpong.PingPong</div>
+<div class="tip" id="fs9">union case PingPong.Ping: PingPong</div>
+<div class="tip" id="fs10">union case PingPong.Pong: PingPong</div>
+<div class="tip" id="fs11">union case PingPong.Stop: PingPong</div>
+<div class="tip" id="fs12">val ping : count:int -&gt; ActorConfiguration&lt;PingPong&gt;<br /><br />Full name: Pingpong.ping</div>
+<div class="tip" id="fs13">val count : int</div>
+<div class="tip" id="fs14">val actor : ActorConfigurationBuilder<br /><br />Full name: Cricket.ActorConfiguration.actor</div>
+<div class="tip" id="fs15">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
+<div class="tip" id="fs16">custom operation: body (MessageHandler&lt;ActorCell&lt;&#39;a&gt;,unit&gt;)<br /><br />Calls ActorConfigurationBuilder.Body </div>
+<div class="tip" id="fs17">val pong : Lazy&lt;ActorSelection&gt;</div>
+<div class="tip" id="fs18">val loop : (int -&gt; MessageHandler&lt;ActorCell&lt;PingPong&gt;,unit&gt;)</div>
+<div class="tip" id="fs19">val messageHandler : Message.MessageHandlerBuilder<br /><br />Full name: Cricket.ActorConfiguration.messageHandler</div>
+<div class="tip" id="fs20">val msg : PingPong</div>
+<div class="tip" id="fs21">Multiple items<br />module Message<br /><br />from Cricket<br /><br />--------------------<br />type Message&lt;&#39;a&gt; =<br />&#160;&#160;{Id: uint64 option;<br />&#160;&#160;&#160;Sender: ActorRef;<br />&#160;&#160;&#160;Message: &#39;a;}<br /><br />Full name: Cricket.Message&lt;_&gt;</div>
+<div class="tip" id="fs22">val receive : unit -&gt; MessageHandler&lt;ActorCell&lt;&#39;a&gt;,&#39;a&gt;<br /><br />Full name: Cricket.Message.receive</div>
+<div class="tip" id="fs23">val post : targets:&#39;a -&gt; msg:&#39;b -&gt; MessageHandler&lt;ActorCell&lt;&#39;c&gt;,unit&gt;<br /><br />Full name: Cricket.Message.post</div>
+<div class="tip" id="fs24">property System.Lazy.Value: ActorSelection</div>
+<div class="tip" id="fs25">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs26">val pong : ActorConfiguration&lt;PingPong&gt;<br /><br />Full name: Pingpong.pong</div>
+<div class="tip" id="fs27">val reply : msg:&#39;a -&gt; MessageHandler&lt;ActorCell&lt;&#39;b&gt;,unit&gt;<br /><br />Full name: Cricket.Message.reply</div>
+<div class="tip" id="fs28">val pingRef : ActorRef<br /><br />Full name: Pingpong.pingRef</div>
+<div class="tip" id="fs29">Multiple items<br />module Actor<br /><br />from Cricket<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: Cricket.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs30">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: Cricket.Actor.spawn</div>
+<div class="tip" id="fs31">val pongRef : ActorRef<br /><br />Full name: Pingpong.pongRef</div>
+
+        </div>
+        <div class="span3">
+          <img src="/Cricket/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Cricket</li>
+            <li><a href="/Cricket/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.com/packages/Cricket">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Cricket/tutorial.html">Tutorial</a></li>
+            <li class="nav-header">Documentation</li>
+			<li><a href="/Cricket/remoting.html">Remoting</a></li>
+			<li><a href="/Cricket/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/Cricket/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/Cricket/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/Cricket/diagnostics_metrics.html">Metrics</a></li>
+            <li><a href="/Cricket/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsprojects/Cricket"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>

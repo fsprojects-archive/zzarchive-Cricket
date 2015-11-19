@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>supervisors_error_recovery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="An actor framework for F#"/>
+    <meta name="author" content="Colin Bull"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/Cricket/content/style.css" />
+    <script type="text/javascript" src="/Cricket/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsprojects/Cricket">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Cricket/index.html">Cricket</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h2><a name="Supervisors-and-Error-Recovery" class="anchor" href="#Supervisors-and-Error-Recovery">Supervisors and Error Recovery</a></h2>
+
+<p>Code fails. In a conventional programming model you would typically trap this error by using a try/catch statement around the code that could fail and
+then decided the appropriate action for each of the type of exceptions. The same is true of actors, within a message handling loop we can define try/catch blocks,</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="t">ActorHost</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">Start</span>()<span class="o">.</span><span class="f">SubscribeEvents</span>(<span class="k">fun</span> (<span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">e</span><span class="o">:</span><span onmouseout="hideTip(event, 'fs6', 6)" onmouseover="showTip(event, 'fs6', 6)" class="t">ActorEvent</span>) <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs7', 7)" onmouseover="showTip(event, 'fs7', 7)" class="f">printfn</span> <span class="s">&quot;</span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">e</span>)
+</code></pre>
+
+<p><strong>Note:</strong> here we are subscribing to actor events, so we get a log of when an actor changes status.</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs8', 9)" onmouseover="showTip(event, 'fs8', 9)" class="i">actorWithExceptionHandling</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs9', 10)" onmouseover="showTip(event, 'fs9', 10)" class="i">actor</span> {
+        <span onmouseout="hideTip(event, 'fs10', 11)" onmouseover="showTip(event, 'fs10', 11)" class="k">name</span> <span class="s">&quot;i_handle_exceptions&quot;</span>
+        <span onmouseout="hideTip(event, 'fs11', 12)" onmouseover="showTip(event, 'fs11', 12)" class="k">body</span> (
+            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs12', 13)" onmouseover="showTip(event, 'fs12', 13)" class="f">loop</span>() <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 14)" onmouseover="showTip(event, 'fs13', 14)" class="i">messageHandler</span> {
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs14', 15)" onmouseover="showTip(event, 'fs14', 15)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 16)" onmouseover="showTip(event, 'fs15', 16)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 17)" onmouseover="showTip(event, 'fs16', 17)" class="f">receive</span>()
+
+                <span class="k">try</span>
+                    <span onmouseout="hideTip(event, 'fs17', 18)" onmouseover="showTip(event, 'fs17', 18)" class="f">invalidOp</span> (<span onmouseout="hideTip(event, 'fs18', 19)" onmouseover="showTip(event, 'fs18', 19)" class="f">sprintf</span> <span class="s">&quot;Lets, go bang - </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs14', 20)" onmouseover="showTip(event, 'fs14', 20)" class="i">msg</span>)
+                <span class="k">with</span> 
+                   | <span class="o">:?</span> <span onmouseout="hideTip(event, 'fs19', 21)" onmouseover="showTip(event, 'fs19', 21)" class="t">InvalidOperationException</span> <span class="k">as</span> <span onmouseout="hideTip(event, 'fs20', 22)" onmouseover="showTip(event, 'fs20', 22)" class="i">e</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs21', 23)" onmouseover="showTip(event, 'fs21', 23)" class="f">printf</span> <span class="s">&quot;Safetly caught </span><span class="pf">%A</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs20', 24)" onmouseover="showTip(event, 'fs20', 24)" class="i">e</span>
+
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs12', 25)" onmouseover="showTip(event, 'fs12', 25)" class="f">loop</span>()
+            }
+            <span onmouseout="hideTip(event, 'fs12', 26)" onmouseover="showTip(event, 'fs12', 26)" class="f">loop</span>()
+        )
+    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs22', 27)" onmouseover="showTip(event, 'fs22', 27)" class="t">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 28)" onmouseover="showTip(event, 'fs23', 28)" class="f">spawn</span>
+
+<span onmouseout="hideTip(event, 'fs8', 29)" onmouseover="showTip(event, 'fs8', 29)" class="i">actorWithExceptionHandling</span> <span class="o">&lt;--</span> <span class="s">&quot;Errrorrr&quot;</span>
+</code></pre>
+
+<p>This is all very well and good, but what if an unexpected error occurs, another type of exception. In this case our actor is going to simply shutdown and stop responding to any messages
+which is far from ideal. So what are the options in this case; we could continue adding matches until all possible cases are covered or take the pokemon (gotta catch them all) exception handling approach 
+and just catch everything. These would have the effect of making our actor loop robust but at the cost of determinisism. Additionally what if other actors need to respond to this actor erroring, this
+actor would have to now know about all other actors that <strong>could</strong> be effected by this, leading to a very tightly coupled design.</p>
+
+<h2><a name="Enter-Supervisors" class="anchor" href="#Enter-Supervisors">Enter Supervisors</a></h2>
+
+<p>Supervisors are a concept well known in the <a href="http://www.erlang.org/doc/man/supervisor.html">erlang community</a> although similar there are a few minor differences in the Cricket implementation see <a href="supervisors_error_recovery.html#Differences-From-Erlang">here</a>. 
+Essentially a supervisor does exactly what it says on the tin. It supervisors other actors. If an actor errors and is <code>linked</code> to a supervisor then the supervisor will tell that actor to either 
+shutdown or restart depending on the strategy it has been set. Of course these aren't the only options but that will be <a href="supervisors_error_recovery.html#supervisor-strategies">covered later</a>.</p>
+
+<p>To give an example of supervisors in action, lets take the <code>actorWithExceptionHandling</code> from before and remove the exception handling.</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs24', 30)" onmouseover="showTip(event, 'fs24', 30)" class="i">failingActor1</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs9', 31)" onmouseover="showTip(event, 'fs9', 31)" class="i">actor</span> { 
+        <span onmouseout="hideTip(event, 'fs10', 32)" onmouseover="showTip(event, 'fs10', 32)" class="k">name</span> <span class="s">&quot;failing_actor_1&quot;</span>
+        <span onmouseout="hideTip(event, 'fs11', 33)" onmouseover="showTip(event, 'fs11', 33)" class="k">body</span> (
+            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs12', 34)" onmouseover="showTip(event, 'fs12', 34)" class="f">loop</span>() <span class="o">=</span> <span onmouseout="hideTip(event, 'fs13', 35)" onmouseover="showTip(event, 'fs13', 35)" class="i">messageHandler</span> {
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs14', 36)" onmouseover="showTip(event, 'fs14', 36)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs15', 37)" onmouseover="showTip(event, 'fs15', 37)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs16', 38)" onmouseover="showTip(event, 'fs16', 38)" class="f">receive</span>()
+                <span onmouseout="hideTip(event, 'fs25', 39)" onmouseover="showTip(event, 'fs25', 39)" class="f">failwithf</span> <span class="s">&quot;Lets, go bang - </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs14', 40)" onmouseover="showTip(event, 'fs14', 40)" class="i">msg</span>
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs12', 41)" onmouseover="showTip(event, 'fs12', 41)" class="f">loop</span>()
+            }
+            <span onmouseout="hideTip(event, 'fs12', 42)" onmouseover="showTip(event, 'fs12', 42)" class="f">loop</span>()
+        )
+    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs22', 43)" onmouseover="showTip(event, 'fs22', 43)" class="t">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 44)" onmouseover="showTip(event, 'fs23', 44)" class="f">spawn</span>  
+
+<span onmouseout="hideTip(event, 'fs24', 45)" onmouseover="showTip(event, 'fs24', 45)" class="i">failingActor1</span> <span class="o">&lt;--</span> <span class="s">&quot;Bang!&quot;</span>
+</code></pre>
+
+<p>this actor is now started and if I send a message to it it will simply throw and exception and shutdown. Running this in interactive, gives the following output,</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">val</span> <span class="i">it</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs26', 46)" onmouseover="showTip(event, 'fs26', 46)" class="i">unit</span> <span class="o">=</span> ()
+<span class="o">&gt;</span> <span class="i">ActorErrored</span>
+  (<span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_3856@*/failing_actor_1,</span>
+   <span onmouseout="hideTip(event, 'fs1', 47)" onmouseover="showTip(event, 'fs1', 47)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 48)" onmouseover="showTip(event, 'fs27', 48)" class="i">Exception</span><span class="o">:</span> <span class="i">Lets</span>, <span class="i">go</span> <span class="i">bang</span> <span class="o">-</span> <span class="i">Bang!</span>
+   <span class="i">at</span> <span onmouseout="hideTip(event, 'fs28', 49)" onmouseover="showTip(event, 'fs28', 49)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 50)" onmouseover="showTip(event, 'fs29', 50)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 51)" onmouseover="showTip(event, 'fs30', 51)" class="i">Core</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 52)" onmouseover="showTip(event, 'fs31', 52)" class="i">Operators</span><span class="o">.</span><span class="i">FailWith</span>[<span class="i">T</span>](<span onmouseout="hideTip(event, 'fs32', 53)" onmouseover="showTip(event, 'fs32', 53)" class="i">String</span> <span class="i">message</span>)
+   <span class="i">at</span> <span class="i">FSI_0003</span><span class="o">.</span><span class="i">loop</span><span class="o">@</span><span class="n">66</span><span class="o">-</span><span class="n">2.Invoke</span>(<span onmouseout="hideTip(event, 'fs32', 54)" onmouseover="showTip(event, 'fs32', 54)" class="i">String</span> <span class="i">_arg1</span>) <span class="k">in</span> <span class="i">D</span><span class="o">:</span>
+   <span class="i">at</span> <span class="i">Cricket</span><span class="o">.</span><span class="i">MessageModule</span><span class="o">.</span><span class="i">Bind</span><span class="o">@</span><span class="n">109</span><span class="o">-</span><span class="n">2.Invoke</span>(<span class="i">a2</span> <span class="i">_arg5</span>) <span class="k">in</span> <span class="i">D</span><span class="o">:</span>
+   <span class="i">at</span> <span onmouseout="hideTip(event, 'fs28', 55)" onmouseover="showTip(event, 'fs28', 55)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 56)" onmouseover="showTip(event, 'fs29', 56)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 57)" onmouseover="showTip(event, 'fs33', 57)" class="i">Control</span><span class="o">.</span><span class="i">AsyncBuilderImpl</span><span class="o">.</span><span class="i">args</span><span class="o">@</span><span class="n">797</span><span class="o">-</span><span class="n">1.Invoke</span>(<span class="i">a</span> <span class="i">a</span>))
+<span class="i">ActorShutdown</span> (<span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_3856@*/failing_actor_1)</span>
+</code></pre>
+
+<p>from this point onwards it is not possible to send another message to this actor as it has been shutdown. To prevent this we can link this actor to a supervisor.</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 58)" onmouseover="showTip(event, 'fs34', 58)" class="i">supervisor</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs34', 59)" onmouseover="showTip(event, 'fs34', 59)" class="i">supervisor</span> {
+        <span onmouseout="hideTip(event, 'fs35', 60)" onmouseover="showTip(event, 'fs35', 60)" class="k">name</span> <span class="s">&quot;supervisor&quot;</span>
+        <span onmouseout="hideTip(event, 'fs36', 61)" onmouseover="showTip(event, 'fs36', 61)" class="k">link</span> <span onmouseout="hideTip(event, 'fs24', 62)" onmouseover="showTip(event, 'fs24', 62)" class="i">failingActor1</span>
+        <span onmouseout="hideTip(event, 'fs37', 63)" onmouseover="showTip(event, 'fs37', 63)" class="k">strategy</span> <span onmouseout="hideTip(event, 'fs38', 64)" onmouseover="showTip(event, 'fs38', 64)" class="t">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 65)" onmouseover="showTip(event, 'fs39', 65)" class="f">oneForOne</span>
+    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs38', 66)" onmouseover="showTip(event, 'fs38', 66)" class="t">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 67)" onmouseover="showTip(event, 'fs40', 67)" class="f">spawn</span>
+
+<span onmouseout="hideTip(event, 'fs24', 68)" onmouseover="showTip(event, 'fs24', 68)" class="i">failingActor1</span> <span class="o">&lt;--</span> <span class="s">&quot;Bang!&quot;</span>
+</code></pre>
+
+<p>Now when we send a message to out <code>failingActor1</code> reference we get the following</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="i">ActorLinked</span>
+  (<span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_7664@*/supervisor,</span>
+   <span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_7664@*/failing_actor_1)</span>
+</code></pre>
+
+<p>this is the supervisor creating a link to the actor reference, telling it to redirect any errors or shutdown traps to this supervisor. And also,</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">val</span> <span class="i">it</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs26', 69)" onmouseover="showTip(event, 'fs26', 69)" class="i">unit</span> <span class="o">=</span> ()
+<span class="o">&gt;</span> <span class="i">ActorErrored</span>
+  (<span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_7664@*/failing_actor_1,</span>
+   <span onmouseout="hideTip(event, 'fs1', 70)" onmouseover="showTip(event, 'fs1', 70)" class="i">System</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 71)" onmouseover="showTip(event, 'fs27', 71)" class="i">Exception</span><span class="o">:</span> <span class="i">Lets</span>, <span class="i">go</span> <span class="i">bang</span> <span class="o">-</span> <span class="i">Bang!</span>
+   <span class="i">at</span> <span onmouseout="hideTip(event, 'fs28', 72)" onmouseover="showTip(event, 'fs28', 72)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 73)" onmouseover="showTip(event, 'fs29', 73)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 74)" onmouseover="showTip(event, 'fs30', 74)" class="i">Core</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 75)" onmouseover="showTip(event, 'fs31', 75)" class="i">Operators</span><span class="o">.</span><span class="i">FailWith</span>[<span class="i">T</span>](<span onmouseout="hideTip(event, 'fs32', 76)" onmouseover="showTip(event, 'fs32', 76)" class="i">String</span> <span class="i">message</span>)
+   <span class="i">at</span> <span class="i">FSI_0003</span><span class="o">.</span><span class="i">loop</span><span class="o">@</span><span class="n">66</span><span class="o">-</span><span class="n">2.Invoke</span>(<span onmouseout="hideTip(event, 'fs32', 77)" onmouseover="showTip(event, 'fs32', 77)" class="i">String</span> <span class="i">_arg1</span>) <span class="k">in</span> <span class="i">D</span><span class="o">:</span>
+   <span class="i">at</span> <span class="i">Cricket</span><span class="o">.</span><span class="i">MessageModule</span><span class="o">.</span><span class="i">Bind</span><span class="o">@</span><span class="n">109</span><span class="o">-</span><span class="n">2.Invoke</span>(<span class="i">a2</span> <span class="i">_arg5</span>) <span class="k">in</span> <span class="i">D</span><span class="o">:</span>
+   <span class="i">at</span> <span onmouseout="hideTip(event, 'fs28', 78)" onmouseover="showTip(event, 'fs28', 78)" class="i">Microsoft</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs29', 79)" onmouseover="showTip(event, 'fs29', 79)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs33', 80)" onmouseover="showTip(event, 'fs33', 80)" class="i">Control</span><span class="o">.</span><span class="i">AsyncBuilderImpl</span><span class="o">.</span><span class="i">args</span><span class="o">@</span><span class="n">797</span><span class="o">-</span><span class="n">1.Invoke</span>(<span class="i">a</span> <span class="i">a</span>))
+<span class="i">ActorRestart</span> (<span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_7664@*/failing_actor_1)</span>
+<span class="i">ActorStarted</span> (<span class="i">ActorRef</span> <span class="i">actor</span><span class="o">:</span><span class="c">//HP20024950_Fsi_7664@*/failing_actor_1)</span>
+</code></pre>
+
+<p>which is nearly the same as before but notice the two additional events at the end of the trace. This is the supervisor restarting the actor so it is 
+able to consume more messages.</p>
+
+<p>An important thing to notice here is that when we defined the actor we statically referenced the actor we wanted to link to, aditionally that actor 
+must also be started. This is because the actor needs to send a <code>SystemMessage</code> to the actor telling it to <code>Link</code> to the supervisor. This however is
+not desirable in all systems. Some systems can be far more dynamic in nature. To overcome this static linking restriction we can dynamically link actors.</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs41', 81)" onmouseover="showTip(event, 'fs41', 81)" class="i">dynamicsupervisor</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs34', 82)" onmouseover="showTip(event, 'fs34', 82)" class="i">supervisor</span> {
+        <span class="i">name</span> <span class="s">&quot;dynamic_supervisor&quot;</span>
+        <span class="i">strategy</span> <span onmouseout="hideTip(event, 'fs38', 83)" onmouseover="showTip(event, 'fs38', 83)" class="i">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs39', 84)" onmouseover="showTip(event, 'fs39', 84)" class="i">oneForOne</span>
+    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs38', 85)" onmouseover="showTip(event, 'fs38', 85)" class="t">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 86)" onmouseover="showTip(event, 'fs40', 86)" class="f">spawn</span>
+
+<span onmouseout="hideTip(event, 'fs38', 87)" onmouseover="showTip(event, 'fs38', 87)" class="t">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 88)" onmouseover="showTip(event, 'fs42', 88)" class="f">link</span> <span onmouseout="hideTip(event, 'fs24', 89)" onmouseover="showTip(event, 'fs24', 89)" class="i">failingActor1</span> <span onmouseout="hideTip(event, 'fs41', 90)" onmouseover="showTip(event, 'fs41', 90)" class="i">dynamicsupervisor</span>
+
+<span onmouseout="hideTip(event, 'fs24', 91)" onmouseover="showTip(event, 'fs24', 91)" class="i">failingActor1</span> <span class="o">&lt;--</span> <span class="s">&quot;Bang!&quot;</span>
+</code></pre>
+
+<p>Which has now restored the same behaviour as before. In addition to creating links between actors we can also unlink them.</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs38', 92)" onmouseover="showTip(event, 'fs38', 92)" class="t">Supervisor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 93)" onmouseover="showTip(event, 'fs43', 93)" class="f">unlink</span> <span onmouseout="hideTip(event, 'fs24', 94)" onmouseover="showTip(event, 'fs24', 94)" class="i">failingActor1</span> <span onmouseout="hideTip(event, 'fs41', 95)" onmouseover="showTip(event, 'fs41', 95)" class="i">dynamicsupervisor</span>
+
+<span onmouseout="hideTip(event, 'fs24', 96)" onmouseover="showTip(event, 'fs24', 96)" class="i">failingActor1</span> <span class="o">&lt;--</span> <span class="s">&quot;Bang!&quot;</span>
+</code></pre>
+
+<p>Once an actor is unlinked it is on its own. Sending a message to this actor that causes an error would once again cause the actor to shutdown.</p>
+
+<p>There is a couple of interesting things to note about linking and not linking actors.</p>
+
+<ul>
+<li><p>Actors can only be linked to a single supervisor - If I called link on the same actor ref to two different supervisors <code>A</code> then <code>B</code> then only supervisor <code>B</code>
+will recieve messages from the actor. However the actor will still be known to <code>A</code> thus it is possible for <code>A</code> to shutdown the actor if another actor under supervisor <code>A</code>
+supervision fails.</p></li>
+<li><p>Multiple calls to unlink an actor from a supervisor will have no effect, and if the actor is not there in the first place no error will be thrown.</p></li>
+<li><p>If the actor strategy is such that the supervisor tells the actor to shutdown the supervisor will still hold a reference to that actor.</p></li>
+</ul>
+
+<h2><a name="Supervisor-Strategies" class="anchor" href="#Supervisor-Strategies">Supervisor Strategies</a></h2>
+
+<p>Supervisor Stratgies define the way in which the supervisor handles errors from its children. By default Cricket defines the following.</p>
+
+<h3><a name="Fail" class="anchor" href="#Fail">Fail</a></h3>
+
+<p>This strategy simply just shutsdown the actor that errored. Not really any different to the actor failing on its own.</p>
+
+<h3><a name="Fail-All" class="anchor" href="#Fail-All">Fail All</a></h3>
+
+<p>When any actor in the supervisors tree fails, the supervisor will shutdown all other actors in the tree.</p>
+
+<h3><a name="OneForOne" class="anchor" href="#OneForOne">OneForOne</a></h3>
+
+<p>This is the default. When an actor in the supervisor tree errors that actor is simply restarted. No messages are sent to any other actors in the tree.</p>
+
+<h3><a name="OneForAll" class="anchor" href="#OneForAll">OneForAll</a></h3>
+
+<p>When any actor in the tree encounters an error the supervisor will restart all of the other actors.</p>
+
+<h2><a name="Differences-from-Erlang" class="anchor" href="#Differences-from-Erlang">Differences from Erlang</a></h2>
+
+<p>In erlang actors control the startup, shutdown and restarting of actors. This is not the case in Cricket. In Cricket supervisors do indeed have the ability
+to shutdown and restart the actors, and actors will notify supervisors on errors, shutdown and restart events but they do not control the lifecycle of the actors.</p>
+
+<div class="tip" id="fs1">namespace System</div>
+<div class="tip" id="fs2">namespace Cricket</div>
+<div class="tip" id="fs3">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;static member Dispose : unit -&gt; unit<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
+<div class="tip" id="fs4">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?registry:ActorRegistry * ?metrics:Diagnostics.MetricsConfiguration * ?tracing:Diagnostics.TracingConfiguration * ?cancellationToken:Threading.CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs5">val e : ActorEvent</div>
+<div class="tip" id="fs6">type ActorEvent =<br />&#160;&#160;| ActorStarted of ActorRef<br />&#160;&#160;| ActorShutdown of ActorRef<br />&#160;&#160;| ActorRestart of ActorRef<br />&#160;&#160;| ActorErrored of ActorRef * exn<br />&#160;&#160;| ActorLinked of ActorRef * ActorRef<br />&#160;&#160;| ActorUnLinked of ActorRef * ActorRef<br /><br />Full name: Cricket.ActorEvent</div>
+<div class="tip" id="fs7">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs8">val actorWithExceptionHandling : ActorRef<br /><br />Full name: Supervisors_error_recovery.actorWithExceptionHandling</div>
+<div class="tip" id="fs9">val actor : ActorConfigurationBuilder<br /><br />Full name: Cricket.ActorConfiguration.actor</div>
+<div class="tip" id="fs10">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
+<div class="tip" id="fs11">custom operation: body (MessageHandler&lt;ActorCell&lt;&#39;a&gt;,unit&gt;)<br /><br />Calls ActorConfigurationBuilder.Body </div>
+<div class="tip" id="fs12">val loop : (unit -&gt; MessageHandler&lt;ActorCell&lt;string&gt;,&#39;a&gt;)</div>
+<div class="tip" id="fs13">val messageHandler : Message.MessageHandlerBuilder<br /><br />Full name: Cricket.ActorConfiguration.messageHandler</div>
+<div class="tip" id="fs14">val msg : string</div>
+<div class="tip" id="fs15">Multiple items<br />module Message<br /><br />from Cricket<br /><br />--------------------<br />type Message&lt;&#39;a&gt; =<br />&#160;&#160;{Id: uint64 option;<br />&#160;&#160;&#160;Sender: ActorRef;<br />&#160;&#160;&#160;Message: &#39;a;}<br /><br />Full name: Cricket.Message&lt;_&gt;</div>
+<div class="tip" id="fs16">val receive : unit -&gt; MessageHandler&lt;ActorCell&lt;&#39;a&gt;,&#39;a&gt;<br /><br />Full name: Cricket.Message.receive</div>
+<div class="tip" id="fs17">val invalidOp : message:string -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.Operators.invalidOp</div>
+<div class="tip" id="fs18">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs19">Multiple items<br />type InvalidOperationException =<br />&#160;&#160;inherit SystemException<br />&#160;&#160;new : unit -&gt; InvalidOperationException + 2 overloads<br /><br />Full name: System.InvalidOperationException<br /><br />--------------------<br />InvalidOperationException() : unit<br />InvalidOperationException(message: string) : unit<br />InvalidOperationException(message: string, innerException: exn) : unit</div>
+<div class="tip" id="fs20">val e : InvalidOperationException</div>
+<div class="tip" id="fs21">val printf : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printf</div>
+<div class="tip" id="fs22">Multiple items<br />module Actor<br /><br />from Cricket<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: Cricket.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs23">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: Cricket.Actor.spawn</div>
+<div class="tip" id="fs24">val failingActor1 : ActorRef<br /><br />Full name: Supervisors_error_recovery.failingActor1</div>
+<div class="tip" id="fs25">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs26">type unit = Unit<br /><br />Full name: Microsoft.FSharp.Core.unit</div>
+<div class="tip" id="fs27">Multiple items<br />type Exception =<br />&#160;&#160;new : unit -&gt; Exception + 2 overloads<br />&#160;&#160;member Data : IDictionary<br />&#160;&#160;member GetBaseException : unit -&gt; Exception<br />&#160;&#160;member GetObjectData : info:SerializationInfo * context:StreamingContext -&gt; unit<br />&#160;&#160;member GetType : unit -&gt; Type<br />&#160;&#160;member HelpLink : string with get, set<br />&#160;&#160;member InnerException : Exception<br />&#160;&#160;member Message : string<br />&#160;&#160;member Source : string with get, set<br />&#160;&#160;member StackTrace : string<br />&#160;&#160;...<br /><br />Full name: System.Exception<br /><br />--------------------<br />System.Exception() : unit<br />System.Exception(message: string) : unit<br />System.Exception(message: string, innerException: exn) : unit</div>
+<div class="tip" id="fs28">namespace Microsoft</div>
+<div class="tip" id="fs29">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs30">namespace Microsoft.FSharp.Core</div>
+<div class="tip" id="fs31">module Operators<br /><br />from Microsoft.FSharp.Core</div>
+<div class="tip" id="fs32">module String<br /><br />from Microsoft.FSharp.Core</div>
+<div class="tip" id="fs33">namespace Microsoft.FSharp.Control</div>
+<div class="tip" id="fs34">val supervisor : ActorRef<br /><br />Full name: Supervisors_error_recovery.supervisor</div>
+<div class="tip" id="fs35">custom operation: name (string)<br /><br />Calls SupervisorConfigurationBuilder.Name </div>
+<div class="tip" id="fs36">custom operation: link (&#39;a)<br /><br />Calls SupervisorConfigurationBuilder.Link </div>
+<div class="tip" id="fs37">custom operation: strategy (exn * ActorSelection * ActorSelection -&gt; MessageHandler&lt;ActorCell&lt;SupervisorMessage&gt;,unit&gt;)<br /><br />Calls SupervisorConfigurationBuilder.Body </div>
+<div class="tip" id="fs38">module Supervisor<br /><br />from Cricket</div>
+<div class="tip" id="fs39">val oneForOne : &#39;a * sender:&#39;b * &#39;c -&gt; MessageHandler&lt;ActorCell&lt;&#39;d&gt;,unit&gt;<br /><br />Full name: Cricket.Supervisor.oneForOne</div>
+<div class="tip" id="fs40">val spawn : config:SupervisorConfiguration -&gt; ActorRef<br /><br />Full name: Cricket.Supervisor.spawn</div>
+<div class="tip" id="fs41">val dynamicsupervisor : ActorRef<br /><br />Full name: Supervisors_error_recovery.dynamicsupervisor</div>
+<div class="tip" id="fs42">val link : ref:ActorRef -&gt; supervisor:&#39;a -&gt; unit<br /><br />Full name: Cricket.Supervisor.link</div>
+<div class="tip" id="fs43">val unlink : ref:ActorRef -&gt; supervisor:&#39;a -&gt; unit<br /><br />Full name: Cricket.Supervisor.unlink</div>
+
+        </div>
+        <div class="span3">
+          <img src="/Cricket/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Cricket</li>
+            <li><a href="/Cricket/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.com/packages/Cricket">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Cricket/tutorial.html">Tutorial</a></li>
+            <li class="nav-header">Documentation</li>
+			<li><a href="/Cricket/remoting.html">Remoting</a></li>
+			<li><a href="/Cricket/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/Cricket/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/Cricket/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/Cricket/diagnostics_metrics.html">Metrics</a></li>
+            <li><a href="/Cricket/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsprojects/Cricket"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>

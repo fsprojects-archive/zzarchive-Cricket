@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Metrics
+</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content="An actor framework for F#"/>
+    <meta name="author" content="Colin Bull"/>
+
+    <script src="https://code.jquery.com/jquery-1.8.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.8.23/jquery-ui.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/js/bootstrap.min.js"></script>
+    <link href="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.1/css/bootstrap-combined.min.css" rel="stylesheet"/>
+
+    <link type="text/css" rel="stylesheet" href="/Cricket/content/style.css" />
+    <script type="text/javascript" src="/Cricket/content/tips.js"></script>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="masthead">
+        <ul class="nav nav-pills pull-right">
+          <li><a href="http://fsharp.org">fsharp.org</a></li>
+          <li><a href="https://github.com/fsprojects/Cricket">github page</a></li>
+        </ul>
+        <h3 class="muted"><a href="/Cricket/index.html">Cricket</a></h3>
+      </div>
+      <hr />
+      <div class="row">
+        <div class="span9" id="main">
+          
+<h1><a name="Metrics" class="anchor" href="#Metrics">Metrics</a></h1>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="t">ActorHost</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 11)" onmouseover="showTip(event, 'fs9', 11)" class="f">Start</span>()
+
+<span class="k">type</span> <span onmouseout="hideTip(event, 'fs10', 12)" onmouseover="showTip(event, 'fs10', 12)" class="t">Say</span> <span class="o">=</span>
+    | <span onmouseout="hideTip(event, 'fs11', 13)" onmouseover="showTip(event, 'fs11', 13)" class="p">Hello</span>
+    | <span onmouseout="hideTip(event, 'fs12', 14)" onmouseover="showTip(event, 'fs12', 14)" class="p">HelloWorld</span>
+    | <span onmouseout="hideTip(event, 'fs13', 15)" onmouseover="showTip(event, 'fs13', 15)" class="p">Name</span> <span class="k">of</span> <span onmouseout="hideTip(event, 'fs14', 16)" onmouseover="showTip(event, 'fs14', 16)" class="t">string</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs15', 17)" onmouseover="showTip(event, 'fs15', 17)" class="i">greeter</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs16', 18)" onmouseover="showTip(event, 'fs16', 18)" class="i">actor</span> {
+        <span onmouseout="hideTip(event, 'fs17', 19)" onmouseover="showTip(event, 'fs17', 19)" class="k">name</span> <span class="s">&quot;greeter&quot;</span>
+        <span onmouseout="hideTip(event, 'fs18', 20)" onmouseover="showTip(event, 'fs18', 20)" class="k">body</span> (
+            <span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs19', 21)" onmouseover="showTip(event, 'fs19', 21)" class="f">loop</span>() <span class="o">=</span> <span onmouseout="hideTip(event, 'fs20', 22)" onmouseover="showTip(event, 'fs20', 22)" class="i">messageHandler</span> {
+                <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs21', 23)" onmouseover="showTip(event, 'fs21', 23)" class="i">msg</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs22', 24)" onmouseover="showTip(event, 'fs22', 24)" class="t">Message</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 25)" onmouseover="showTip(event, 'fs23', 25)" class="f">receive</span>() <span class="c">//Wait for a message</span>
+
+                <span class="k">match</span> <span onmouseout="hideTip(event, 'fs21', 26)" onmouseover="showTip(event, 'fs21', 26)" class="i">msg</span> <span class="k">with</span>
+                | <span onmouseout="hideTip(event, 'fs11', 27)" onmouseover="showTip(event, 'fs11', 27)" class="p">Hello</span> <span class="k">-&gt;</span>  <span onmouseout="hideTip(event, 'fs24', 28)" onmouseover="showTip(event, 'fs24', 28)" class="f">printfn</span> <span class="s">&quot;Hello&quot;</span> <span class="c">//Handle Hello leg</span>
+                | <span onmouseout="hideTip(event, 'fs12', 29)" onmouseover="showTip(event, 'fs12', 29)" class="p">HelloWorld</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 30)" onmouseover="showTip(event, 'fs24', 30)" class="f">printfn</span> <span class="s">&quot;Hello World&quot;</span> <span class="c">//Handle HelloWorld leg</span>
+                | <span onmouseout="hideTip(event, 'fs13', 31)" onmouseover="showTip(event, 'fs13', 31)" class="p">Name</span> <span onmouseout="hideTip(event, 'fs25', 32)" onmouseover="showTip(event, 'fs25', 32)" class="i">name</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 33)" onmouseover="showTip(event, 'fs24', 33)" class="f">printfn</span> <span class="s">&quot;Hello, </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs25', 34)" onmouseover="showTip(event, 'fs25', 34)" class="i">name</span> <span class="c">//Handle Name leg</span>
+                <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs19', 35)" onmouseover="showTip(event, 'fs19', 35)" class="f">loop</span>() <span class="c">//Recursively loop</span>
+
+            }
+            <span onmouseout="hideTip(event, 'fs19', 36)" onmouseover="showTip(event, 'fs19', 36)" class="f">loop</span>())
+    } <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs26', 37)" onmouseover="showTip(event, 'fs26', 37)" class="t">Actor</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs27', 38)" onmouseover="showTip(event, 'fs27', 38)" class="f">spawn</span>
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs28', 39)" onmouseover="showTip(event, 'fs28', 39)" class="i">cts</span> <span class="o">=</span> <span class="k">new</span> <span onmouseout="hideTip(event, 'fs29', 40)" onmouseover="showTip(event, 'fs29', 40)" class="t">CancellationTokenSource</span>()
+
+<span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs30', 41)" onmouseover="showTip(event, 'fs30', 41)" class="f">publisher</span>() <span class="o">=</span> <span onmouseout="hideTip(event, 'fs31', 42)" onmouseover="showTip(event, 'fs31', 42)" class="i">async</span> {
+    <span class="k">do</span> <span onmouseout="hideTip(event, 'fs15', 43)" onmouseover="showTip(event, 'fs15', 43)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs13', 44)" onmouseover="showTip(event, 'fs13', 44)" class="p">Name</span> <span class="s">&quot;Metrics&quot;</span>
+    <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs30', 45)" onmouseover="showTip(event, 'fs30', 45)" class="f">publisher</span>()
+}
+</code></pre>
+
+<p>Write the metrics out to a file on a background thread</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span class="k">rec</span> <span onmouseout="hideTip(event, 'fs32', 46)" onmouseover="showTip(event, 'fs32', 46)" class="f">reporter</span>() <span class="o">=</span> 
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs33', 47)" onmouseover="showTip(event, 'fs33', 47)" class="i">pickler</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 48)" onmouseover="showTip(event, 'fs34', 48)" class="i">FsPickler</span><span class="o">.</span><span class="i">CreateXml</span>()
+    <span onmouseout="hideTip(event, 'fs31', 49)" onmouseover="showTip(event, 'fs31', 49)" class="i">async</span> {
+       <span class="k">do!</span> <span onmouseout="hideTip(event, 'fs35', 50)" onmouseover="showTip(event, 'fs35', 50)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs36', 51)" onmouseover="showTip(event, 'fs36', 51)" class="f">Sleep</span>(<span class="n">5000</span>)
+       <span class="k">do</span> <span onmouseout="hideTip(event, 'fs37', 52)" onmouseover="showTip(event, 'fs37', 52)" class="t">File</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs38', 53)" onmouseover="showTip(event, 'fs38', 53)" class="f">WriteAllBytes</span>(<span class="s">@&quot;C:\temp\Example.metrics&quot;</span>, <span onmouseout="hideTip(event, 'fs39', 54)" onmouseover="showTip(event, 'fs39', 54)" class="t">Metrics</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs40', 55)" onmouseover="showTip(event, 'fs40', 55)" class="f">getReport</span>() <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs33', 56)" onmouseover="showTip(event, 'fs33', 56)" class="i">pickler</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 57)" onmouseover="showTip(event, 'fs41', 57)" class="i">Pickle</span>) 
+       <span class="k">return!</span> <span onmouseout="hideTip(event, 'fs32', 58)" onmouseover="showTip(event, 'fs32', 58)" class="f">reporter</span>()        
+    }
+</code></pre>
+
+<p>Start everything</p>
+
+<pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs35', 59)" onmouseover="showTip(event, 'fs35', 59)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 60)" onmouseover="showTip(event, 'fs42', 60)" class="f">Start</span>(<span onmouseout="hideTip(event, 'fs32', 61)" onmouseover="showTip(event, 'fs32', 61)" class="f">reporter</span>(), <span onmouseout="hideTip(event, 'fs28', 62)" onmouseover="showTip(event, 'fs28', 62)" class="i">cts</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 63)" onmouseover="showTip(event, 'fs43', 63)" class="i">Token</span>)  
+<span onmouseout="hideTip(event, 'fs35', 64)" onmouseover="showTip(event, 'fs35', 64)" class="t">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs42', 65)" onmouseover="showTip(event, 'fs42', 65)" class="f">Start</span>(<span onmouseout="hideTip(event, 'fs30', 66)" onmouseover="showTip(event, 'fs30', 66)" class="f">publisher</span>(), <span onmouseout="hideTip(event, 'fs28', 67)" onmouseover="showTip(event, 'fs28', 67)" class="i">cts</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs43', 68)" onmouseover="showTip(event, 'fs43', 68)" class="i">Token</span>)
+
+<span onmouseout="hideTip(event, 'fs28', 69)" onmouseover="showTip(event, 'fs28', 69)" class="i">cts</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs44', 70)" onmouseover="showTip(event, 'fs44', 70)" class="f">Cancel</span>()
+
+<span onmouseout="hideTip(event, 'fs15', 71)" onmouseover="showTip(event, 'fs15', 71)" class="i">greeter</span> <span class="o">&lt;--</span> <span onmouseout="hideTip(event, 'fs45', 72)" onmouseover="showTip(event, 'fs45', 72)" class="p">Shutdown</span>
+</code></pre>
+
+<p>Sample metrics output
+explain exponential weights, and different types of counters.</p>
+
+<div class="tip" id="fs1">namespace Cricket</div>
+<div class="tip" id="fs2">namespace Cricket.Diagnostics</div>
+<div class="tip" id="fs3">namespace System</div>
+<div class="tip" id="fs4">namespace System.IO</div>
+<div class="tip" id="fs5">namespace System.Threading</div>
+<div class="tip" id="fs6">namespace Nessos</div>
+<div class="tip" id="fs7">namespace Nessos.FsPickler</div>
+<div class="tip" id="fs8">type ActorHost =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;private new : configuration:ActorHostConfiguration -&gt; ActorHost<br />&#160;&#160;member private Configure : f:(ActorHostConfiguration -&gt; ActorHostConfiguration) -&gt; unit<br />&#160;&#160;member private RegisterActor : ref:ActorRef -&gt; unit<br />&#160;&#160;member private ResolveActor : name:ActorPath -&gt; ActorRef list<br />&#160;&#160;member SubscribeEvents : eventF:(&#39;a0 -&gt; unit) -&gt; ActorHost<br />&#160;&#160;member private CancelToken : CancellationToken<br />&#160;&#160;member private EventStream : IEventStream<br />&#160;&#160;member private Name : string<br />&#160;&#160;static member Dispose : unit -&gt; unit<br />&#160;&#160;...<br /><br />Full name: Cricket.ActorHost</div>
+<div class="tip" id="fs9">static member ActorHost.Start : ?name:string * ?loggers:ILogWriter list * ?registry:ActorRegistry * ?metrics:MetricsConfiguration * ?tracing:TracingConfiguration * ?cancellationToken:CancellationToken -&gt; ActorHost</div>
+<div class="tip" id="fs10">type Say =<br />&#160;&#160;| Hello<br />&#160;&#160;| HelloWorld<br />&#160;&#160;| Name of string<br /><br />Full name: Diagnostics_metrics.Say</div>
+<div class="tip" id="fs11">union case Say.Hello: Say</div>
+<div class="tip" id="fs12">union case Say.HelloWorld: Say</div>
+<div class="tip" id="fs13">union case Say.Name: string -&gt; Say</div>
+<div class="tip" id="fs14">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs15">val greeter : ActorRef<br /><br />Full name: Diagnostics_metrics.greeter</div>
+<div class="tip" id="fs16">val actor : ActorConfigurationBuilder<br /><br />Full name: Cricket.ActorConfiguration.actor</div>
+<div class="tip" id="fs17">custom operation: name (string)<br /><br />Calls ActorConfigurationBuilder.Name </div>
+<div class="tip" id="fs18">custom operation: body (MessageHandler&lt;ActorCell&lt;&#39;a&gt;,unit&gt;)<br /><br />Calls ActorConfigurationBuilder.Body </div>
+<div class="tip" id="fs19">val loop : (unit -&gt; MessageHandler&lt;ActorCell&lt;Say&gt;,&#39;a&gt;)</div>
+<div class="tip" id="fs20">val messageHandler : Message.MessageHandlerBuilder<br /><br />Full name: Cricket.ActorConfiguration.messageHandler</div>
+<div class="tip" id="fs21">val msg : Say</div>
+<div class="tip" id="fs22">Multiple items<br />module Message<br /><br />from Cricket<br /><br />--------------------<br />type Message&lt;&#39;a&gt; =<br />&#160;&#160;{Id: uint64 option;<br />&#160;&#160;&#160;Sender: ActorRef;<br />&#160;&#160;&#160;Message: &#39;a;}<br /><br />Full name: Cricket.Message&lt;_&gt;</div>
+<div class="tip" id="fs23">val receive : unit -&gt; MessageHandler&lt;ActorCell&lt;&#39;a&gt;,&#39;a&gt;<br /><br />Full name: Cricket.Message.receive</div>
+<div class="tip" id="fs24">val printfn : format:Printf.TextWriterFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.printfn</div>
+<div class="tip" id="fs25">val name : string</div>
+<div class="tip" id="fs26">Multiple items<br />module Actor<br /><br />from Cricket<br /><br />--------------------<br />type Actor&lt;&#39;a&gt; =<br />&#160;&#160;interface IDisposable<br />&#160;&#160;interface IActor&lt;&#39;a&gt;<br />&#160;&#160;interface IActor<br />&#160;&#160;new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;<br />&#160;&#160;override ToString : unit -&gt; string<br />&#160;&#160;member Ref : ActorRef<br /><br />Full name: Cricket.Actor&lt;_&gt;<br /><br />--------------------<br />new : defn:ActorConfiguration&lt;&#39;a&gt; -&gt; Actor&lt;&#39;a&gt;</div>
+<div class="tip" id="fs27">val spawn : config:ActorConfiguration&lt;&#39;a&gt; -&gt; ActorRef<br /><br />Full name: Cricket.Actor.spawn</div>
+<div class="tip" id="fs28">val cts : CancellationTokenSource<br /><br />Full name: Diagnostics_metrics.cts</div>
+<div class="tip" id="fs29">Multiple items<br />type CancellationTokenSource =<br />&#160;&#160;new : unit -&gt; CancellationTokenSource<br />&#160;&#160;member Cancel : unit -&gt; unit + 1 overload<br />&#160;&#160;member Dispose : unit -&gt; unit<br />&#160;&#160;member IsCancellationRequested : bool<br />&#160;&#160;member Token : CancellationToken<br />&#160;&#160;static member CreateLinkedTokenSource : [&lt;ParamArray&gt;] tokens:CancellationToken[] -&gt; CancellationTokenSource + 1 overload<br /><br />Full name: System.Threading.CancellationTokenSource<br /><br />--------------------<br />CancellationTokenSource() : unit</div>
+<div class="tip" id="fs30">val publisher : unit -&gt; Async&lt;&#39;a&gt;<br /><br />Full name: Diagnostics_metrics.publisher</div>
+<div class="tip" id="fs31">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
+<div class="tip" id="fs32">val reporter : unit -&gt; Async&lt;&#39;a&gt;<br /><br />Full name: Diagnostics_metrics.reporter</div>
+<div class="tip" id="fs33">val pickler : obj</div>
+<div class="tip" id="fs34">type FsPickler =<br />&#160;&#160;private new : unit -&gt; FsPickler<br />&#160;&#160;static member Clone : value:&#39;T * ?pickler:Pickler&lt;&#39;T&gt; * ?streamingContext:StreamingContext -&gt; &#39;T<br />&#160;&#160;static member ComputeHash : value:&#39;T * ?hashFactory:IHashStreamFactory -&gt; HashResult<br />&#160;&#160;static member ComputeSize : value:&#39;T * ?pickler:Pickler&lt;&#39;T&gt; -&gt; int64<br />&#160;&#160;static member CreateBinarySerializer : ?forceLittleEndian:bool * ?typeConverter:ITypeNameConverter -&gt; BinarySerializer<br />&#160;&#160;static member CreateObjectSizeCounter : ?encoding:Encoding * ?resetInterval:int64 -&gt; ObjectSizeCounter<br />&#160;&#160;static member CreateXmlSerializer : ?typeConverter:ITypeNameConverter * ?indent:bool -&gt; XmlSerializer<br />&#160;&#160;static member DeclareSerializable : unit -&gt; unit<br />&#160;&#160;static member DeclareSerializable : t:Type -&gt; unit<br />&#160;&#160;static member EnsureSerializable : graph:&#39;T * ?failOnCloneableOnlyTypes:bool -&gt; unit<br />&#160;&#160;...<br /><br />Full name: Nessos.FsPickler.FsPickler</div>
+<div class="tip" id="fs35">Multiple items<br />type Async<br />static member AsBeginEnd : computation:(&#39;Arg -&gt; Async&lt;&#39;T&gt;) -&gt; (&#39;Arg * AsyncCallback * obj -&gt; IAsyncResult) * (IAsyncResult -&gt; &#39;T) * (IAsyncResult -&gt; unit)<br />static member AwaitEvent : event:IEvent&lt;&#39;Del,&#39;T&gt; * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; (requires delegate and &#39;Del :&gt; Delegate)<br />static member AwaitIAsyncResult : iar:IAsyncResult * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member AwaitTask : task:Task -&gt; Async&lt;unit&gt;<br />static member AwaitTask : task:Task&lt;&#39;T&gt; -&gt; Async&lt;&#39;T&gt;<br />static member AwaitWaitHandle : waitHandle:WaitHandle * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member CancelDefaultToken : unit -&gt; unit<br />static member Catch : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;Choice&lt;&#39;T,exn&gt;&gt;<br />static member FromBeginEnd : beginAction:(AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg:&#39;Arg1 * beginAction:(&#39;Arg1 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * beginAction:(&#39;Arg1 * &#39;Arg2 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * arg3:&#39;Arg3 * beginAction:(&#39;Arg1 * &#39;Arg2 * &#39;Arg3 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromContinuations : callback:((&#39;T -&gt; unit) * (exn -&gt; unit) * (OperationCanceledException -&gt; unit) -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member Ignore : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;unit&gt;<br />static member OnCancel : interruption:(unit -&gt; unit) -&gt; Async&lt;IDisposable&gt;<br />static member Parallel : computations:seq&lt;Async&lt;&#39;T&gt;&gt; -&gt; Async&lt;&#39;T []&gt;<br />static member RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:CancellationToken -&gt; &#39;T<br />static member Sleep : millisecondsDueTime:int -&gt; Async&lt;unit&gt;<br />static member Start : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions * ?cancellationToken:CancellationToken -&gt; Task&lt;&#39;T&gt;<br />static member StartChild : computation:Async&lt;&#39;T&gt; * ?millisecondsTimeout:int -&gt; Async&lt;Async&lt;&#39;T&gt;&gt;<br />static member StartChildAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions -&gt; Async&lt;Task&lt;&#39;T&gt;&gt;<br />static member StartImmediate : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartWithContinuations : computation:Async&lt;&#39;T&gt; * continuation:(&#39;T -&gt; unit) * exceptionContinuation:(exn -&gt; unit) * cancellationContinuation:(OperationCanceledException -&gt; unit) * ?cancellationToken:CancellationToken -&gt; unit<br />static member SwitchToContext : syncContext:SynchronizationContext -&gt; Async&lt;unit&gt;<br />static member SwitchToNewThread : unit -&gt; Async&lt;unit&gt;<br />static member SwitchToThreadPool : unit -&gt; Async&lt;unit&gt;<br />static member TryCancelled : computation:Async&lt;&#39;T&gt; * compensation:(OperationCanceledException -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member CancellationToken : Async&lt;CancellationToken&gt;<br />static member DefaultCancellationToken : CancellationToken<br /><br />Full name: Microsoft.FSharp.Control.Async<br /><br />--------------------<br />type Async&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Control.Async&lt;_&gt;</div>
+<div class="tip" id="fs36">static member Async.Sleep : millisecondsDueTime:int -&gt; Async&lt;unit&gt;</div>
+<div class="tip" id="fs37">type File =<br />&#160;&#160;static member AppendAllLines : path:string * contents:IEnumerable&lt;string&gt; -&gt; unit + 1 overload<br />&#160;&#160;static member AppendAllText : path:string * contents:string -&gt; unit + 1 overload<br />&#160;&#160;static member AppendText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Copy : sourceFileName:string * destFileName:string -&gt; unit + 1 overload<br />&#160;&#160;static member Create : path:string -&gt; FileStream + 3 overloads<br />&#160;&#160;static member CreateText : path:string -&gt; StreamWriter<br />&#160;&#160;static member Decrypt : path:string -&gt; unit<br />&#160;&#160;static member Delete : path:string -&gt; unit<br />&#160;&#160;static member Encrypt : path:string -&gt; unit<br />&#160;&#160;static member Exists : path:string -&gt; bool<br />&#160;&#160;...<br /><br />Full name: System.IO.File</div>
+<div class="tip" id="fs38">File.WriteAllBytes(path: string, bytes: byte []) : unit</div>
+<div class="tip" id="fs39">module Metrics<br /><br />from Cricket.Diagnostics</div>
+<div class="tip" id="fs40">val getReport : unit -&gt; seq&lt;string * seq&lt;string * MetricValue&gt;&gt;<br /><br />Full name: Cricket.Diagnostics.Metrics.getReport</div>
+<div class="tip" id="fs41">Multiple items<br />type Pickle&lt;&#39;T&gt; =<br />&#160;&#160;new : bytes:byte [] -&gt; Pickle&lt;&#39;T&gt;<br />&#160;&#160;val mutable private bytes: byte []<br />&#160;&#160;member Bytes : byte []<br /><br />Full name: Nessos.FsPickler.ExtensionMethods.Pickle&lt;_&gt;<br /><br />--------------------<br />new : bytes:byte [] -&gt; Pickle&lt;&#39;T&gt;</div>
+<div class="tip" id="fs42">static member Async.Start : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit</div>
+<div class="tip" id="fs43">property CancellationTokenSource.Token: CancellationToken</div>
+<div class="tip" id="fs44">CancellationTokenSource.Cancel() : unit<br />CancellationTokenSource.Cancel(throwOnFirstException: bool) : unit</div>
+<div class="tip" id="fs45">union case SystemMessage.Shutdown: SystemMessage</div>
+
+        </div>
+        <div class="span3">
+          <img src="/Cricket/img/logo.png" alt="F# Project" style="width:150px;margin:10px" />  
+          <ul class="nav nav-list" id="menu" style="margin-top: 20px;">
+            <li class="nav-header">Cricket</li>
+            <li><a href="/Cricket/index.html">Home page</a></li>
+            <li class="divider"></li>
+            <li><a href="http://nuget.com/packages/Cricket">Get Library via NuGet</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket">Source Code on GitHub</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/LICENSE.txt">License</a></li>
+            <li><a href="https://github.com/fsprojects/Cricket/blob/master/RELEASE_NOTES.md">Release Notes</a></li>
+            
+            <li class="nav-header">Getting started</li>
+            <li><a href="/Cricket/tutorial.html">Tutorial</a></li>
+            <li class="nav-header">Documentation</li>
+			<li><a href="/Cricket/remoting.html">Remoting</a></li>
+			<li><a href="/Cricket/actor_lookup.html">Resolving Actors</a></li>
+			<li><a href="/Cricket/supervisors_error_recovery.html">Supervisors / Error handling</a></li>
+			<li><a href="/Cricket/diagnostics_tracing.html">Tracing</a></li>
+			<li><a href="/Cricket/diagnostics_metrics.html">Metrics</a></li>
+            <li><a href="/Cricket/reference/index.html">API Reference</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <a href="https://github.com/fsprojects/Cricket"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"/></a>
+  </body>
+  </html>
