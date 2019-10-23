@@ -1,7 +1,7 @@
 [![Issue Stats](http://issuestats.com/github/fsprojects/Cricket/badge/issue)](http://issuestats.com/github/fsprojects/Cricket)
 [![Issue Stats](http://issuestats.com/github/fsprojects/Cricket/badge/pr)](http://issuestats.com/github/fsprojects/Cricket)
 
-# Cricket [![NuGet Status](http://img.shields.io/nuget/v/Cricket.svg?style=flat)](https://www.nuget.org/packages/Cricket/)
+## Cricket [![NuGet Status](http://img.shields.io/nuget/v/Cricket.svg?style=flat)](https://www.nuget.org/packages/Cricket/)
 
 Cricket is an actor library. The actor programming model is inherently concurrent, an actor is a primitive that wraps a computation, the computation is ran by sending messages to the actor.
 The actor can then respond to the receipt of the message by executing one or more of the following actions (possibly concurrently),
@@ -29,7 +29,6 @@ making it very difficult for you to shoot or self in the foot.
     * [![Travis Build Status](https://travis-ci.org/fsprojects/Cricket.svg?branch=master)](https://travis-ci.org/fsprojects/Cricket)
 
 ## Simple Example
-
 
 	#r "Cricket.dll"
 	open Cricket
