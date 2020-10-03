@@ -10,7 +10,7 @@ The actor can then respond to the receipt of the message by executing one or mor
  * Send a another message to other actors
  * Change the behaviour to be used upon receipt of the next message.
 
-Currently there are a couple of actor libraries on the .NET platform
+Currently there are a couple of actor libraries on the .NET Framework platform
     
 * [AkkaDotNet](https://github.com/akkadotnet/akka.net) - This is a port of the scala based actor framework Akka. This is written in C# but does have an F# API.
 * [Orleans](http://research.microsoft.com/en-us/projects/orleans/) - This is a Microsoft research project aiming to simplfy the development of scalable cloud based services, with a high level of abstraction over the actor programming model.  
